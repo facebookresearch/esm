@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 99
+ignore = E203,W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    experimental
+    third_party
