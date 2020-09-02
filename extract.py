@@ -44,20 +44,14 @@ def create_parser():
         help="layers indices from which to extract representations (0 to num_layers, inclusive)",
     )
     parser.add_argument(
-        "--include-per-tok",
-        action="store_true",
-        help="Include token representations (seq_len x hidden_dim)",
+        "--include",
+        type=str,
+        nargs="+",
+        choices=["mean", "per_tok", "bos"],
+        help="specify which representations to return",
+        required=True
     )
-    parser.add_argument(
-        "--include-mean",
-        action="store_true",
-        help="Include sequence representations (hidden_dim)",
-    )
-    parser.add_argument(
-        "--include-bos",
-        action="store_true",
-        help="Include bos representation (hidden_dim)",
-    )
+
     parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
     return parser
 
@@ -105,17 +99,17 @@ def main(args):
                 )
                 args.output_file.parent.mkdir(parents=True, exist_ok=True)
                 result = {"label": label}
-                if args.include_per_tok:
+                if "per_tok" in args.include:
                     result["representations"] = {
                         layer: t[i, 1 : len(strs[i]) + 1]
                         for layer, t in representations.items()
                     }
-                if args.include_mean:
+                if "mean" in args.include:
                     result["mean_representations"] = {
                         layer: t[i, 1 : len(strs[i]) + 1].mean(0)
                         for layer, t in representations.items()
                     }
-                if args.include_bos:
+                if "bos" in args.include:
                     result["bos_representations"] = {
                         layer: t[i, 0] for layer, t in representations.items()
                     }
