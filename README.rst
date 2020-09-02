@@ -49,16 +49,16 @@ Then, you can load and use a pretrained model as follows:
     data = [("protein1", "MYLYQKIKN"), ("protein2", "MNAKYD")]
     batch_labels, batch_strs, batch_tokens = batch_converter(data)
 
-    # Extract per-residue representations (on CPU)
+    # Extract per-residue embeddings (on CPU)
     with torch.no_grad():
         results = model(batch_tokens, repr_layers=[34])
-    token_representations = results["representations"][34]
+    token_embeddings = results["representations"][34]
 
-    # Generate per-sequence representations via averaging
+    # Generate per-sequence embeddings via averaging
     # NOTE: token 0 is always a beginning-of-sequence token, so the first residue is token 1.
-    sequence_representations = []
+    sequence_embeddings = []
     for i, (_, seq) in enumerate(data):
-        sequence_representations.append(token_representations[i, 1:len(seq) + 1].mean(0))
+        sequence_embeddings.append(token_embeddings[i, 1:len(seq) + 1].mean(0))
 
 
 We also support PyTorch Hub, which removes the need to clone and/or install this repository yourself:
@@ -70,14 +70,14 @@ We also support PyTorch Hub, which removes the need to clone and/or install this
     model, alphabet = torch.hub.load("facebookresearch/esm", "esm1_t34_670M_UR50S")
 
 
-FASTA representation extractor
+FASTA embedding extractor
 ================
 
-For your convenience, we have provided a script that efficiently extracts representations in bulk from a FASTA file:
+For your convenience, we have provided a script that efficiently extracts embeddings in bulk from a FASTA file:
 
 .. code-block:: bash
 
-    # Extract final-layer representations for a FASTA file from a 34-layer model
+    # Extract final-layer embedding for a FASTA file from a 34-layer model
     $ python extract.py esm1_t34_670M_UR50S examples/some_proteins.fasta my_reprs/ \
         --repr_layers 0 32 34 --include mean per_tok
 
@@ -85,31 +85,38 @@ For your convenience, we have provided a script that efficiently extracts repres
 
     # my_reprs/ now contains one ".pt" file per FASTA sequence; use torch.load() to load them
     # extract.py has flags that determine what's included in the ".pt" file:
-    # --repr-layers (default: final only) selects which layers to include representations from.
-    # --include specifies what representations to save. You can use the following:
+    # --repr-layers (default: final only) selects which layers to include embeddings from.
+    # --include specifies what embeddings to save. You can use the following:
     # * per_tok includes the full sequence, with an embedding per amino acid (seq_len x hidden_dim).
     # * mean includes the embeddings averaged over the full sequence, per layer.
     # * bos includes the embeddings from the beginning-of-sequence token. 
     #    (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
-Tutorials
+Tutorial
 ================
 
-To help you get started, we `provide a tutorial`__ demonstrating how to train a variant predictor using representations from ESM. You can adopt a similar protocol to train a model for any downstream task, even with limited data.
-To run it, obtain the representations for ``examples/P62593.fasta`` by `downloading them here`__
-or by running the following:
+|ImageLink|_
+
+.. |ImageLink| image:: https://colab.research.google.com/assets/colab-badge.svg
+.. _ImageLink: https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb
+
+
+To help you get started, we `provide a jupyter notebook tutorial`__ demonstrating how to train a variant predictor using embeddings from ESM. You can adopt a similar protocol to train a model for any downstream task, even with limited data.
+First you can obtain the embeddings for ``examples/P62593.fasta`` either by `downloading the precomputed`__ embeddings
+as instructed in the notebook or by running the following:
 
 .. code-block:: bash
 
-    # Obtain the representations
-    $ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta P62593_reprs/ \
+    # Obtain the embeddings
+    $ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_reprs/ \
         --repr_layers 34 --include mean
 __ examples/variant_prediction.ipynb
-__ https://dl.fbaipublicfiles.com/fair-esm/example/P62593_reprs.tar.gz
+__ https://dl.fbaipublicfiles.com/fair-esm/examples/P62593_reprs.tar.gz
 
 Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a `colab notebook`__.
 
 __ https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb
+
 
 Available models
 ================
@@ -171,7 +178,7 @@ The last 3 columns are the major benchmark results:
 Performance on TAPE benchmark
 ================
 
-We evaluated our best performing model on the `TAPE`_ benchmark (Rao, et al. 2019), finding that our neural representationss perform similarly to or better than alignment-based methods.
+We evaluated our best performing model on the `TAPE`_ benchmark (Rao, et al. 2019), finding that our neural embeddings perform similarly to or better than alignment-based methods.
 
 .. _TAPE: https://github.com/songlab-cal/tape
 
