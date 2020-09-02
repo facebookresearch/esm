@@ -1,12 +1,24 @@
 ======================================================
-Evolutionary Scale Modeling (esm)
+Evolutionary Scale Modeling (ESM)
 ======================================================
 Pretrained language models for proteins
 --------------
 
-This repository contains a PyTorch implementation of the transformer protein language models in
+This repository contains a PyTorch implementation of and pre-trained weights for the transformer protein language models in
 `"Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)`_
-from Facebook AI Research, along with pre-trained models.
+from Facebook AI Research:
+
+.. code-block:: bibtex
+
+    @article{rives2019biological,
+      author={Rives, Alexander and Meier, Joshua and Sercu, Tom and Goyal, Siddharth and Lin, Zeming and Guo, Demi and Ott, Myle and Zitnick, C. Lawrence and Ma, Jerry and Fergus, Rob},
+      title={Biological Structure and Function Emerge from Scaling Unsupervised Learning to 250 Million Protein Sequences},
+      year={2019},
+      doi={10.1101/622803},
+      url={https://www.biorxiv.org/content/10.1101/622803v3},
+      journal={bioRxiv}
+    }
+
 
 .. _"Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019): https://doi.org/10.1101/622803
 
@@ -79,6 +91,25 @@ For your convenience, we have provided a script that efficiently extracts repres
     # * mean includes the embeddings averaged over the full sequence, per layer.
     # * bos includes the embeddings from the beginning-of-sequence token. 
     #    (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
+
+Tutorials
+================
+
+To help you get started, we `provide a tutorial`__ demonstrating how to train a variant predictor using representations from ESM. You can adopt a similar protocol to train a model for any downstream task, even with limited data.
+To run it, obtain the representations for ``examples/P62593.fasta`` by `downloading them here`__
+or by running the following:
+
+.. code-block:: bash
+
+    # Obtain the representations
+    $ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta P62593_reprs/ \
+        --repr_layers 34 --include mean
+__ examples/variant_prediction.ipynb
+__ https://dl.fbaipublicfiles.com/fair-esm/example/P62593_reprs.tar.gz
+
+Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a `colab notebook`__.
+
+__ https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb
 
 Available models
 ================
@@ -153,9 +184,9 @@ We evaluated our best performing model on the `TAPE`_ benchmark (Rao, et al. 201
 +--------------------+------+------+-----------------+--------------+-----------+-------------+
 | TAPE (alignment)   | 0.8  | 0.63 | 0.09            | N/A          | N/A       | 0.64        |
 +--------------------+------+------+-----------------+--------------+-----------+-------------+
-\* Not comparable: result with a linear projection on the features (the contact head available in the PyTorch version of TAPE),
-versus the ResNet head reported in the TAPE paper.
-See the previous table for a comparison of both transformers in our benchmarking setup.
+\* Not comparable: ESM (bests neural) uses a linear projection on the features (the contact head available in the PyTorch version of TAPE),
+but the results from the TAPE paper use a ResNet head.
+See the previous table for a rigorous comparison of ESM and TAPE in a fair benchmarking setup.
 
 Reference
 =========
