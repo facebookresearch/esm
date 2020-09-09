@@ -115,7 +115,7 @@ class Alphabet(object):
 
 
 class BatchConverter(object):
-    """Callable to convert an unproceseed (labels + strings) batch to a
+    """Callable to convert an unprocessed (labels + strings) batch to a
     processed (labels + tensor) batch.
     """
 
