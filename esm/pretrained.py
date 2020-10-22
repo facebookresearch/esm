@@ -39,7 +39,10 @@ def load_model_and_alphabet_hub(model_name):
 def load_model_and_alphabet_local(model_location):
     alphabet = esm.Alphabet.from_dict(proteinseq_toks)
 
-    model_data = torch.load(model_location)
+    if torch.cuda.is_available():
+        model_data = torch.load(model_location)
+    else:
+        model_data = torch.load(model_location, map_location=torch.device('cpu'))
 
     # upgrade state dict
     pra = lambda s: ''.join(s.split('decoder_')[1:] if 'decoder' in s else s)
