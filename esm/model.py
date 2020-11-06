@@ -9,7 +9,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .modules import TransformerLayer, PositionalEmbedding  # noqa
+from .modules import (
+    TransformerLayer,
+    LearnedPositionalEmbedding,
+    SinusoidalPositionalEmbedding,
+    RobertaLMHead,
+    ESM1bLayerNorm,
+    ContactPredictionHead,
+)
 
 
 class ProteinBertModel(nn.Module):
@@ -39,27 +46,56 @@ class ProteinBertModel(nn.Module):
             help="number of attention heads",
         )
 
-    def __init__(self, args, alphabet_size, padding_idx):
+    def __init__(self, args, alphabet):
         super().__init__()
         self.args = args
-        self.alphabet_size = alphabet_size
-        self.padding_idx = padding_idx
-        self.embed_scale = math.sqrt(self.args.embed_dim)
-        self._init_submodules()
+        self.alphabet_size = len(alphabet)
+        self.padding_idx = alphabet.padding_idx
+        self.mask_idx = alphabet.mask_idx
+        self.cls_idx = alphabet.cls_idx
+        self.eos_idx = alphabet.eos_idx
+        if self.args.arch == 'roberta_large':
+            self.model_version = 'ESM-1b'
+            self._init_submodules_esm1b()
+        else:
+            self.model_version = 'ESM-1'
+            self._init_submodules_esm1()
 
-    def _init_submodules(self):
+    def _init_submodules_common(self):
         self.embed_tokens = nn.Embedding(
             self.alphabet_size, self.args.embed_dim, padding_idx=self.padding_idx
         )
-        self.embed_positions = PositionalEmbedding(self.args.embed_dim, self.padding_idx)
         self.layers = nn.ModuleList(
             [
                 TransformerLayer(
-                    self.args.embed_dim, self.args.ffn_embed_dim, self.args.attention_heads
+                    self.args.embed_dim, self.args.ffn_embed_dim, self.args.attention_heads,
+                    add_bias_kv=(self.model_version != 'ESM-1b'),
+                    use_esm1b_layer_norm=(self.model_version == 'ESM-1b'),
                 )
                 for _ in range(self.args.layers)
             ]
         )
+
+        self.contact_head = ContactPredictionHead(self.args.layers * self.args.attention_heads)
+
+    def _init_submodules_esm1b(self):
+        self._init_submodules_common()
+        self.embed_scale = 1
+        self.embed_positions = LearnedPositionalEmbedding(self.args.max_positions, self.args.embed_dim, self.padding_idx)
+        self.emb_layer_norm_before = ESM1bLayerNorm(self.args.embed_dim)
+        self.emb_layer_norm_after = ESM1bLayerNorm(self.args.embed_dim)
+        self.lm_head = RobertaLMHead(
+            embed_dim=self.args.embed_dim,
+            output_dim=self.alphabet_size,
+            weight=self.embed_tokens.weight
+        )
+        # token dropout
+        self.embed_tokens.weight[self.mask_idx].zero_()
+
+    def _init_submodules_esm1(self):
+        self._init_submodules_common()
+        self.embed_scale = math.sqrt(self.args.embed_dim)
+        self.embed_positions = SinusoidalPositionalEmbedding(self.args.embed_dim, self.padding_idx)
         self.embed_out = nn.Parameter(
             torch.zeros((self.alphabet_size, self.args.embed_dim))
         )
@@ -67,36 +103,98 @@ class ProteinBertModel(nn.Module):
         if self.args.final_bias:
             self.embed_out_bias = nn.Parameter(torch.zeros(self.alphabet_size))
 
-    def forward(self, tokens, repr_layers=[]):
+    def forward(self, tokens, repr_layers=[], need_head_weights=False, return_contacts=False):
+        if return_contacts:
+            need_head_weights = True
+
         assert tokens.ndim == 2
-        padding_mask = tokens.eq(self.padding_idx)
-        if not padding_mask.any():
-            padding_mask = None
+        padding_mask = tokens.eq(self.padding_idx) # B, T
 
         x = self.embed_scale * self.embed_tokens(tokens)
+
+        if getattr(self.args, 'token_dropout', False):
+            x.masked_fill_((tokens == self.mask_idx).unsqueeze(-1), 0.0)
+            # x: B x T x C
+            mask_ratio_train = 0.15 * 0.8
+            src_lengths = (~padding_mask).sum(-1)
+            mask_ratio_observed = (tokens == self.mask_idx).sum(-1) / src_lengths
+            x = x * (1 - mask_ratio_train) / (1 - mask_ratio_observed)[:, None, None]
+
         x = x + self.embed_positions(tokens)
+
+        if self.model_version == 'ESM-1b':
+            x = self.emb_layer_norm_before(x)
+            if padding_mask is not None:
+                x = x * (1 - padding_mask.unsqueeze(-1).type_as(x))
 
         repr_layers = set(repr_layers)
         hidden_representations = {}
         if 0 in repr_layers:
             hidden_representations[0] = x
 
+        if need_head_weights:
+            attn_weights = []
+
         # (B, T, E) => (T, B, E)
         x = x.transpose(0, 1)
 
+        if not padding_mask.any():
+            padding_mask = None
+
         for layer_idx, layer in enumerate(self.layers):
-            x, _ = layer(x, self_attn_padding_mask=padding_mask)
+            x, attn = layer(x, self_attn_padding_mask=padding_mask, need_head_weights=need_head_weights)
             if (layer_idx + 1) in repr_layers:
                 hidden_representations[layer_idx + 1] = x.transpose(0, 1)
+            if need_head_weights:
+                # (H, B, T, T) => (B, H, T, T)
+                attn_weights.append(attn.transpose(1, 0))
 
-        x = F.linear(x, self.embed_out, bias=self.embed_out_bias)
+        if self.model_version == 'ESM-1b':
+            x = self.emb_layer_norm_after(x)
+            x = x.transpose(0, 1) # (T, B, E) => (B, T, E)
 
-        # (T, B, E) => (B, T, E)
-        x = x.transpose(0, 1)
+            # last hidden representation should have layer norm applied
+            if (layer_idx + 1) in repr_layers:
+                hidden_representations[layer_idx + 1] = x
+            x = self.lm_head(x)
+        else:
+            x = F.linear(x, self.embed_out, bias=self.embed_out_bias)
+            x = x.transpose(0, 1) # (T, B, E) => (B, T, E)
 
         result = {"logits": x, "representations": hidden_representations}
+        if need_head_weights:
+            # attentions: B x L x H x T x T
+            attentions = torch.stack(attn_weights, 1)
+            if padding_mask is not None:
+                attention_mask = (1 - padding_mask.type_as(attentions))
+                attention_mask = attention_mask.unsqueeze(1) * attention_mask.unsqueeze(2)
+                if self.args.arch != 'roberta_large':
+                    # ESM-1 models have an additional null-token for attention, which we remove
+                    attentions = attentions[..., :-1]
+                attentions = attentions * attention_mask[:, None, None, :, :]
+            result["attentions"] = attentions
+            if return_contacts:
+                contacts = self._predict_contacts_from_token_attentions(tokens, attentions)
+                result["contacts"] = contacts
 
         return result
+
+    def _predict_contacts_from_token_attentions(self, tokens, attentions):
+        # remove eos token attentions
+        if tokens[:, -1].eq(self.eos_idx).any():
+            eos_mask = tokens.ne(self.eos_idx).to(attentions)
+            eos_mask = eos_mask.unsqueeze(1) * eos_mask.unsqueeze(2)
+            attentions = attentions * eos_mask[:, None, None, :, :]
+            attentions = attentions[..., :-1, :-1]
+        # remove cls token attentions
+        if tokens[:, 0].eq(self.cls_idx).all():
+            attentions = attentions[..., 1:, 1:]
+        batch_size, layers, heads, seqlen, _ = attentions.size()
+        attentions = attentions.view(batch_size, layers * heads, seqlen, seqlen)
+        return self.contact_head(attentions)
+
+    def predict_contacts(self, tokens):
+        return self(tokens, return_contacts=True)["contacts"]
 
     @property
     def num_layers(self):

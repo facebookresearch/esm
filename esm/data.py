@@ -78,21 +78,26 @@ class FastaBatchedDataset(object):
 
 
 class Alphabet(object):
+    prepend_toks = ("<null_0>", "<pad>", "<eos>", "<unk>")
+    append_toks = ("<cls>", "<mask>", "<sep>")
+    prepend_bos = True
+    append_eos = False
+
     def __init__(self, standard_toks):
         self.standard_toks = list(standard_toks)
 
-        self.all_toks = ["<null_0>", "<pad>", "<eos>", "<unk>"]
-        self.all_toks += self.standard_toks
+        self.all_toks = list(self.prepend_toks)
+        self.all_toks.extend(self.standard_toks)
         for i in range((8 - (len(self.all_toks) % 8)) % 8):
             self.all_toks.append(f"<null_{i  + 1}>")
-        self.all_toks += ["<cls>", "<mask>", "<sep>"]
+        self.all_toks.extend(self.append_toks)
 
         self.tok_to_idx = {tok: i for i, tok in enumerate(self.all_toks)}
 
         self.padding_idx = self.get_idx("<pad>")
         self.cls_idx = self.get_idx("<cls>")
         self.mask_idx = self.get_idx("<mask>")
-        self.sep_idx = self.get_idx("<sep>")
+        self.eos_idx = self.get_idx("<eos>")
 
     def __len__(self):
         return len(self.all_toks)
@@ -113,6 +118,11 @@ class Alphabet(object):
     def from_dict(cls, d):
         return cls(standard_toks=d["toks"])
 
+class RobertaAlphabet(Alphabet):
+    prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
+    append_toks = ("<mask>",)
+    prepend_bos = True
+    append_eos = True
 
 class BatchConverter(object):
     """Callable to convert an unprocessed (labels + strings) batch to a
@@ -123,9 +133,11 @@ class BatchConverter(object):
         self.alphabet = alphabet
 
     def __call__(self, raw_batch):
+        # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
         max_len = max(len(seq_str) for _, seq_str in raw_batch)
-        tokens = torch.empty((batch_size, max_len + 1), dtype=torch.int64)
+        tokens = torch.empty((batch_size, max_len + int(self.alphabet.prepend_bos) + \
+            int(self.alphabet.append_eos)), dtype=torch.int64)
         tokens.fill_(self.alphabet.padding_idx)
         labels = []
         strs = []
@@ -133,9 +145,12 @@ class BatchConverter(object):
         for i, (label, seq_str) in enumerate(raw_batch):
             labels.append(label)
             strs.append(seq_str)
-            tokens[i, 0] = self.alphabet.cls_idx
+            if self.alphabet.prepend_bos:
+                tokens[i, 0] = self.alphabet.cls_idx
             seq = torch.tensor([self.alphabet.get_idx(s) for s in seq_str], dtype=torch.int64)
-            tokens[i, 1 : len(seq_str) + 1] = seq
+            tokens[i, int(self.alphabet.prepend_bos) : len(seq_str) + int(self.alphabet.prepend_bos)] = seq
+            if self.alphabet.append_eos:
+                tokens[i, len(seq_str) + int(self.alphabet.prepend_bos)] = self.alphabet.eos_idx
 
         return labels, strs, tokens
 

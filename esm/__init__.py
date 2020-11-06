@@ -5,6 +5,6 @@
 
 from .version import version as __version__  # noqa
 
-from .data import Alphabet, BatchConverter, FastaBatchedDataset  # noqa
+from .data import Alphabet, RobertaAlphabet, BatchConverter, FastaBatchedDataset  # noqa
 from .model import ProteinBertModel  # noqa
 from . import pretrained  # noqa

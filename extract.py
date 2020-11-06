@@ -47,7 +47,7 @@ def create_parser():
         "--include",
         type=str,
         nargs="+",
-        choices=["mean", "per_tok", "bos"],
+        choices=["mean", "per_tok", "bos", "contacts"],
         help="specify which representations to return",
         required=True
     )
@@ -71,6 +71,7 @@ def main(args):
     print(f"Read {args.fasta_file} with {len(dataset)} sequences")
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    return_contacts = "contacts" in args.include
 
     assert all(
         -(model.num_layers + 1) <= i <= model.num_layers for i in args.repr_layers
@@ -87,11 +88,13 @@ def main(args):
             if torch.cuda.is_available() and not args.nogpu:
                 toks = toks.to(device="cuda", non_blocking=True)
 
-            out = model(toks, repr_layers=repr_layers)
+            out = model(toks, repr_layers=repr_layers, return_contacts=return_contacts)
             logits = out["logits"].to(device="cpu")
             representations = {
                 layer: t.to(device="cpu") for layer, t in out["representations"].items()
             }
+            if return_contacts:
+                contacts = out["contacts"].to(device="cpu")
 
             for i, label in enumerate(labels):
                 args.output_file = (
@@ -113,6 +116,8 @@ def main(args):
                     result["bos_representations"] = {
                         layer: t[i, 0] for layer, t in representations.items()
                     }
+                if return_contacts:
+                    result["contacts"] = contacts[i, :len(strs[i]), :len(strs[i])]
                 torch.save(
                     result,
                     args.output_file,

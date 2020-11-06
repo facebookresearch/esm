@@ -6,6 +6,8 @@
 import esm
 import torch
 from argparse import Namespace
+import warnings
+import urllib
 from .constants import proteinseq_toks
 
 def load_model_and_alphabet(model_name):
@@ -14,43 +16,77 @@ def load_model_and_alphabet(model_name):
     else:
         return load_model_and_alphabet_hub(model_name)
 
+
+def load_regression_hub(model_name):
+    url = f"https://dl.fbaipublicfiles.com/fair-esm/regression/{model_name}-contact-regression.pt"
+    try:
+        regression_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location='cpu')
+    except urllib.error.HTTPError:
+        regression_data = None
+    return regression_data
+
 def load_model_and_alphabet_hub(model_name):
-    alphabet = esm.Alphabet.from_dict(proteinseq_toks)
-
     url = f"https://dl.fbaipublicfiles.com/fair-esm/models/{model_name}.pt"
-    if torch.cuda.is_available():
-        model_data = torch.hub.load_state_dict_from_url(url, progress=False)
-    else:
-        model_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location=torch.device('cpu'))
-
-    # upgrade state dict
-    pra = lambda s: ''.join(s.split('decoder_')[1:] if 'decoder' in s else s)
-    prs = lambda s: ''.join(s.split('decoder.')[1:] if 'decoder' in s else s)
-    model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
-    model_state = {prs(arg[0]): arg[1] for arg in model_data["model"].items()}
-
-    model = esm.ProteinBertModel(
-        Namespace(**model_args), len(alphabet), padding_idx=alphabet.padding_idx
-    )
-    model.load_state_dict(model_state)
-
-    return model, alphabet
+    model_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location='cpu')
+    regression_data = load_regression_hub(model_name)
+    return load_model_and_alphabet_core(model_data, regression_data)
 
 def load_model_and_alphabet_local(model_location):
-    alphabet = esm.Alphabet.from_dict(proteinseq_toks)
+    """ Load from local path. The regression weights need to be co-located """
+    model_data = torch.load(model_location, map_location='cpu')
+    try:
+        regression_location = model_location[:-3] + "-contact-regression.pt"
+        regression_data = torch.load(regression_location, map_location='cpu')
+    except FileNotFoundError:
+        regression_data = None
+    return load_model_and_alphabet_core(model_data, regression_data)
 
-    model_data = torch.load(model_location)
+def load_model_and_alphabet_core(model_data, regression_data=None):
+    if regression_data is not None:
+        model_data["model"].update(regression_data["model"])
+    if model_data["args"].arch == 'roberta_large':
+        alphabet = esm.RobertaAlphabet.from_dict(proteinseq_toks)
+        # upgrade state dict
+        pra = lambda s: ''.join(s.split('encoder_')[1:] if 'encoder' in s else s)
+        prs1 = lambda s: ''.join(s.split('encoder.')[1:] if 'encoder' in s else s)
+        prs2 = lambda s: ''.join(s.split('sentence_encoder.')[1:] if 'sentence_encoder' in s else s)
+        model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
+        model_state = {prs1(prs2(arg[0])): arg[1] for arg in model_data["model"].items()}
+    elif model_data["args"].arch == 'protein_bert_base':
+        alphabet = esm.Alphabet.from_dict(proteinseq_toks)
 
-    # upgrade state dict
-    pra = lambda s: ''.join(s.split('decoder_')[1:] if 'decoder' in s else s)
-    prs = lambda s: ''.join(s.split('decoder.')[1:] if 'decoder' in s else s)
-    model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
-    model_state = {prs(arg[0]): arg[1] for arg in model_data["model"].items()}
-
+        # upgrade state dict
+        pra = lambda s: ''.join(s.split('decoder_')[1:] if 'decoder' in s else s)
+        prs = lambda s: ''.join(s.split('decoder.')[1:] if 'decoder' in s else s)
+        model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
+        model_state = {prs(arg[0]): arg[1] for arg in model_data["model"].items()}
+    else:
+        raise ValueError("Unkown architecture selected")
     model = esm.ProteinBertModel(
-        Namespace(**model_args), len(alphabet), padding_idx=alphabet.padding_idx
+        Namespace(**model_args), alphabet,
     )
-    model.load_state_dict(model_state)
+
+    expected_keys = set(model.state_dict().keys())
+    found_keys = set(model_state.keys())
+
+    if regression_data is None:
+        expected_missing = {"contact_head.regression.weight", "contact_head.regression.bias"}
+        error_msgs = []
+        missing = (expected_keys - found_keys) - expected_missing
+        if missing:
+            error_msgs.append(f"Missing key(s) in state_dict: {missing}.")
+        unexpected = found_keys - expected_keys
+        if unexpected:
+            error_msgs.append(f"Unexpected key(s) in state_dict: {unexpected}.")
+
+        if error_msgs:
+            raise RuntimeError("Error(s) in loading state_dict for {}:\n\t{}".format(
+                model.__class__.__name__, "\n\t".join(error_msgs)))
+        if expected_missing - found_keys:
+            warnings.warn("Regression weights not found, predicting contacts will not produce correct results.")
+
+    model.load_state_dict(model_state, strict=regression_data is not None)
+
     return model, alphabet
 
 def esm1_t34_670M_UR50S_local():
@@ -67,8 +103,6 @@ def esm1_t34_670M_UR50S():
 
     Returns a tuple of (ProteinBertModel, Alphabet).
     """
-    #return esm1_t34_670M_UR50S_hub()
-    #return esm1_t34_670M_UR50S_local()
     return load_model_and_alphabet_hub("esm1_t34_670M_UR50S")
 
 def esm1_t34_670M_UR50D():
@@ -98,3 +132,11 @@ def esm1_t6_43M_UR50S():
     Returns a tuple of (ProteinBertModel, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1_t6_43M_UR50S")
+
+def esm1b_t33_650M_UR50S():
+    """ 33 layer transformer model with 650M params, trained on Uniref50 Sparse.
+    This is our best performing model, which will be described in a future publication.
+
+    Returns a tuple of (ProteinBertModel, Alphabet).
+    """
+    return load_model_and_alphabet_hub("esm1b_t33_650M_UR50S")
