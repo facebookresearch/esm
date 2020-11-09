@@ -89,8 +89,6 @@ class ProteinBertModel(nn.Module):
             output_dim=self.alphabet_size,
             weight=self.embed_tokens.weight
         )
-        # token dropout
-        self.embed_tokens.weight[self.mask_idx].zero_()
 
     def _init_submodules_esm1(self):
         self._init_submodules_common()
@@ -117,7 +115,7 @@ class ProteinBertModel(nn.Module):
             # x: B x T x C
             mask_ratio_train = 0.15 * 0.8
             src_lengths = (~padding_mask).sum(-1)
-            mask_ratio_observed = (tokens == self.mask_idx).sum(-1) / src_lengths
+            mask_ratio_observed = (tokens == self.mask_idx).sum(-1).float() / src_lengths
             x = x * (1 - mask_ratio_train) / (1 - mask_ratio_observed)[:, None, None]
 
         x = x + self.embed_positions(tokens)

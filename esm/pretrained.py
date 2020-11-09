@@ -52,6 +52,7 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
         prs2 = lambda s: ''.join(s.split('sentence_encoder.')[1:] if 'sentence_encoder' in s else s)
         model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
         model_state = {prs1(prs2(arg[0])): arg[1] for arg in model_data["model"].items()}
+        model_state["embed_tokens.weight"][alphabet.mask_idx].zero_()  # For token drop
     elif model_data["args"].arch == 'protein_bert_base':
         alphabet = esm.Alphabet.from_dict(proteinseq_toks)
 
