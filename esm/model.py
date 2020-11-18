@@ -163,12 +163,12 @@ class ProteinBertModel(nn.Module):
         if need_head_weights:
             # attentions: B x L x H x T x T
             attentions = torch.stack(attn_weights, 1)
+            if self.model_version == "ESM-1":
+                # ESM-1 models have an additional null-token for attention, which we remove
+                attentions = attentions[..., :-1]
             if padding_mask is not None:
                 attention_mask = (1 - padding_mask.type_as(attentions))
                 attention_mask = attention_mask.unsqueeze(1) * attention_mask.unsqueeze(2)
-                if self.args.arch != 'roberta_large':
-                    # ESM-1 models have an additional null-token for attention, which we remove
-                    attentions = attentions[..., :-1]
                 attentions = attentions * attention_mask[:, None, None, :, :]
             result["attentions"] = attentions
             if return_contacts:
