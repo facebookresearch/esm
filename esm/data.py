@@ -98,12 +98,13 @@ class Alphabet(object):
         self.cls_idx = self.get_idx("<cls>")
         self.mask_idx = self.get_idx("<mask>")
         self.eos_idx = self.get_idx("<eos>")
+        self.unk_idx = self.get_idx("<unk>")
 
     def __len__(self):
         return len(self.all_toks)
 
     def get_idx(self, tok):
-        return self.tok_to_idx[tok]
+        return self.tok_to_idx.get(tok, self.unk_idx)
 
     def get_tok(self, ind):
         return self.all_toks[ind]
