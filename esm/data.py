@@ -94,11 +94,11 @@ class Alphabet(object):
 
         self.tok_to_idx = {tok: i for i, tok in enumerate(self.all_toks)}
 
+        self.unk_idx = self.tok_to_idx["<unk>"]
         self.padding_idx = self.get_idx("<pad>")
         self.cls_idx = self.get_idx("<cls>")
         self.mask_idx = self.get_idx("<mask>")
         self.eos_idx = self.get_idx("<eos>")
-        self.unk_idx = self.get_idx("<unk>")
 
     def __len__(self):
         return len(self.all_toks)
