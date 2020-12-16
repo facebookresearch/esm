@@ -103,24 +103,24 @@ def main(args):
                 )
                 args.output_file.parent.mkdir(parents=True, exist_ok=True)
                 result = {"label": label}
-                # Call contiguous on tensors to ensure tensors are not views into a larger representation
+                # Call clone on tensors to ensure tensors are not views into a larger representation
                 # See https://github.com/pytorch/pytorch/issues/1995
                 if "per_tok" in args.include:
                     result["representations"] = {
-                        layer: t[i, 1 : len(strs[i]) + 1].contiguous()
+                        layer: t[i, 1 : len(strs[i]) + 1].clone()
                         for layer, t in representations.items()
                     }
                 if "mean" in args.include:
                     result["mean_representations"] = {
-                        layer: t[i, 1 : len(strs[i]) + 1].mean(0).contiguous()
+                        layer: t[i, 1 : len(strs[i]) + 1].mean(0).clone()
                         for layer, t in representations.items()
                     }
                 if "bos" in args.include:
                     result["bos_representations"] = {
-                        layer: t[i, 0].contiguous() for layer, t in representations.items()
+                        layer: t[i, 0].clone() for layer, t in representations.items()
                     }
                 if return_contacts:
-                    result["contacts"] = contacts[i, :len(strs[i]), :len(strs[i])].contiguous()
+                    result["contacts"] = contacts[i, :len(strs[i]), :len(strs[i])].clone()
 
                 torch.save(
                     result,
