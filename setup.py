@@ -18,6 +18,6 @@ setup(
     url="https://github.com/facebookresearch/esm",
     license="MIT",
     packages=["esm"],
-    data_files=[("source_docs/qhoptim", ["LICENSE", "README.rst", "CODE_OF_CONDUCT.rst"])],
+    data_files=[("source_docs/qhoptim", ["LICENSE", "README.md", "CODE_OF_CONDUCT.rst"])],
     zip_safe=True,
 )
