@@ -3,8 +3,13 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import os
+import pickle
 import re
+import shutil
 import torch
+from torchvision.datasets.utils import download_url
+from pathlib import Path
 
 
 class FastaBatchedDataset(object):
@@ -119,11 +124,13 @@ class Alphabet(object):
     def from_dict(cls, d):
         return cls(standard_toks=d["toks"])
 
+
 class RobertaAlphabet(Alphabet):
     prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
     append_toks = ("<mask>",)
     prepend_bos = True
     append_eos = True
+
 
 class BatchConverter(object):
     """Callable to convert an unprocessed (labels + strings) batch to a
@@ -137,8 +144,15 @@ class BatchConverter(object):
         # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
         max_len = max(len(seq_str) for _, seq_str in raw_batch)
-        tokens = torch.empty((batch_size, max_len + int(self.alphabet.prepend_bos) + \
-            int(self.alphabet.append_eos)), dtype=torch.int64)
+        tokens = torch.empty(
+            (
+                batch_size,
+                max_len
+                + int(self.alphabet.prepend_bos)
+                + int(self.alphabet.append_eos),
+            ),
+            dtype=torch.int64,
+        )
         tokens.fill_(self.alphabet.padding_idx)
         labels = []
         strs = []
@@ -148,10 +162,18 @@ class BatchConverter(object):
             strs.append(seq_str)
             if self.alphabet.prepend_bos:
                 tokens[i, 0] = self.alphabet.cls_idx
-            seq = torch.tensor([self.alphabet.get_idx(s) for s in seq_str], dtype=torch.int64)
-            tokens[i, int(self.alphabet.prepend_bos) : len(seq_str) + int(self.alphabet.prepend_bos)] = seq
+            seq = torch.tensor(
+                [self.alphabet.get_idx(s) for s in seq_str], dtype=torch.int64
+            )
+            tokens[
+                i,
+                int(self.alphabet.prepend_bos) : len(seq_str)
+                + int(self.alphabet.prepend_bos),
+            ] = seq
             if self.alphabet.append_eos:
-                tokens[i, len(seq_str) + int(self.alphabet.prepend_bos)] = self.alphabet.eos_idx
+                tokens[
+                    i, len(seq_str) + int(self.alphabet.prepend_bos)
+                ] = self.alphabet.eos_idx
 
         return labels, strs, tokens
 
@@ -190,3 +212,118 @@ def read_alignment_lines(
             seq += line.strip()
     assert isinstance(seq, str) and isinstance(desc, str)
     yield desc, parse(seq)
+
+
+class ESMStructuralSplitDataset(torch.utils.data.Dataset):
+    """
+    Structural Split Dataset as described in section A.10 of the supplement of our paper.
+    https://doi.org/10.1101/622803
+
+    We use the full version of SCOPe 2.07, clustered at 90% sequence identity, 
+    generated on January 23, 2020. 
+
+    For each SCOPe domain:
+        - We extract the sequence from the corresponding PDB file
+        - We extract the 3D coordinates of the Carbon beta atoms, aligning them
+          to the sequence. We put NaN where Cb atoms are missing. 
+        - From the 3D coordinates, we calculate a pairwise distance map, based
+          on L2 distance
+        - We use DSSP to generate secondary structure labels for the corresponding
+          PDB file. This is also aligned to the sequence. We put - where SSP
+          labels are missing.
+
+    For each SCOPe classification level of family/superfamily/fold (in order of difficulty), 
+    we have split the data into 5 partitions for cross validation. These are provided 
+    in a downloaded splits folder, in the format:
+            splits/{split_level}/{cv_partition}/{train|valid}.txt
+    where train is the partition and valid is the concatentation of the remaining 4.
+
+    For each SCOPe domain, we provide a pkl dump that contains:
+        - seq    : The domain sequence, stored as an L-length string
+        - ssp    : The secondary structure labels, stored as an L-length string
+        - dist   : The distance map, stored as an LxL numpy array
+        - coords : The 3D coordinates, stored as an Lx3 numpy array
+
+    """
+
+    base_folder = "structural-data"
+    file_list = [
+        #  url  tar filename   filename      MD5 Hash
+        (
+            "https://dl.fbaipublicfiles.com/fair-esm/structural-data/splits.tar.gz",
+            "splits.tar.gz",
+            "splits",
+            "456fe1c7f22c9d3d8dfe9735da52411d",
+        ),
+        (
+            "https://dl.fbaipublicfiles.com/fair-esm/structural-data/pkl.tar.gz",
+            "pkl.tar.gz",
+            "pkl",
+            "644ea91e56066c750cd50101d390f5db",
+        ),
+    ]
+
+    def __init__(
+        self,
+        split_level,
+        cv_partition,
+        split,
+        root_path=os.path.expanduser('~/.cache/torch/data/esm'),
+        download=False,
+    ):
+        super().__init__()
+        assert split in [
+            'train',
+            'valid',
+        ], "train_valid must be \'train\' or \'valid\'"
+        self.root_path = root_path
+        self.base_path = os.path.join(self.root_path, self.base_folder)
+
+        # check if root path has what you need or else download it
+        if download:
+            self.download()
+
+        self.split_file = os.path.join(
+            self.base_path, 'splits', split_level, cv_partition, f'{split}.txt'
+        )
+        self.pkl_dir = os.path.join(self.base_path, 'pkl')
+        self.names = []
+        with open(self.split_file) as f:
+            self.names = f.read().splitlines()
+
+    def __len__(self):
+        return len(self.names)
+
+    def _check_exists(self) -> bool:
+        for (_, _, filename, _) in self.file_list:
+            fpath = os.path.join(self.base_path, filename)
+            if not os.path.exists(fpath) or not os.path.isdir(fpath):
+                return False
+        return True
+
+    def download(self):
+
+        if self._check_exists():
+            print('Files already downloaded and verified')
+            return
+
+        for url, tar_filename, filename, md5_hash in self.file_list:
+            download_path = os.path.join(self.base_path, tar_filename)
+            download_url(
+                url=url, root=self.base_path, filename=tar_filename, md5=md5_hash
+            )
+            shutil.unpack_archive(download_path, self.base_path)
+
+    def __getitem__(self, idx):
+        """
+        Returns a dict with the following entires
+         - seq : Str (domain sequence)
+         - ssp : Str (SSP labels)
+         - dist : np.array (distance map)
+         - coords : np.array (3D coordinates)
+        """
+        name = self.names[idx]
+        pkl_fname = os.path.join(self.pkl_dir, name[1:3], f'{name}.pkl')
+        with open(pkl_fname, 'rb') as f:
+            obj = pickle.load(f)
+        return obj
