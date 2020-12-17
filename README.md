@@ -5,6 +5,8 @@ This repository contains code and pre-trained weights for **Transformer protein 
 The models are described in detail in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803),
 which first proposed protein language modeling with Transformers.
 
+**ESM-1b outperforms all tested protein language models across a range of structure prediction tasks.**
+
 <details><summary>Citation</summary>
 
 ```bibtex
@@ -45,19 +47,22 @@ which first proposed protein language modeling with Transformers.
 
 ## Comparison to related works <a name="perf-related"></a>
 
+### Supervised downstreams
+
 | Model                                                       | Pre-training | Params | SSP  | Contact |
 |-------------------------------------------------------------|--------------|--------|------|---------|
 | [UniRep](https://www.nature.com/articles/s41592-019-0598-1) | UR50\*       | 18M    |  58.4 | 21.9    |
 | [SeqVec](https://github.com/rostlab/SeqVec)                 | UR50\*       | 93M    |  62.1 | 29.0    |
 | [TAPE](https://github.com/songlab-cal/tape)                 | PFAM\*       | 38M    |  58.0 | 23.2    |
 | [ProtBert-BFD](https://github.com/agemagician/ProtTrans)    | BFD\*        | 420M   |  70.0 | 50.3    | 
+| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)  | BFD\*        | 3B     |  71.4 | 55.9    |
 | LSTM biLM (S)                                               | UR50/S       | 28M    |  60.4 | 24.1    |
 | LSTM biLM (L)                                               | UR50/S       | 113M   |  62.4 | 27.8    |
 | Transformer-6                                               | UR50/S       | 43M    |  62.0 | 30.2    |
 | Transformer-12                                              | UR50/S       | 85M    |  65.4 | 37.7    |
 | Transformer-34                                              | UR100        | 670M   |  64.3 | 32.7    |
 | Transformer-34                                              | UR50/S       | 670M   |  69.2 | 50.2    |
-| ESM-1b                                                      | UR50/S       | 650M   | **71.6**|**56.9** |
+| **ESM-1b**                                                  | **UR50/S**    | **650M** | **71.6**|**56.9** |
 
 Comparison to related protein language models.
 (SSP) Secondary structure Q8 accuracy on CB513.
@@ -65,6 +70,21 @@ Comparison to related protein language models.
 
 \* Pre-training datasets from related works have differences from ours.
 
+### Unsupervised downstreams
+| Model                                                       | Pre-training | Params | L     | L/5     |
+|-------------------------------------------------------------|--------------|--------|-------|---------|
+| [mfDCA](https://www.pnas.org/content/108/49/E1293)&dagger;         |              |        |  33.0 | 54.2    |     
+| [Psicov](https://academic.oup.com/bioinformatics/article/28/2/184/198108)&dagger;| |        |  32.6 | 58.1    |     
+| [Gremlin](https://github.com/nickbhat/mogwai)&dagger;               |              |        |  39.3 | 62.8    |     
+| [TAPE](https://github.com/songlab-cal/tape)                 | PFAM\*       | 38M    |  11.2 | 17.9    |
+| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)    | BFD\*        | 420M   |  34.1 | 57.4    | 
+| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)  | BFD\*        | 3B     |  35.6 | 57.8    |
+| Transformer-6                                               | UR50/S       | 43M    |  13.2 | 21.5    |
+| Transformer-12                                              | UR50/S       | 85M    |  23.7 | 39.3    |
+| Transformer-34                                              | UR50/S       | 670M   |  34.7 | 56.0    |
+| **ESM-1b**                                                  | **UR50/S**   | **650M**   | **41.1**|**66.1** |
+
+Comparison to related protein language models. Average Top-L and Top-L/5 long range contact precision on 14842 test structures for Transformer models trained on 20 structures. &dagger; Direct coupling analysis methods (Gremlin, mfDCA, Psicov) use [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/) which include sequences from metagenomics. 
 
 ## Usage <a name="usage"></a>
 
