@@ -65,12 +65,13 @@ which first proposed protein language modeling with Transformers.
 | **ESM-1b**                                                  | **UR50/S**    | **650M** | **71.6**|**56.9** |
 
 Comparison to related protein language models.
-(SSP) Secondary structure Q8 accuracy on CB513.
-(Contact) Top-L long range contact precision on RaptorX test set.
+(SSP) Secondary structure Q8 accuracy on CB513, transformer finetuned with convolution + LSTM head.
+(Contact) Top-L long range contact precision on RaptorX test set, with 32-layer ResNet head.
+For more details, see [Rives et al. 2019](https://doi.org/10.1101/622803).
 
 \* Pre-training datasets from related works have differences from ours.
 
-### Unsupervised downstreams
+### Unsupervised structure prediction
 | Model                                                       | Pre-training | Params | L     | L/5     |
 |-------------------------------------------------------------|--------------|--------|-------|---------|
 | [mfDCA](https://www.pnas.org/content/108/49/E1293)&dagger;         |              |        |  33.0 | 54.2    |     
@@ -84,7 +85,10 @@ Comparison to related protein language models.
 | Transformer-34                                              | UR50/S       | 670M   |  34.7 | 56.0    |
 | **ESM-1b**                                                  | **UR50/S**   | **650M**   | **41.1**|**66.1** |
 
-Comparison to related protein language models. Average Top-L and Top-L/5 long range contact precision on 14842 test structures for Transformer models trained on 20 structures. &dagger; Direct coupling analysis methods (Gremlin, mfDCA, Psicov) use [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/) which include sequences from metagenomics. 
+Comparison to related protein language models on unsupervised contact prediction:
+a sparse linear combination of the attention heads is used to directly predict protein contacts.
+Average Top-L and Top-L/5 long range contact precision on 14842 test structures, sparse logistic regression trained on 20 structures. &dagger; Direct coupling analysis methods (Gremlin, mfDCA, Psicov) use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
+For more details, see [Rao et al. 2020](https://www.biorxiv.org/content/10.1101/2020.12.15.422761v1).
 
 ## Usage <a name="usage"></a>
 
