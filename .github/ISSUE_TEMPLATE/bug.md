@@ -1,6 +1,6 @@
 ---
 name: "[Bug Report]"
-about: Create a bug report. For other questions: see Discussions tab.
+about: "Create a bug report. For other questions: see Discussions tab."
 
 ---
 
