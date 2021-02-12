@@ -4,12 +4,16 @@
 # LICENSE file in the root directory of this source tree.
 
 import os
+from typing import Sequence, Tuple, List, Union
 import pickle
 import re
 import shutil
 import torch
 from torchvision.datasets.utils import download_url
 from pathlib import Path
+from .constants import proteinseq_toks
+
+RawMSA = Sequence[Tuple[str, str]]
 
 
 class FastaBatchedDataset(object):
@@ -83,13 +87,22 @@ class FastaBatchedDataset(object):
 
 
 class Alphabet(object):
-    prepend_toks = ("<null_0>", "<pad>", "<eos>", "<unk>")
-    append_toks = ("<cls>", "<mask>", "<sep>")
-    prepend_bos = True
-    append_eos = False
 
-    def __init__(self, standard_toks):
+    def __init__(
+        self,
+        standard_toks: Sequence[str],
+        prepend_toks: Sequence[str] = ("<null_0>", "<pad>", "<eos>", "<unk>"),
+        append_toks: Sequence[str] = ("<cls>", "<mask>", "<sep>"),
+        prepend_bos: bool = True,
+        append_eos: bool = False,
+        use_msa: bool = False,
+    ):
         self.standard_toks = list(standard_toks)
+        self.prepend_toks = list(prepend_toks)
+        self.append_toks = list(append_toks)
+        self.prepend_bos = prepend_bos
+        self.append_eos = append_eos
+        self.use_msa = use_msa
 
         self.all_toks = list(self.prepend_toks)
         self.all_toks.extend(self.standard_toks)
@@ -118,18 +131,43 @@ class Alphabet(object):
         return {"toks": self.toks}
 
     def get_batch_converter(self):
-        return BatchConverter(self)
+        if self.use_msa:
+            return MSABatchConverter(self)
+        else:
+            return BatchConverter(self)
 
     @classmethod
-    def from_dict(cls, d):
-        return cls(standard_toks=d["toks"])
+    def from_dict(cls, d, **kwargs):
+        return cls(standard_toks=d["toks"], **kwargs)
 
-
-class RobertaAlphabet(Alphabet):
-    prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
-    append_toks = ("<mask>",)
-    prepend_bos = True
-    append_eos = True
+    @classmethod
+    def from_architecture(cls, name: str, ) -> "Alphabet":
+        if name in ("ESM-1", "protein_bert_base"):
+            standard_toks = proteinseq_toks["toks"]
+            prepend_toks: Tuple[str, ...] = ("<null_0>", "<pad>", "<eos>", "<unk>")
+            append_toks: Tuple[str, ...] = ("<cls>", "<mask>", "<sep>")
+            prepend_bos = True
+            append_eos = False
+            use_msa = False
+        elif name in ("ESM-1b", "roberta_large"):
+            standard_toks = proteinseq_toks["toks"]
+            prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
+            append_toks = ("<mask>",)
+            prepend_bos = True
+            append_eos = True
+            use_msa = False
+        elif name in ("MSA Transformer", "msa_transformer"):
+            standard_toks = proteinseq_toks["toks"]
+            prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
+            append_toks = ("<mask>",)
+            prepend_bos = True
+            append_eos = False
+            use_msa = True
+        else:
+            raise ValueError("Unknown architecture selected")
+        return cls(
+            standard_toks, prepend_toks, append_toks, prepend_bos, append_eos, use_msa
+        )
 
 
 class BatchConverter(object):
@@ -140,7 +178,7 @@ class BatchConverter(object):
     def __init__(self, alphabet):
         self.alphabet = alphabet
 
-    def __call__(self, raw_batch):
+    def __call__(self, raw_batch: Sequence[Tuple[str, str]]):
         # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
         max_len = max(len(seq_str) for _, seq_str in raw_batch)
@@ -174,6 +212,48 @@ class BatchConverter(object):
                 tokens[
                     i, len(seq_str) + int(self.alphabet.prepend_bos)
                 ] = self.alphabet.eos_idx
+
+        return labels, strs, tokens
+
+
+class MSABatchConverter(BatchConverter):
+
+    def __call__(self, inputs: Union[Sequence[RawMSA], RawMSA]):
+        if isinstance(inputs[0][0], str):
+            # Input is a single MSA
+            raw_batch: Sequence[RawMSA] = [inputs]  # type: ignore
+        else:
+            raw_batch = inputs  # type: ignore
+
+        batch_size = len(raw_batch)
+        max_alignments = max(len(msa) for msa in raw_batch)
+        max_seqlen = max(len(msa[0][1]) for msa in raw_batch)
+
+        tokens = torch.empty(
+            (
+                batch_size,
+                max_alignments,
+                max_seqlen
+                + int(self.alphabet.prepend_bos)
+                + int(self.alphabet.append_eos),
+            ),
+            dtype=torch.int64,
+        )
+        tokens.fill_(self.alphabet.padding_idx)
+        labels = []
+        strs = []
+
+        for i, msa in enumerate(raw_batch):
+            msa_seqlens = set(len(seq) for _, seq in msa)
+            if not len(msa_seqlens) == 1:
+                raise RuntimeError(
+                    "Received unaligned sequences for input to MSA, all sequence "
+                    "lengths must be equal."
+                )
+            msa_labels, msa_strs, msa_tokens = super().__call__(msa)
+            labels.append(msa_labels)
+            strs.append(msa_strs)
+            tokens[i, :msa_tokens.size(0), :msa_tokens.size(1)] = msa_tokens
 
         return labels, strs, tokens
 
@@ -219,21 +299,21 @@ class ESMStructuralSplitDataset(torch.utils.data.Dataset):
     Structural Split Dataset as described in section A.10 of the supplement of our paper.
     https://doi.org/10.1101/622803
 
-    We use the full version of SCOPe 2.07, clustered at 90% sequence identity, 
-    generated on January 23, 2020. 
+    We use the full version of SCOPe 2.07, clustered at 90% sequence identity,
+    generated on January 23, 2020.
 
     For each SCOPe domain:
         - We extract the sequence from the corresponding PDB file
         - We extract the 3D coordinates of the Carbon beta atoms, aligning them
-          to the sequence. We put NaN where Cb atoms are missing. 
+          to the sequence. We put NaN where Cb atoms are missing.
         - From the 3D coordinates, we calculate a pairwise distance map, based
           on L2 distance
         - We use DSSP to generate secondary structure labels for the corresponding
           PDB file. This is also aligned to the sequence. We put - where SSP
           labels are missing.
 
-    For each SCOPe classification level of family/superfamily/fold (in order of difficulty), 
-    we have split the data into 5 partitions for cross validation. These are provided 
+    For each SCOPe classification level of family/superfamily/fold (in order of difficulty),
+    we have split the data into 5 partitions for cross validation. These are provided
     in a downloaded splits folder, in the format:
             splits/{split_level}/{cv_partition}/{train|valid}.txt
     where train is the partition and valid is the concatentation of the remaining 4.

@@ -8,7 +8,7 @@ import torch
 from argparse import Namespace
 import warnings
 import urllib
-from .constants import proteinseq_toks
+from pathlib import Path
 
 def load_model_and_alphabet(model_name):
     if model_name.endswith(".pt"):  # treat as filepath
@@ -16,18 +16,27 @@ def load_model_and_alphabet(model_name):
     else:
         return load_model_and_alphabet_hub(model_name)
 
+def load_hub_workaround(url):
+    try:
+        data = torch.hub.load_state_dict_from_url(url, progress=False, map_location='cpu')
+    except RuntimeError:
+        # Pytorch version issue - see https://github.com/pytorch/pytorch/issues/43106
+        fn = Path(url).name
+        data = torch.load(
+            f"{torch.hub.get_dir()}/checkpoints/{fn}",
+            map_location="cpu",
+        )
+    return data
+
 
 def load_regression_hub(model_name):
     url = f"https://dl.fbaipublicfiles.com/fair-esm/regression/{model_name}-contact-regression.pt"
-    try:
-        regression_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location='cpu')
-    except urllib.error.HTTPError:
-        regression_data = None
+    regression_data = load_hub_workaround(url)
     return regression_data
 
 def load_model_and_alphabet_hub(model_name):
     url = f"https://dl.fbaipublicfiles.com/fair-esm/models/{model_name}.pt"
-    model_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location='cpu')
+    model_data = load_hub_workaround(url)
     regression_data = load_regression_hub(model_name)
     return load_model_and_alphabet_core(model_data, regression_data)
 
@@ -44,8 +53,10 @@ def load_model_and_alphabet_local(model_location):
 def load_model_and_alphabet_core(model_data, regression_data=None):
     if regression_data is not None:
         model_data["model"].update(regression_data["model"])
+
+    alphabet = esm.Alphabet.from_architecture(model_data["args"].arch)
+
     if model_data["args"].arch == 'roberta_large':
-        alphabet = esm.RobertaAlphabet.from_dict(proteinseq_toks)
         # upgrade state dict
         pra = lambda s: ''.join(s.split('encoder_')[1:] if 'encoder' in s else s)
         prs1 = lambda s: ''.join(s.split('encoder.')[1:] if 'encoder' in s else s)
@@ -53,17 +64,31 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
         model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
         model_state = {prs1(prs2(arg[0])): arg[1] for arg in model_data["model"].items()}
         model_state["embed_tokens.weight"][alphabet.mask_idx].zero_()  # For token drop
+        model_type = esm.ProteinBertModel
     elif model_data["args"].arch == 'protein_bert_base':
-        alphabet = esm.Alphabet.from_dict(proteinseq_toks)
 
         # upgrade state dict
         pra = lambda s: ''.join(s.split('decoder_')[1:] if 'decoder' in s else s)
         prs = lambda s: ''.join(s.split('decoder.')[1:] if 'decoder' in s else s)
         model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
         model_state = {prs(arg[0]): arg[1] for arg in model_data["model"].items()}
+        model_type = esm.ProteinBertModel
+    elif model_data["args"].arch == 'msa_transformer':
+
+        # upgrade state dict
+        pra = lambda s: ''.join(s.split('encoder_')[1:] if 'encoder' in s else s)
+        prs1 = lambda s: ''.join(s.split('encoder.')[1:] if 'encoder' in s else s)
+        prs2 = lambda s: ''.join(s.split('sentence_encoder.')[1:] if 'sentence_encoder' in s else s)
+        prs3 = lambda s: s.replace("row", "column") if "row" in s else s.replace("column", "row")
+        model_args = {pra(arg[0]): arg[1] for arg in vars(model_data["args"]).items()}
+        model_state = {prs1(prs2(prs3(arg[0]))): arg[1] for arg in model_data["model"].items()}
+
+        model_type = esm.MSATransformer
+
     else:
-        raise ValueError("Unkown architecture selected")
-    model = esm.ProteinBertModel(
+        raise ValueError("Unknown architecture selected")
+
+    model = model_type(
         Namespace(**model_args), alphabet,
     )
 
@@ -102,35 +127,35 @@ def esm1_t34_670M_UR50S_hub():
 def esm1_t34_670M_UR50S():
     """ 34 layer transformer model with 670M params, trained on Uniref50 Sparse.
 
-    Returns a tuple of (ProteinBertModel, Alphabet).
+    Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1_t34_670M_UR50S")
 
 def esm1_t34_670M_UR50D():
     """ 34 layer transformer model with 670M params, trained on Uniref50 Dense.
 
-    Returns a tuple of (ProteinBertModel, Alphabet).
+    Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1_t34_670M_UR50D")
 
 def esm1_t34_670M_UR100():
     """ 34 layer transformer model with 670M params, trained on Uniref100.
 
-    Returns a tuple of (ProteinBertModel, Alphabet).
+    Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1_t34_670M_UR100")
 
 def esm1_t12_85M_UR50S():
     """ 12 layer transformer model with 85M params, trained on Uniref50 Sparse.
 
-    Returns a tuple of (ProteinBertModel, Alphabet).
+    Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1_t12_85M_UR50S")
 
 def esm1_t6_43M_UR50S():
     """ 6 layer transformer model with 43M params, trained on Uniref50 Sparse.
 
-    Returns a tuple of (ProteinBertModel, Alphabet).
+    Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1_t6_43M_UR50S")
 
@@ -138,6 +163,9 @@ def esm1b_t33_650M_UR50S():
     """ 33 layer transformer model with 650M params, trained on Uniref50 Sparse.
     This is our best performing model, which will be described in a future publication.
 
-    Returns a tuple of (ProteinBertModel, Alphabet).
+    Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1b_t33_650M_UR50S")
+
+def esm_msa1_t12_100M_UR50S():
+    return load_model_and_alphabet_hub("esm_msa1_t12_100M_UR50S")
