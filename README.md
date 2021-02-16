@@ -1,11 +1,12 @@
 # Evolutionary Scale Modeling
 
 
-This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b protein language model**.
+This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b** and **MSA Transformer**.
 The models are described in detail in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803),
 which first proposed protein language modeling with Transformers.
 
-**ESM-1b outperforms all tested protein language models across a range of structure prediction tasks.**
+**ESM-1b outperforms all tested single-sequence protein language models across a range of structure prediction tasks.**
+The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MSA information.
 
 <details><summary>Citation</summary>
 
@@ -39,7 +40,8 @@ which first proposed protein language modeling with Transformers.
 
 <details><summary>What's New</summary>
   
-- Dec 2020: [Self-Attention Contacts](#quickstart) for all pre-trained models (see [Rao et al. 2020](https://www.biorxiv.org/content/10.1101/2020.12.15.422761v1))
+- Feb 2021: MSA Transformer added (see [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1)). Example usage in [notebook](#notebooks).
+- Dec 2020: [Self-Attention Contacts](#notebooks) for all pre-trained models (see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761))
 - Dec 2020: Added new pre-trained model [ESM-1b](#perf-related) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix B)
 - Dec 2020: [ESM Structural Split Dataset](#available-esmssd) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix A.10)
   
@@ -49,20 +51,21 @@ which first proposed protein language modeling with Transformers.
 
 ### Supervised downstreams
 
-| Model                                                       | Pre-training | Params | SSP  | Contact |
-|-------------------------------------------------------------|--------------|--------|------|---------|
-| [UniRep](https://www.nature.com/articles/s41592-019-0598-1) | UR50\*       | 18M    |  58.4 | 21.9    |
-| [SeqVec](https://github.com/rostlab/SeqVec)                 | UR50\*       | 93M    |  62.1 | 29.0    |
-| [TAPE](https://github.com/songlab-cal/tape)                 | PFAM\*       | 38M    |  58.0 | 23.2    |
-| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)    | BFD\*        | 420M   |  70.0 | 50.3    | 
-| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)  | BFD\*        | 3B     |  71.4 | 55.9    |
-| LSTM biLM (S)                                               | UR50/S       | 28M    |  60.4 | 24.1    |
-| LSTM biLM (L)                                               | UR50/S       | 113M   |  62.4 | 27.8    |
-| Transformer-6                                               | UR50/S       | 43M    |  62.0 | 30.2    |
-| Transformer-12                                              | UR50/S       | 85M    |  65.4 | 37.7    |
-| Transformer-34                                              | UR100        | 670M   |  64.3 | 32.7    |
-| Transformer-34                                              | UR50/S       | 670M   |  69.2 | 50.2    |
-| **ESM-1b**                                                  | **UR50/S**    | **650M** | **71.6**|**56.9** |
+| Model                                                       | Input    | Pre-training | Params | SSP      | Contact     |
+|-------------------------------------------------------------|----------|--------------|--------|----------|-------------|
+| [UniRep](https://www.nature.com/articles/s41592-019-0598-1) | Sequence | UR50\*       | 18M    | 58.4     | 21.9        |
+| [SeqVec](https://github.com/rostlab/SeqVec)                 | Sequence | UR50\*       | 93M    | 62.1     | 29.0        |
+| [TAPE](https://github.com/songlab-cal/tape)                 | Sequence | PFAM\*       | 38M    | 58.0     | 23.2        |
+| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)    | Sequence | BFD\*        | 420M   | 70.0     | 50.3        |
+| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)  | Sequence | BFD\*        | 3B     | 71.4     | 55.9        |
+| LSTM biLM (S)                                               | Sequence | UR50/S       | 28M    | 60.4     | 24.1        |
+| LSTM biLM (L)                                               | Sequence | UR50/S       | 113M   | 62.4     | 27.8        |
+| Transformer-6                                               | Sequence | UR50/S       | 43M    | 62.0     | 30.2        |
+| Transformer-12                                              | Sequence | UR50/S       | 85M    | 65.4     | 37.7        |
+| Transformer-34                                              | Sequence | UR100        | 670M   | 64.3     | 32.7        |
+| Transformer-34                                              | Sequence | UR50/S       | 670M   | 69.2     | 50.2        |
+| **ESM-1b**                                                  | Sequence | UR50/S       | 650M   | **71.6** | **56.9**    |
+| **ESM-MSA-1**                                               | MSA      | UR50/S + MSA | 100M   | **72.9** | Coming Soon |
 
 Comparison to related protein language models.
 (SSP) Secondary structure Q8 accuracy on CB513, transformer finetuned with convolution + LSTM head.
@@ -72,23 +75,25 @@ For more details, see [Rives et al. 2019](https://doi.org/10.1101/622803).
 \* Pre-training datasets from related works have differences from ours.
 
 ### Unsupervised structure prediction
-| Model                                                       | Pre-training | Params | L     | L/5     |
-|-------------------------------------------------------------|--------------|--------|-------|---------|
-| [mfDCA](https://www.pnas.org/content/108/49/E1293)&dagger;         |              |        |  33.0 | 54.2    |     
-| [Psicov](https://academic.oup.com/bioinformatics/article/28/2/184/198108)&dagger;| |        |  32.6 | 58.1    |     
-| [Gremlin](https://github.com/nickbhat/mogwai)&dagger;               |              |        |  39.3 | 62.8    |     
-| [TAPE](https://github.com/songlab-cal/tape)                 | PFAM\*       | 38M    |  11.2 | 17.9    |
-| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)    | BFD\*        | 420M   |  34.1 | 57.4    | 
-| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)  | BFD\*        | 3B     |  35.6 | 57.8    |
-| Transformer-6                                               | UR50/S       | 43M    |  13.2 | 21.5    |
-| Transformer-12                                              | UR50/S       | 85M    |  23.7 | 39.3    |
-| Transformer-34                                              | UR50/S       | 670M   |  34.7 | 56.0    |
-| **ESM-1b**                                                  | **UR50/S**   | **650M**   | **41.1**|**66.1** |
+| Model                                                                             | Input    | Pre-training | Params | L        | L/5      |
+|-----------------------------------------------------------------------------------|----------|--------------|--------|----------|----------|
+| [mfDCA](https://www.pnas.org/content/108/49/E1293)                        | MSA      |              |        | 33.0     | 54.2     |
+| [Psicov](https://academic.oup.com/bioinformatics/article/28/2/184/198108) | MSA      |              |        | 32.6     | 58.1     |
+| [Gremlin](https://github.com/nickbhat/mogwai)                             | MSA      |              |        | 39.3     | 62.8     |
+| [TAPE](https://github.com/songlab-cal/tape)                                       | Sequence | PFAM\*       | 38M    | 11.2     | 17.9     |
+| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)                          | Sequence | BFD\*        | 420M   | 34.1     | 57.4     |
+| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)                        | Sequence | BFD\*        | 3B     | 35.6     | 57.8     |
+| Transformer-6                                                                     | Sequence | UR50/S       | 43M    | 13.2     | 21.5     |
+| Transformer-12                                                                    | Sequence | UR50/S       | 85M    | 23.7     | 39.3     |
+| Transformer-34                                                                    | Sequence | UR50/S       | 670M   | 34.7     | 56.0     |
+| **ESM-1b**                                                                        | Sequence | UR50/S       | 650M   | **41.1** | **66.1** |
+| **ESM-MSA-1**                                                                     | MSA      | UR50/S + MSA | 100M   | **57.7** | **83.1** |
 
 Comparison to related protein language models on unsupervised contact prediction:
 a sparse linear combination of the attention heads is used to directly predict protein contacts.
-Average Top-L and Top-L/5 long range contact precision on 14842 test structures, sparse logistic regression trained on 20 structures. &dagger; Direct coupling analysis methods (Gremlin, mfDCA, Psicov) use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
-For more details, see [Rao et al. 2020](https://www.biorxiv.org/content/10.1101/2020.12.15.422761v1).
+Average Top-L and Top-L/5 long range contact precision on 14842 test structures, sparse logistic regression trained on 20 structures. 
+Direct coupling analysis methods (Gremlin, mfDCA, Psicov) and ESM-MSA-1 use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
+For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761).
 
 ## Usage <a name="usage"></a>
 
@@ -185,22 +190,34 @@ $ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_re
 
 Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb).
 
+
+#### Unsupervised contact prediction
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/contact_prediction.ipynb)
+
+This [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
+Contact prediction is based on a logistic regression over the model's attention maps.
+This methodology is based on our ICLR 2021 paper, 
+[Rao, R., Meier, J., Sercu, T., Ovchinnikov, S., and Rives, A. (2020). Transformer protein language models are unsupervised structure learners.](https://doi.org/10.1101/2020.12.15.422761)
+The MSA Transformer (ESM-MSA-1) takes a multiple sequence alignment (MSA) as input, and uses the tied row self-attention maps in the same way.
+See [Rao, R., Liu, J., Verkuil, R., Meier, J., Canny, J. F., Abbeel, P., Sercu, T., and Rives, A. (2021). MSA Transformer](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1).
+
+
 #### ESMStructuralSplitDataset and self-attention contact prediction
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/esm_structural_dataset.ipynb)
 
 And this [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) shows how to load and index the `ESMStructuralSplitDataset`,
-and computes the self-attention map contact predictions as described in our paper "Transformer protein language models are unsupervised structure learners".
-
+and computes the self-attention map unsupervised contact predictions using ESM-1b.
 
 
 ## Available Models and Datasets <a name="available"></a>
 
 ### Pre-trained Models <a name="available-models"></a>
 
-| Shorthand | Full Name           | #layers | #params | Dataset | Embedding Dim |  Model URL                                                             |
+| Shorthand | Full Name           | #layers | #params | Dataset | Embedding Dim |  Model URL (automatically downloaded to `~/.cache/torch/hub/checkpoints`) |
 |-----------|---------------------|---------|---------|---------|---------------|-----------------------------------------------------------------------|
+| ESM-MSA-1 | esm_msa1_t12_100M_UR50S | 12     | 100M    | UR50/S  | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1_t12_100M_UR50S.pt   |
 | ESM-1b    | esm1b_t33_650M_UR50S | 33     | 650M    | UR50/S  | 1280          | https://dl.fbaipublicfiles.com/fair-esm/models/esm1b_t33_650M_UR50S.pt   |
-| ESM1-main | esm1_t34_670M_UR50S | 34      | 670M    | UR50/S  | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50S.pt |
+| ESM-1     | esm1_t34_670M_UR50S | 34      | 670M    | UR50/S  | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50S.pt |
 |           | esm1_t34_670M_UR50D | 34      | 670M    | UR50/D  | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50D.pt |
 |           | esm1_t34_670M_UR100 | 34      | 670M    | UR100   | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR100.pt |
 |           | esm1_t12_85M_UR50S  | 12      | 85M     | UR50/S  | 768           |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t12_85M_UR50S.pt  |
