@@ -34,6 +34,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
   - [ESM Structural Split Dataset](#available-esmssd)
+  - [Pre-training Dataset Split](#available-pretraining-split)
 - [Citations](#citations)
 - [License](#license)
 </details>
@@ -197,9 +198,9 @@ Then, follow the remaining instructions in the tutorial. You can also run the tu
 This [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
 Contact prediction is based on a logistic regression over the model's attention maps.
 This methodology is based on our ICLR 2021 paper, 
-[Rao, R., Meier, J., Sercu, T., Ovchinnikov, S., and Rives, A. (2020). Transformer protein language models are unsupervised structure learners.](https://doi.org/10.1101/2020.12.15.422761)
+[Transformer protein language models are unsupervised structure learners. (Rao et al. 2020)](https://doi.org/10.1101/2020.12.15.422761)
 The MSA Transformer (ESM-MSA-1) takes a multiple sequence alignment (MSA) as input, and uses the tied row self-attention maps in the same way.
-See [Rao, R., Liu, J., Verkuil, R., Meier, J., Canny, J. F., Abbeel, P., Sercu, T., and Rives, A. (2021). MSA Transformer](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1).
+See [MSA Transformer. (Rao et al. 2021)](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1).
 
 
 #### ESMStructuralSplitDataset and self-attention contact prediction
@@ -249,6 +250,15 @@ We also provide `msas` for each of the domains. The data can be directly downloa
 | pkl    | pkl objects containing sequence, SSP labels, distance map, and 3d coordinates | https://dl.fbaipublicfiles.com/fair-esm/structural-data/pkl.tar.gz    |
 | msas   | a3m files containing MSA for each domain                                      | https://dl.fbaipublicfiles.com/fair-esm/structural-data/msas.tar.gz   | 
 
+### Pre-training Dataset Split  <a name="available-pretraining-split"></a>
+The split files establishing which UniRef50 clusters were used as held-out evaluation set for pre-training
+in [Rives et al. 2019](https://doi.org/10.1101/622803) and [Rao et al. 2021](https://doi.org/10.1101/2021.02.12.430858) can be found here:
+* [UniRef50 IDs of evaluation set](https://dl.fbaipublicfiles.com/fair-esm/pretraining-data/uniref201803_ur50_valid_headers.txt.gz): 3.016 M clusters
+* [UniRef100 IDs of evaluation set](https://dl.fbaipublicfiles.com/fair-esm/pretraining-data/uniref201803_ur100_valid_headers.txt.gz): 13.745 M proteins, expanding the same UniRef50 clusters.
+
+These files only contain only the UniRef50 IDs and UniRef100 IDs corresponding to the [UniRef database, 2018-03 release](https://ftp.uniprot.org/pub/databases/uniprot/previous_releases/release-2018_03/uniref/)
+which is released by the UniProt Consortium under a [Creative Commons Attribution (CC BY 4.0) License](https://www.uniprot.org/help/license).
+
 ## Citations <a name="citations"></a>
 
 If you find the models useful in your research, we ask that you cite the
@@ -278,6 +288,18 @@ For the self-attention contact prediction, see [the following paper (biorxiv pre
 }
 ```
 
+For the MSA Transformer, see [the following paper (biorxiv preprint)](https://doi.org/10.1101/2021.02.12.430858):
+
+```bibtex
+@article{rao2021msa,
+  author = {Rao, Roshan and Liu, Jason and Verkuil, Robert and Meier, Joshua and Canny, John F. and Abbeel, Pieter and Sercu, Tom and Rives, Alexander},
+  title={MSA Transformer},
+  year={2021},
+  doi={10.1101/2021.02.12.430858},
+  url={https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1},
+  journal={bioRxiv}
+}
+```
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.
 
