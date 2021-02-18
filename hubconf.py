@@ -12,4 +12,5 @@ from esm.pretrained import (
     esm1_t12_85M_UR50S,
     esm1_t6_43M_UR50S,
     esm1b_t33_650M_UR50S,
+    esm_msa1_t12_100M_UR50S,
 )
