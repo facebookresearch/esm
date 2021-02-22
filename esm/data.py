@@ -9,7 +9,6 @@ import pickle
 import re
 import shutil
 import torch
-from torchvision.datasets.utils import download_url
 from pathlib import Path
 from .constants import proteinseq_toks
 
@@ -87,7 +86,6 @@ class FastaBatchedDataset(object):
 
 
 class Alphabet(object):
-
     def __init__(
         self,
         standard_toks: Sequence[str],
@@ -141,7 +139,7 @@ class Alphabet(object):
         return cls(standard_toks=d["toks"], **kwargs)
 
     @classmethod
-    def from_architecture(cls, name: str, ) -> "Alphabet":
+    def from_architecture(cls, name: str) -> "Alphabet":
         if name in ("ESM-1", "protein_bert_base"):
             standard_toks = proteinseq_toks["toks"]
             prepend_toks: Tuple[str, ...] = ("<null_0>", "<pad>", "<eos>", "<unk>")
@@ -217,7 +215,6 @@ class BatchConverter(object):
 
 
 class MSABatchConverter(BatchConverter):
-
     def __call__(self, inputs: Union[Sequence[RawMSA], RawMSA]):
         if isinstance(inputs[0][0], str):
             # Input is a single MSA
@@ -253,13 +250,16 @@ class MSABatchConverter(BatchConverter):
             msa_labels, msa_strs, msa_tokens = super().__call__(msa)
             labels.append(msa_labels)
             strs.append(msa_strs)
-            tokens[i, :msa_tokens.size(0), :msa_tokens.size(1)] = msa_tokens
+            tokens[i, : msa_tokens.size(0), : msa_tokens.size(1)] = msa_tokens
 
         return labels, strs, tokens
 
 
 def read_fasta(
-    path, keep_gaps=True, keep_insertions=True, to_upper=False,
+    path,
+    keep_gaps=True,
+    keep_insertions=True,
+    to_upper=False,
 ):
     with open(path, "r") as f:
         for result in read_alignment_lines(
@@ -269,7 +269,10 @@ def read_fasta(
 
 
 def read_alignment_lines(
-    lines, keep_gaps=True, keep_insertions=True, to_upper=False,
+    lines,
+    keep_gaps=True,
+    keep_insertions=True,
+    to_upper=False,
 ):
     seq = desc = None
 
@@ -386,6 +389,8 @@ class ESMStructuralSplitDataset(torch.utils.data.Dataset):
         if self._check_exists():
             print('Files already downloaded and verified')
             return
+
+        from torchvision.datasets.utils import download_url
 
         for url, tar_filename, filename, md5_hash in self.file_list:
             download_path = os.path.join(self.base_path, tar_filename)
