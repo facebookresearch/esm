@@ -195,7 +195,7 @@ Then, follow the remaining instructions in the tutorial. You can also run the tu
 #### Unsupervised contact prediction
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/contact_prediction.ipynb)
 
-This [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
+This [jupyter notebook tutorial](examples/contact_prediction.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
 Contact prediction is based on a logistic regression over the model's attention maps.
 This methodology is based on our ICLR 2021 paper, 
 [Transformer protein language models are unsupervised structure learners. (Rao et al. 2020)](https://doi.org/10.1101/2020.12.15.422761)
