@@ -9,11 +9,16 @@ from setuptools import setup
 with open("esm/version.py") as infile:
     exec(infile.read())
 
+with open("README.md") as f:
+    readme = f.read()
+
 
 setup(
     name="esm",
     version=version,
-    description="Pre-trained evolutionary scale models for proteins, from Facebook AI Research.",
+    description="Evolutionary Scale Modeling (esm): Pretrained language models for proteins. From Facebook AI Research.",
+    long_description=readme,
+    long_description_content_type="text/markdown",
     author="Facebook AI Research",
     url="https://github.com/facebookresearch/esm",
     license="MIT",
