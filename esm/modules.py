@@ -220,6 +220,11 @@ class LearnedPositionalEmbedding(nn.Embedding):
 
     def forward(self, input: torch.Tensor):
         """Input is expected to be of size [bsz x seqlen]."""
+        if input.size(1) > self.max_positions:
+            raise ValueError(
+                f'Sequence length {input.size(1)} above maximum '
+                f' sequence length of {self.max_positions}'
+            )
         mask = input.ne(self.padding_idx).int()
         positions = (torch.cumsum(mask, dim=1).type_as(mask) * mask).long() + self.padding_idx
         return F.embedding(
