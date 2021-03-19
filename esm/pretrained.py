@@ -115,15 +115,6 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
 
     return model, alphabet
 
-def esm1_t34_670M_UR50S_local():
-    model_location = '/checkpoint/bioseq_nonsecure/br2020/br4/checkpoint94.pt'
-    model, alphabet = load_model_and_alphabet_local(model_location)
-
-    return model, alphabet
-
-def esm1_t34_670M_UR50S_hub():
-    return load_model_and_alphabet_hub("esm1_t34_670M_UR50S")
-
 def esm1_t34_670M_UR50S():
     """ 34 layer transformer model with 670M params, trained on Uniref50 Sparse.
 
