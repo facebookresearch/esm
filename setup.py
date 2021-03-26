@@ -14,7 +14,7 @@ with open("README.md") as f:
 
 
 setup(
-    name="esm",
+    name="fair-esm",
     version=version,
     description="Evolutionary Scale Modeling (esm): Pretrained language models for proteins. From Facebook AI Research.",
     long_description=readme,

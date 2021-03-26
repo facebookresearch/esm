@@ -102,10 +102,10 @@ For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/20
 
 As a prerequisite, you must have PyTorch 1.5 or later installed to use this repository.
 
-You can either work in the root of this repository, or use this one-liner for installation:
+You can use this one-liner for installation:
 
 ```bash
-$ pip install git+https://github.com/facebookresearch/esm.git
+$ pip install fair-esm
 ```
 
 We also support PyTorch Hub, which removes the need to clone and/or install this repository yourself:
