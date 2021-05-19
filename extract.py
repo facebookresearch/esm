@@ -51,6 +51,11 @@ def create_parser():
         help="specify which representations to return",
         required=True
     )
+    parser.add_argument(
+        "--truncate", 
+        action="store_true", 
+        help="Truncate sequences longer than 1024 to match the training setup"
+    )
 
     parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
     return parser
@@ -87,6 +92,11 @@ def main(args):
             )
             if torch.cuda.is_available() and not args.nogpu:
                 toks = toks.to(device="cuda", non_blocking=True)
+
+            # The model is trained on truncated sequences and passing longer ones in at
+            # infernce will cause an error. See https://github.com/facebookresearch/esm/issues/21
+            if args.truncate:
+                toks = toks[:, :1022]
 
             out = model(toks, repr_layers=repr_layers, return_contacts=return_contacts)
 
