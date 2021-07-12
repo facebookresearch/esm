@@ -33,9 +33,7 @@ def create_parser():
         help="output directory for extracted representations",
     )
 
-    parser.add_argument(
-        "--toks_per_batch", type=int, default=4096, help="maximum batch size"
-    )
+    parser.add_argument("--toks_per_batch", type=int, default=4096, help="maximum batch size")
     parser.add_argument(
         "--repr_layers",
         type=int,
@@ -49,12 +47,12 @@ def create_parser():
         nargs="+",
         choices=["mean", "per_tok", "bos", "contacts"],
         help="specify which representations to return",
-        required=True
+        required=True,
     )
     parser.add_argument(
-        "--truncate", 
-        action="store_true", 
-        help="Truncate sequences longer than 1024 to match the training setup"
+        "--truncate",
+        action="store_true",
+        help="Truncate sequences longer than 1024 to match the training setup",
     )
 
     parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
@@ -78,12 +76,8 @@ def main(args):
     args.output_dir.mkdir(parents=True, exist_ok=True)
     return_contacts = "contacts" in args.include
 
-    assert all(
-        -(model.num_layers + 1) <= i <= model.num_layers for i in args.repr_layers
-    )
-    repr_layers = [
-        (i + model.num_layers + 1) % (model.num_layers + 1) for i in args.repr_layers
-    ]
+    assert all(-(model.num_layers + 1) <= i <= model.num_layers for i in args.repr_layers)
+    repr_layers = [(i + model.num_layers + 1) % (model.num_layers + 1) for i in args.repr_layers]
 
     with torch.no_grad():
         for batch_idx, (labels, strs, toks) in enumerate(data_loader):
@@ -108,9 +102,7 @@ def main(args):
                 contacts = out["contacts"].to(device="cpu")
 
             for i, label in enumerate(labels):
-                args.output_file = (
-                    args.output_dir / f"{label}.pt"
-                )
+                args.output_file = args.output_dir / f"{label}.pt"
                 args.output_file.parent.mkdir(parents=True, exist_ok=True)
                 result = {"label": label}
                 # Call clone on tensors to ensure tensors are not views into a larger representation
@@ -130,7 +122,7 @@ def main(args):
                         layer: t[i, 0].clone() for layer, t in representations.items()
                     }
                 if return_contacts:
-                    result["contacts"] = contacts[i, :len(strs[i]), :len(strs[i])].clone()
+                    result["contacts"] = contacts[i, : len(strs[i]), : len(strs[i])].clone()
 
                 torch.save(
                     result,

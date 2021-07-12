@@ -24,15 +24,16 @@ model_names = """
     esm1v_t33_650M_UR90S_4,
     esm1v_t33_650M_UR90S_5,
 """
-model_names = [mn.strip() for mn in model_names.strip(' ,\n').split(',')]
+model_names = [mn.strip() for mn in model_names.strip(" ,\n").split(",")]
+
 
 @pytest.mark.parametrize("model_name", model_names)
 def test_load_fwd_model(model_name: str) -> None:
     model, alphabet = getattr(esm.pretrained, model_name)()
     # batch_size = 2, seq_len = 3, tokens within vocab
-    dummy_inp = torch.tensor([[0,1,2], [3,4,5]])
-    if 'esm_msa' in model_name:
+    dummy_inp = torch.tensor([[0, 1, 2], [3, 4, 5]])
+    if "esm_msa" in model_name:
         dummy_inp = dummy_inp.unsqueeze(0)
     output = model(dummy_inp)  # dict
-    logits = output['logits'].squeeze(0)
+    logits = output["logits"].squeeze(0)
     assert logits.shape == (2, 3, len(alphabet))

@@ -10,25 +10,24 @@ from Bio import SeqIO
 import itertools
 from typing import List, Tuple
 
+
 def read_msa(filename: str, nseq: int) -> List[Tuple[str, str]]:
     """ Reads the first nseq sequences from an MSA file, automatically removes insertions."""
 
-    msa = [(record.description, str(record.seq))
-            for record in itertools.islice(SeqIO.parse(filename, "fasta"), nseq)]
     msa = [
-        (
-            desc,
-            seq.upper()
-        )
-        for desc, seq in msa
+        (record.description, str(record.seq))
+        for record in itertools.islice(SeqIO.parse(filename, "fasta"), nseq)
     ]
+    msa = [(desc, seq.upper()) for desc, seq in msa]
     return msa
+
 
 def create_parser():
     parser = argparse.ArgumentParser(
         description="Label a deep mutational scan with predictions from an ensemble of ESM-1v models."  # noqa
     )
 
+    # fmt: off
     parser.add_argument(
         "--model-location",
         type=str,
@@ -80,8 +79,10 @@ def create_parser():
         default=400,
         help="number of sequences to randomly sample from the MSA"
     )
+    # fmt: on
     parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
     return parser
+
 
 def label_row(row, sequence, token_probs, alphabet, offset_idx):
     wt, idx, mt = row[0], int(row[1:-1]) - offset_idx, row[-1]
@@ -93,12 +94,13 @@ def label_row(row, sequence, token_probs, alphabet, offset_idx):
     score = token_probs[0, 1 + idx, mt_encoded] - token_probs[0, 1 + idx, wt_encoded]
     return score.item()
 
+
 def compute_pppl(row, sequence, model, alphabet, offset_idx):
     wt, idx, mt = row[0], int(row[1:-1]) - offset_idx, row[-1]
     assert sequence[idx] == wt, "The listed wildtype does not match the provided sequence"
 
     # modify the sequence
-    sequence = sequence[:idx] + mt + sequence[(idx + 1):]
+    sequence = sequence[:idx] + mt + sequence[(idx + 1) :]
 
     # encode the sequence
     data = [
@@ -118,8 +120,9 @@ def compute_pppl(row, sequence, model, alphabet, offset_idx):
         batch_tokens_masked[0, i] = alphabet.mask_idx
         with torch.no_grad():
             token_probs = torch.log_softmax(model(batch_tokens_masked.cuda())["logits"], dim=-1)
-        log_probs.append(token_probs[0, i, alphabet.get_idx(sequence[i])].item()) # vocab size
+        log_probs.append(token_probs[0, i, alphabet.get_idx(sequence[i])].item())  # vocab size
     return sum(log_probs)
+
 
 def main(args):
     # Load the deep mutational scan
@@ -136,23 +139,30 @@ def main(args):
         batch_converter = alphabet.get_batch_converter()
 
         if isinstance(model, MSATransformer):
-            data = [
-                read_msa(args.msa_path, args.msa_samples)
-            ]
-            assert args.scoring_strategy == "masked-marginals", "MSA Transformer only supports masked marginal strategy"
+            data = [read_msa(args.msa_path, args.msa_samples)]
+            assert (
+                args.scoring_strategy == "masked-marginals"
+            ), "MSA Transformer only supports masked marginal strategy"
 
             batch_labels, batch_strs, batch_tokens = batch_converter(data)
 
             all_token_probs = []
             for i in tqdm(range(batch_tokens.size(2))):
                 batch_tokens_masked = batch_tokens.clone()
-                batch_tokens_masked[0, 0, i] = alphabet.mask_idx # mask out first sequence
+                batch_tokens_masked[0, 0, i] = alphabet.mask_idx  # mask out first sequence
                 with torch.no_grad():
-                    token_probs = torch.log_softmax(model(batch_tokens_masked.cuda())["logits"], dim=-1)
-                all_token_probs.append(token_probs[:, 0, i]) # vocab size
+                    token_probs = torch.log_softmax(
+                        model(batch_tokens_masked.cuda())["logits"], dim=-1
+                    )
+                all_token_probs.append(token_probs[:, 0, i])  # vocab size
             token_probs = torch.cat(all_token_probs, dim=0).unsqueeze(0)
-            df[model_location] = df.apply(lambda row: label_row(row['mutant'], args.sequence, token_probs, alphabet, args.offset_idx), axis=1)
-            
+            df[model_location] = df.apply(
+                lambda row: label_row(
+                    row["mutant"], args.sequence, token_probs, alphabet, args.offset_idx
+                ),
+                axis=1,
+            )
+
         else:
             data = [
                 ("protein1", args.sequence),
@@ -162,22 +172,40 @@ def main(args):
             if args.scoring_strategy == "wt-marginals":
                 with torch.no_grad():
                     token_probs = torch.log_softmax(model(batch_tokens.cuda())["logits"], dim=-1)
-                df[model_location] = df.apply(lambda row: label_row(row['mutant'], args.sequence, token_probs, alphabet, args.offset_idx), axis=1)
+                df[model_location] = df.apply(
+                    lambda row: label_row(
+                        row["mutant"], args.sequence, token_probs, alphabet, args.offset_idx
+                    ),
+                    axis=1,
+                )
             elif args.scoring_strategy == "masked-marginals":
                 all_token_probs = []
                 for i in tqdm(range(batch_tokens.size(1))):
                     batch_tokens_masked = batch_tokens.clone()
                     batch_tokens_masked[0, i] = alphabet.mask_idx
                     with torch.no_grad():
-                        token_probs = torch.log_softmax(model(batch_tokens_masked.cuda())["logits"], dim=-1)
-                    all_token_probs.append(token_probs[:, i]) # vocab size
+                        token_probs = torch.log_softmax(
+                            model(batch_tokens_masked.cuda())["logits"], dim=-1
+                        )
+                    all_token_probs.append(token_probs[:, i])  # vocab size
                 token_probs = torch.cat(all_token_probs, dim=0).unsqueeze(0)
-                df[model_location] = df.apply(lambda row: label_row(row['mutant'], args.sequence, token_probs, alphabet, args.offset_idx), axis=1)
+                df[model_location] = df.apply(
+                    lambda row: label_row(
+                        row["mutant"], args.sequence, token_probs, alphabet, args.offset_idx
+                    ),
+                    axis=1,
+                )
             elif args.scoring_strategy == "pseudo-ppl":
                 tqdm.pandas()
-                df[model_location] = df.progress_apply(lambda row: compute_pppl(row['mutant'], args.sequence, model, alphabet, args.offset_idx), axis=1)    
+                df[model_location] = df.progress_apply(
+                    lambda row: compute_pppl(
+                        row["mutant"], args.sequence, model, alphabet, args.offset_idx
+                    ),
+                    axis=1,
+                )
 
     df.to_csv(args.dms_output)
+
 
 if __name__ == "__main__":
     parser = create_parser()

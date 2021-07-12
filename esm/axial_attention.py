@@ -62,10 +62,7 @@ class RowSelfAttention(nn.Module):
 
         outputs = []
         for start in range(0, num_rows, max_rows):
-            output = self.compute_attention_update(
-                x[start : start + max_rows],
-                attn_probs
-            )
+            output = self.compute_attention_update(x[start : start + max_rows], attn_probs)
             outputs.append(output)
 
         output = torch.cat(outputs, 0)

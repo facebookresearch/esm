@@ -59,12 +59,12 @@ class ProteinBertModel(nn.Module):
         self.eos_idx = alphabet.eos_idx
         self.prepend_bos = alphabet.prepend_bos
         self.append_eos = alphabet.append_eos
-        self.emb_layer_norm_before = getattr(self.args, 'emb_layer_norm_before', False)
-        if self.args.arch == 'roberta_large':
-            self.model_version = 'ESM-1b'
+        self.emb_layer_norm_before = getattr(self.args, "emb_layer_norm_before", False)
+        if self.args.arch == "roberta_large":
+            self.model_version = "ESM-1b"
             self._init_submodules_esm1b()
         else:
-            self.model_version = 'ESM-1'
+            self.model_version = "ESM-1"
             self._init_submodules_esm1()
 
     def _init_submodules_common(self):
@@ -74,9 +74,11 @@ class ProteinBertModel(nn.Module):
         self.layers = nn.ModuleList(
             [
                 TransformerLayer(
-                    self.args.embed_dim, self.args.ffn_embed_dim, self.args.attention_heads,
-                    add_bias_kv=(self.model_version != 'ESM-1b'),
-                    use_esm1b_layer_norm=(self.model_version == 'ESM-1b'),
+                    self.args.embed_dim,
+                    self.args.ffn_embed_dim,
+                    self.args.attention_heads,
+                    add_bias_kv=(self.model_version != "ESM-1b"),
+                    use_esm1b_layer_norm=(self.model_version == "ESM-1b"),
                 )
                 for _ in range(self.args.layers)
             ]
@@ -92,22 +94,24 @@ class ProteinBertModel(nn.Module):
     def _init_submodules_esm1b(self):
         self._init_submodules_common()
         self.embed_scale = 1
-        self.embed_positions = LearnedPositionalEmbedding(self.args.max_positions, self.args.embed_dim, self.padding_idx)
-        self.emb_layer_norm_before = ESM1bLayerNorm(self.args.embed_dim) if self.emb_layer_norm_before else None
+        self.embed_positions = LearnedPositionalEmbedding(
+            self.args.max_positions, self.args.embed_dim, self.padding_idx
+        )
+        self.emb_layer_norm_before = (
+            ESM1bLayerNorm(self.args.embed_dim) if self.emb_layer_norm_before else None
+        )
         self.emb_layer_norm_after = ESM1bLayerNorm(self.args.embed_dim)
         self.lm_head = RobertaLMHead(
             embed_dim=self.args.embed_dim,
             output_dim=self.alphabet_size,
-            weight=self.embed_tokens.weight
+            weight=self.embed_tokens.weight,
         )
 
     def _init_submodules_esm1(self):
         self._init_submodules_common()
         self.embed_scale = math.sqrt(self.args.embed_dim)
         self.embed_positions = SinusoidalPositionalEmbedding(self.args.embed_dim, self.padding_idx)
-        self.embed_out = nn.Parameter(
-            torch.zeros((self.alphabet_size, self.args.embed_dim))
-        )
+        self.embed_out = nn.Parameter(torch.zeros((self.alphabet_size, self.args.embed_dim)))
         self.embed_out_bias = None
         if self.args.final_bias:
             self.embed_out_bias = nn.Parameter(torch.zeros(self.alphabet_size))
@@ -117,11 +121,11 @@ class ProteinBertModel(nn.Module):
             need_head_weights = True
 
         assert tokens.ndim == 2
-        padding_mask = tokens.eq(self.padding_idx) # B, T
+        padding_mask = tokens.eq(self.padding_idx)  # B, T
 
         x = self.embed_scale * self.embed_tokens(tokens)
 
-        if getattr(self.args, 'token_dropout', False):
+        if getattr(self.args, "token_dropout", False):
             x.masked_fill_((tokens == self.mask_idx).unsqueeze(-1), 0.0)
             # x: B x T x C
             mask_ratio_train = 0.15 * 0.8
@@ -131,7 +135,7 @@ class ProteinBertModel(nn.Module):
 
         x = x + self.embed_positions(tokens)
 
-        if self.model_version == 'ESM-1b':
+        if self.model_version == "ESM-1b":
             if self.emb_layer_norm_before:
                 x = self.emb_layer_norm_before(x)
             if padding_mask is not None:
@@ -152,16 +156,18 @@ class ProteinBertModel(nn.Module):
             padding_mask = None
 
         for layer_idx, layer in enumerate(self.layers):
-            x, attn = layer(x, self_attn_padding_mask=padding_mask, need_head_weights=need_head_weights)
+            x, attn = layer(
+                x, self_attn_padding_mask=padding_mask, need_head_weights=need_head_weights
+            )
             if (layer_idx + 1) in repr_layers:
                 hidden_representations[layer_idx + 1] = x.transpose(0, 1)
             if need_head_weights:
                 # (H, B, T, T) => (B, H, T, T)
                 attn_weights.append(attn.transpose(1, 0))
 
-        if self.model_version == 'ESM-1b':
+        if self.model_version == "ESM-1b":
             x = self.emb_layer_norm_after(x)
-            x = x.transpose(0, 1) # (T, B, E) => (B, T, E)
+            x = x.transpose(0, 1)  # (T, B, E) => (B, T, E)
 
             # last hidden representation should have layer norm applied
             if (layer_idx + 1) in repr_layers:
@@ -169,7 +175,7 @@ class ProteinBertModel(nn.Module):
             x = self.lm_head(x)
         else:
             x = F.linear(x, self.embed_out, bias=self.embed_out_bias)
-            x = x.transpose(0, 1) # (T, B, E) => (B, T, E)
+            x = x.transpose(0, 1)  # (T, B, E) => (B, T, E)
 
         result = {"logits": x, "representations": hidden_representations}
         if need_head_weights:
@@ -179,7 +185,7 @@ class ProteinBertModel(nn.Module):
                 # ESM-1 models have an additional null-token for attention, which we remove
                 attentions = attentions[..., :-1]
             if padding_mask is not None:
-                attention_mask = (1 - padding_mask.type_as(attentions))
+                attention_mask = 1 - padding_mask.type_as(attentions)
                 attention_mask = attention_mask.unsqueeze(1) * attention_mask.unsqueeze(2)
                 attentions = attentions * attention_mask[:, None, None, :, :]
             result["attentions"] = attentions
@@ -198,17 +204,27 @@ class ProteinBertModel(nn.Module):
 
 
 class MSATransformer(nn.Module):
-
     @classmethod
     def add_args(cls, parser):
+        # fmt: off
         parser.add_argument(
-            "--num_layers", default=12, type=int, metavar="N", help="number of layers"
+            "--num_layers",
+            default=12,
+            type=int,
+            metavar="N",
+            help="number of layers"
         )
         parser.add_argument(
-            "--embed_dim", default=768, type=int, metavar="N", help="embedding dimension"
+            "--embed_dim",
+            default=768,
+            type=int,
+            metavar="N",
+            help="embedding dimension"
         )
         parser.add_argument(
-            "--logit_bias", action="store_true", help="whether to apply bias to logits"
+            "--logit_bias",
+            action="store_true",
+            help="whether to apply bias to logits"
         )
         parser.add_argument(
             "--ffn_embed_dim",
@@ -251,6 +267,7 @@ class MSATransformer(nn.Module):
                 "forward pass. This allows increased input sizes with less memory."
             ),
         )
+        # fmt: on
 
     def __init__(self, args, alphabet):
         super().__init__()
@@ -268,9 +285,7 @@ class MSATransformer(nn.Module):
         )
 
         if getattr(self.args, "embed_positions_msa", False):
-            emb_dim = getattr(
-                self.args, "embed_positions_msa_dim", self.args.embed_dim
-            )
+            emb_dim = getattr(self.args, "embed_positions_msa_dim", self.args.embed_dim)
             self.msa_position_embedding = nn.Parameter(
                 0.01 * torch.randn(1, 1024, 1, emb_dim),
                 requires_grad=True,
@@ -301,23 +316,19 @@ class MSATransformer(nn.Module):
             eos_idx=self.eos_idx,
         )
         self.embed_positions = LearnedPositionalEmbedding(
-            self.args.max_positions, self.args.embed_dim, self.padding_idx,
+            self.args.max_positions,
+            self.args.embed_dim,
+            self.padding_idx,
         )
         self.emb_layer_norm_before = ESM1bLayerNorm(self.args.embed_dim)
         self.emb_layer_norm_after = ESM1bLayerNorm(self.args.embed_dim)
         self.lm_head = RobertaLMHead(
             embed_dim=self.args.embed_dim,
             output_dim=self.alphabet_size,
-            weight=self.embed_tokens.weight
+            weight=self.embed_tokens.weight,
         )
 
-    def forward(
-        self,
-        tokens,
-        repr_layers=[],
-        need_head_weights=False,
-        return_contacts=False
-    ):
+    def forward(self, tokens, repr_layers=[], need_head_weights=False, return_contacts=False):
         if return_contacts:
             need_head_weights = True
 
@@ -328,9 +339,7 @@ class MSATransformer(nn.Module):
             padding_mask = None
 
         x = self.embed_tokens(tokens)
-        x += self.embed_positions(
-            tokens.view(batch_size * num_alignments, seqlen)
-        ).view(x.size())
+        x += self.embed_positions(tokens.view(batch_size * num_alignments, seqlen)).view(x.size())
         if self.msa_position_embedding is not None:
             if x.size(1) > 1024:
                 raise RuntimeError(
@@ -390,9 +399,7 @@ class MSATransformer(nn.Module):
             result["col_attentions"] = col_attentions
             result["row_attentions"] = row_attentions
             if return_contacts:
-                contacts = self.contact_head(
-                    tokens, row_attentions
-                )
+                contacts = self.contact_head(tokens, row_attentions)
                 result["contacts"] = contacts
 
         return result
@@ -405,7 +412,7 @@ class MSATransformer(nn.Module):
         return self.args.layers
 
     def max_tokens_per_msa_(self, value: int) -> None:
-        """ The MSA Transformer automatically batches attention computations when
+        """The MSA Transformer automatically batches attention computations when
         gradients are disabled to allow you to pass in larger MSAs at test time than
         you can fit in GPU memory. By default this occurs when more than 2^14 tokens
         are passed in the input MSA. You can set this value to infinity to disable
