@@ -1,3 +1,5 @@
+# tensor dumps
+*.pt
 # Compiler Output #
 ###################
 *.py[cod]

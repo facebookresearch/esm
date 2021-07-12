@@ -13,4 +13,11 @@ from esm.pretrained import (
     esm1_t6_43M_UR50S,
     esm1b_t33_650M_UR50S,
     esm_msa1_t12_100M_UR50S,
+    esm_msa1b_t12_100M_UR50S,
+    esm1v_t33_650M_UR90S,
+    esm1v_t33_650M_UR90S_1,
+    esm1v_t33_650M_UR90S_2,
+    esm1v_t33_650M_UR90S_3,
+    esm1v_t33_650M_UR90S_4,
+    esm1v_t33_650M_UR90S_5,
 )

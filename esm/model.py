@@ -59,6 +59,7 @@ class ProteinBertModel(nn.Module):
         self.eos_idx = alphabet.eos_idx
         self.prepend_bos = alphabet.prepend_bos
         self.append_eos = alphabet.append_eos
+        self.emb_layer_norm_before = getattr(self.args, 'emb_layer_norm_before', False)
         if self.args.arch == 'roberta_large':
             self.model_version = 'ESM-1b'
             self._init_submodules_esm1b()
@@ -92,7 +93,7 @@ class ProteinBertModel(nn.Module):
         self._init_submodules_common()
         self.embed_scale = 1
         self.embed_positions = LearnedPositionalEmbedding(self.args.max_positions, self.args.embed_dim, self.padding_idx)
-        self.emb_layer_norm_before = ESM1bLayerNorm(self.args.embed_dim)
+        self.emb_layer_norm_before = ESM1bLayerNorm(self.args.embed_dim) if self.emb_layer_norm_before else None
         self.emb_layer_norm_after = ESM1bLayerNorm(self.args.embed_dim)
         self.lm_head = RobertaLMHead(
             embed_dim=self.args.embed_dim,
@@ -131,7 +132,8 @@ class ProteinBertModel(nn.Module):
         x = x + self.embed_positions(tokens)
 
         if self.model_version == 'ESM-1b':
-            x = self.emb_layer_norm_before(x)
+            if self.emb_layer_norm_before:
+                x = self.emb_layer_norm_before(x)
             if padding_mask is not None:
                 x = x * (1 - padding_mask.unsqueeze(-1).type_as(x))
 
@@ -265,9 +267,12 @@ class MSATransformer(nn.Module):
             self.alphabet_size, self.args.embed_dim, padding_idx=self.padding_idx
         )
 
-        if getattr(args, "embed_positions_msa", False):
+        if getattr(self.args, "embed_positions_msa", False):
+            emb_dim = getattr(
+                self.args, "embed_positions_msa_dim", self.args.embed_dim
+            )
             self.msa_position_embedding = nn.Parameter(
-                0.01 * torch.randn(1, 1024, 1, 1),
+                0.01 * torch.randn(1, 1024, 1, emb_dim),
                 requires_grad=True,
             )
         else:

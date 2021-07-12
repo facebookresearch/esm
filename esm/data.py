@@ -49,7 +49,7 @@ class FastaBatchedDataset(object):
 
         _flush_current_seq()
 
-        assert len(set(sequence_labels)) == len(sequence_labels)
+        assert len(set(sequence_labels)) == len(sequence_labels), "Found duplicate sequence labels"
 
         return cls(sequence_labels, sequence_strs)
 

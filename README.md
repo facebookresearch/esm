@@ -2,8 +2,7 @@
 
 
 This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b** and **MSA Transformer**.
-The models are described in detail in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803),
-which first proposed protein language modeling with Transformers.
+Transformer protein language models were introduced in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
 
 **ESM-1b outperforms all tested single-sequence protein language models across a range of structure prediction tasks.**
 The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MSA information.
@@ -24,13 +23,12 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 
 <details><summary>Table of contents</summary>
   
+- [Main models you should use](#main-models)
 - [Comparison to related works](#perf-related)
 - [Usage](#usage)
   - [Quick Start](#quickstart)
   - [Compute embeddings in bulk from FASTA](#bulk-fasta)
   - [Notebooks](#notebooks)
-- [Benchmarks](#perf)
-  - [Comparison on several tasks](#perf-related)
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
   - [ESM Structural Split Dataset](#available-esmssd)
@@ -41,6 +39,8 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 
 <details><summary>What's New</summary>
   
+- July 2021: New pre-trained model ESM-1v released, trained on UniRef90 (see [Meier et al. 2021](https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1)).
+- July 2021: New MSA Transformer released, with a minor fix in the row positional embeddings (`ESM-MSA-1b`).
 - Feb 2021: MSA Transformer added (see [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1)). Example usage in [notebook](#notebooks).
 - Dec 2020: [Self-Attention Contacts](#notebooks) for all pre-trained models (see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761))
 - Dec 2020: Added new pre-trained model [ESM-1b](#perf-related) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix B)
@@ -48,9 +48,149 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
   
 </details>
 
-## Comparison to related works <a name="perf-related"></a>
+## Main models you should use <a name="main-models"></a>
 
-### Supervised downstreams
+| Shorthand | `esm.pretrained.`           | Dataset | Description  |
+|-----------|-----------------------------|---------|--------------|
+| ESM-1b    | `esm1b_t33_650M_UR50S()`       | UR50  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Rives et al. 2019](https://doi.org/10.1101/622803) (Dec 2020 update). |
+| ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S()` |  UR50 + MSA  | MSA Transformer language model. Can be used to extract embeddings from an MSA. Enables SOTA inference of structure. Released with [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2) (ICML'21 version, June 2021).  |
+| ESM-1v    | `esm1v_t33_650M_UR90S_1()` ... `esm1v_t33_650M_UR90S_5()`| UR90  | Language model specialized for prediction of variant effects. Enables SOTA zero-shot prediction of the functional effects of sequence variations. Same architecture as ESM-1b, but trained on UniRef90. Released with [Meier et al. 2021](https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1). |
+
+For a complete list of available models, with details and release notes, see [Pre-trained Models](#available-models).
+
+## Comparison to related works <a name="perf-related"></a>
+<!--
+DO NOT EDIT THIS TABLE! This is the master copy:
+https://docs.google.com/spreadsheets/d/1RPvWF47rIMEr-Jg-SRCoGElHcwCl5d7RyEeSyPgp59A/edit#gid=0
+exported via https://www.tablesgenerator.com/html_tables
+-->
+
+
+
+<table>
+<thead>
+  <tr>
+    <th>Task</th>
+    <th colspan="3">Unsupervised contact prediction</th>
+    <th colspan="2">Supervised contact prediction</th>
+    <th>SSP</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Test set</td>
+    <td>Large valid</td>
+    <td>CASP13-FM</td>
+    <td>CAMEO</td>
+    <td>CASP13-FM</td>
+    <td>CAMEO</td>
+    <td>CB513</td>
+  </tr>
+  <tr>
+    <td>Gremlin (Potts)</td>
+    <td>39.3</td>
+    <td>16.9</td>
+    <td>24.0</td>
+    <td>40.1</td>
+    <td>47.3</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>UniRep</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>11.2</td>
+    <td>17.8</td>
+    <td>58.4</td>
+  </tr>
+  <tr>
+    <td>SeqVec</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>13.8</td>
+    <td>22.5</td>
+    <td>62.1</td>
+  </tr>
+  <tr>
+    <td>TAPE</td>
+    <td>11.2</td>
+    <td>5.5</td>
+    <td>6.8</td>
+    <td>12.3</td>
+    <td>15.9</td>
+    <td>58.0</td>
+  </tr>
+  <tr>
+    <td>ProtBert-BFD</td>
+    <td>34.1</td>
+    <td>13.5</td>
+    <td>23.9</td>
+    <td>24.7</td>
+    <td>37.0</td>
+    <td>70.0</td>
+  </tr>
+  <tr>
+    <td>Prot-T5-XL-BFD</td>
+    <td>35.6</td>
+    <td>16.5</td>
+    <td>25.9</td>
+    <td>25.0</td>
+    <td>40.8</td>
+    <td>71.4 ± 0.3</td>
+  </tr>
+  <tr>
+    <td>ESM-1</td>
+    <td>33.7</td>
+    <td>13.6</td>
+    <td>21.4</td>
+    <td>(todo)</td>
+    <td>(todo)</td>
+    <td>69.2</td>
+  </tr>
+  <tr>
+    <td>ESM-1b</td>
+    <td>41.1</td>
+    <td>17.0</td>
+    <td>30.9</td>
+    <td>28.2</td>
+    <td>44.4</td>
+    <td>71.6 ± 0.1</td>
+  </tr>
+  <tr>
+    <td>ESM-1v</td>
+    <td>35.3</td>
+    <td>14.2</td>
+    <td>24.4</td>
+    <td> </td>
+    <td> </td>
+    <td> </td>
+  </tr>
+  <tr>
+    <td>ESM-MSA-1b</td>
+    <td>57.4</td>
+    <td>44.8</td>
+    <td>43.5</td>
+    <td>54.6</td>
+    <td>55.8</td>
+    <td>73.4 ± 0.3</td>
+  </tr>
+</tbody>
+</table>
+
+Comparison to related protein language models on structure prediction tasks.
+
+* All contact numbers are the top-L,LR precision metric, where long range means sequence separation of at least 24 residues
+* For unsupervised contact prediction, a sparse linear combination of the attention heads is used to directly predict protein contacts,
+fitted with logistic regression on 20 structures. 
+For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761).
+* Supervised contact prediction all uses the same resnet (32 layers) and trRosetta training data, cf [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2).
+* (SSP) Secondary structure Q8 accuracy on CB513, transformer finetuned with convolution + LSTM head.
+* Direct coupling analysis methods (Gremlin, mfDCA, Psicov) and ESM-MSA-1 use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
+
+
+### REMOVE: Supervised downstreams
 
 | Model                                                       | Input    | Pre-training | Params | SSP      | Contact     |
 |-------------------------------------------------------------|----------|--------------|--------|----------|-------------|
@@ -66,7 +206,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 | Transformer-34                                              | Sequence | UR100        | 670M   | 64.3     | 32.7        |
 | Transformer-34                                              | Sequence | UR50/S       | 670M   | 69.2     | 50.2        |
 | **ESM-1b**                                                  | Sequence | UR50/S       | 650M   | **71.6** | **56.9**    |
-| **ESM-MSA-1**                                               | MSA      | UR50/S + MSA | 100M   | **72.9** | Coming Soon |
+| **ESM-MSA-1b**                                              | MSA      | UR50/S + MSA | 100M   | **72.9** | Coming Soon |
 
 Comparison to related protein language models.
 (SSP) Secondary structure Q8 accuracy on CB513, transformer finetuned with convolution + LSTM head.
@@ -75,7 +215,7 @@ For more details, see [Rives et al. 2019](https://doi.org/10.1101/622803).
 
 \* Pre-training datasets from related works have differences from ours.
 
-### Unsupervised structure prediction
+### REMOVE: Unsupervised structure prediction
 | Model                                                                             | Input    | Pre-training | Params | L        | L/5      |
 |-----------------------------------------------------------------------------------|----------|--------------|--------|----------|----------|
 | [mfDCA](https://www.pnas.org/content/108/49/E1293)                        | MSA      |              |        | 33.0     | 54.2     |
@@ -158,11 +298,11 @@ A cuda device is optional and will be auto-detected.
 The following command extracts the final-layer embedding for a FASTA file from the ESM-1b model:
 
 ```bash
-$ python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta my_reprs/ \
+$ python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
     --repr_layers 0 32 33 --include mean per_tok
 ```
 
-Directory `my_reprs/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
+Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
 `extract.py` has flags that determine what's included in the `.pt` file:
 * `--repr-layers` (default: final only) selects which layers to include embeddings from.
 * `--include` specifies what embeddings to save. You can use the following:
@@ -173,12 +313,12 @@ Directory `my_reprs/` now contains one `.pt` file per FASTA sequence; use `torch
 
 ### Notebooks <a name="notebooks"></a> 
 
-#### Variant prediction - using the embeddings
+#### Supervised variant prediction - training a classifier on the embeddings
 
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/sup_variant_prediction.ipynb)
 
 
-To help you get started with using the embeddings, this [jupyter notebook tutorial](examples/variant_prediction.ipynb) shows how to train a variant predictor using embeddings from ESM-1.
+To help you get started with using the embeddings, this [jupyter notebook tutorial](examples/sup_variant_prediction.ipynb) shows how to train a supervised variant predictor using embeddings from ESM-1.
 You can adopt a similar protocol to train a model for any downstream task, even with limited data.
 First you can obtain the embeddings for ``examples/P62593.fasta`` either by [downloading the precomputed](https://dl.fbaipublicfiles.com/fair-esm/examples/P62593_reprs.tar.gz) embeddings
 as instructed in the notebook or by running the following:
@@ -191,6 +331,10 @@ $ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_re
 
 Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb).
 
+**Note this is somewhat outdated: use `esm1v_t33_650M_UR90S` instead, and
+see [the newer instructions for zero-shot variant prediction](variant-prediction/README.md),
+that is without any supervised training.**
+
 
 #### Unsupervised contact prediction
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/contact_prediction.ipynb)
@@ -201,6 +345,8 @@ This methodology is based on our ICLR 2021 paper,
 [Transformer protein language models are unsupervised structure learners. (Rao et al. 2020)](https://doi.org/10.1101/2020.12.15.422761)
 The MSA Transformer (ESM-MSA-1) takes a multiple sequence alignment (MSA) as input, and uses the tied row self-attention maps in the same way.
 See [MSA Transformer. (Rao et al. 2021)](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1).
+
+To get unsupervised attention-based contacts, call `model.predict_contacts(tokens)` or `model(tokens, return_contacts=True)`.
 
 
 #### ESMStructuralSplitDataset and self-attention contact prediction
@@ -214,16 +360,28 @@ and computes the self-attention map unsupervised contact predictions using ESM-1
 
 ### Pre-trained Models <a name="available-models"></a>
 
-| Shorthand | Full Name           | #layers | #params | Dataset | Embedding Dim |  Model URL (automatically downloaded to `~/.cache/torch/hub/checkpoints`) |
+| Shorthand | `esm.pretrained.`           | #layers | #params | Dataset | Embedding Dim |  Model URL (automatically downloaded to `~/.cache/torch/hub/checkpoints`) |
 |-----------|---------------------|---------|---------|---------|---------------|-----------------------------------------------------------------------|
-| ESM-MSA-1 | esm_msa1_t12_100M_UR50S | 12     | 100M    | UR50/S  | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1_t12_100M_UR50S.pt   |
-| ESM-1b    | esm1b_t33_650M_UR50S | 33     | 650M    | UR50/S  | 1280          | https://dl.fbaipublicfiles.com/fair-esm/models/esm1b_t33_650M_UR50S.pt   |
-| ESM-1     | esm1_t34_670M_UR50S | 34      | 670M    | UR50/S  | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50S.pt |
-|           | esm1_t34_670M_UR50D | 34      | 670M    | UR50/D  | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50D.pt |
-|           | esm1_t34_670M_UR100 | 34      | 670M    | UR100   | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR100.pt |
-|           | esm1_t12_85M_UR50S  | 12      | 85M     | UR50/S  | 768           |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t12_85M_UR50S.pt  |
-|           | esm1_t6_43M_UR50S   | 6       | 43M     | UR50/S  | 768           |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t6_43M_UR50S.pt   |
+| ESM-1v    | `esm1v_t33_650M_UR90S_[1-5]` | 33     | 650M    | UR90/S 2020_03  | 1280          | https://dl.fbaipublicfiles.com/fair-esm/models/esm1v_t33_650M_UR90S_1.pt   |
+| ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S` | 12     | 100M    | UR50/S + MSA 2018_03 | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1b_t12_100M_UR50S.pt   |
+| ESM-MSA-1 | `esm_msa1_t12_100M_UR50S` | 12     | 100M    | UR50/S + MSA 2018_03 | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1_t12_100M_UR50S.pt   |
+| ESM-1b    | `esm1b_t33_650M_UR50S` | 33     | 650M    | UR50/S 2018_03 | 1280          | https://dl.fbaipublicfiles.com/fair-esm/models/esm1b_t33_650M_UR50S.pt   |
+| ESM-1     | `esm1_t34_670M_UR50S` | 34      | 670M    | UR50/S 2018_03 | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50S.pt |
+|           | `esm1_t34_670M_UR50D` | 34      | 670M    | UR50/D 2018_03 | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR50D.pt |
+|           | `esm1_t34_670M_UR100` | 34      | 670M    | UR100 2018_03  | 1280          |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t34_670M_UR100.pt |
+|           | `esm1_t12_85M_UR50S`  | 12      | 85M     | UR50/S 2018_03 | 768           |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t12_85M_UR50S.pt  |
+|           | `esm1_t6_43M_UR50S`   | 6       | 43M     | UR50/S 2018_03 | 768           |  https://dl.fbaipublicfiles.com/fair-esm/models/esm1_t6_43M_UR50S.pt   |
 
+
+Here is a chronological list of the released models and the paper they were introduced in:
+
+| Shorthand | Release Notes |
+|-----------|---------------|
+| ESM-1     | Released with Rives et al. 2019 (Aug 2020 update). |
+| ESM-1b    | Released with Rives et al. 2019 (Dec 2020 update). See Appendix B. |
+| ESM-MSA-1 | Released with Rao et al. 2021 (Preprint v1). |
+| ESM-MSA-1b | Released with Rao et al. 2021 (ICML'21 version, June 2021). |
+| ESM-1v     | Released with Meier et al. 2021. |
 
 ### ESM Structural Split Dataset <a name="available-esmssd"></a>
 This is a five-fold cross validation dataset of protein domain structures that can be used to measure generalization of representations
@@ -261,8 +419,7 @@ which is released by the UniProt Consortium under a [Creative Commons Attributio
 
 ## Citations <a name="citations"></a>
 
-If you find the models useful in your research, we ask that you cite the
-following paper:
+If you find the models useful in your research, we ask that you cite the relevant paper:
 
 ```bibtex
 @article{rives2019biological,
@@ -275,7 +432,7 @@ following paper:
 }
 ```
  
-For the self-attention contact prediction, see [the following paper (biorxiv preprint)](https://www.biorxiv.org/content/10.1101/2020.12.15.422761v1):
+For the self-attention contact prediction:
 
 ```bibtex
 @article{rao2020transformer,
@@ -288,7 +445,7 @@ For the self-attention contact prediction, see [the following paper (biorxiv pre
 }
 ```
 
-For the MSA Transformer, see [the following paper (biorxiv preprint)](https://doi.org/10.1101/2021.02.12.430858):
+For the MSA Transformer:
 
 ```bibtex
 @article{rao2021msa,
@@ -297,6 +454,19 @@ For the MSA Transformer, see [the following paper (biorxiv preprint)](https://do
   year={2021},
   doi={10.1101/2021.02.12.430858},
   url={https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1},
+  journal={bioRxiv}
+}
+```
+
+For variant prediction using ESM-1v:
+
+```bibtex
+@article{meier2021language,
+  author = {Meier, Joshua and Rao, Roshan and Verkuil, Robert and Liu, Jason and Sercu, Tom and Rives, Alexander},
+  title = {Language models enable zero-shot prediction of the effects of mutations on protein function},
+  year={2021},
+  doi={10.1101/2021.07.09.450648},
+  url={https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1},
   journal={bioRxiv}
 }
 ```
