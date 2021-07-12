@@ -190,52 +190,6 @@ For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/20
 * Direct coupling analysis methods (Gremlin, mfDCA, Psicov) and ESM-MSA-1 use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
 
 
-### REMOVE: Supervised downstreams
-
-| Model                                                       | Input    | Pre-training | Params | SSP      | Contact     |
-|-------------------------------------------------------------|----------|--------------|--------|----------|-------------|
-| [UniRep](https://www.nature.com/articles/s41592-019-0598-1) | Sequence | UR50\*       | 18M    | 58.4     | 21.9        |
-| [SeqVec](https://github.com/rostlab/SeqVec)                 | Sequence | UR50\*       | 93M    | 62.1     | 29.0        |
-| [TAPE](https://github.com/songlab-cal/tape)                 | Sequence | PFAM\*       | 38M    | 58.0     | 23.2        |
-| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)    | Sequence | BFD\*        | 420M   | 70.0     | 50.3        |
-| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)  | Sequence | BFD\*        | 3B     | 71.4     | 55.9        |
-| LSTM biLM (S)                                               | Sequence | UR50/S       | 28M    | 60.4     | 24.1        |
-| LSTM biLM (L)                                               | Sequence | UR50/S       | 113M   | 62.4     | 27.8        |
-| Transformer-6                                               | Sequence | UR50/S       | 43M    | 62.0     | 30.2        |
-| Transformer-12                                              | Sequence | UR50/S       | 85M    | 65.4     | 37.7        |
-| Transformer-34                                              | Sequence | UR100        | 670M   | 64.3     | 32.7        |
-| Transformer-34                                              | Sequence | UR50/S       | 670M   | 69.2     | 50.2        |
-| **ESM-1b**                                                  | Sequence | UR50/S       | 650M   | **71.6** | **56.9**    |
-| **ESM-MSA-1b**                                              | MSA      | UR50/S + MSA | 100M   | **72.9** | Coming Soon |
-
-Comparison to related protein language models.
-(SSP) Secondary structure Q8 accuracy on CB513, transformer finetuned with convolution + LSTM head.
-(Contact) Top-L long range contact precision on RaptorX test set, with 32-layer ResNet head.
-For more details, see [Rives et al. 2019](https://doi.org/10.1101/622803).
-
-\* Pre-training datasets from related works have differences from ours.
-
-### REMOVE: Unsupervised structure prediction
-| Model                                                                             | Input    | Pre-training | Params | L        | L/5      |
-|-----------------------------------------------------------------------------------|----------|--------------|--------|----------|----------|
-| [mfDCA](https://www.pnas.org/content/108/49/E1293)                        | MSA      |              |        | 33.0     | 54.2     |
-| [Psicov](https://academic.oup.com/bioinformatics/article/28/2/184/198108) | MSA      |              |        | 32.6     | 58.1     |
-| [Gremlin](https://github.com/nickbhat/mogwai)                             | MSA      |              |        | 39.3     | 62.8     |
-| [TAPE](https://github.com/songlab-cal/tape)                                       | Sequence | PFAM\*       | 38M    | 11.2     | 17.9     |
-| [ProtBert-BFD](https://github.com/agemagician/ProtTrans)                          | Sequence | BFD\*        | 420M   | 34.1     | 57.4     |
-| [Prot-T5-XL-BFD](https://github.com/agemagician/ProtTrans)                        | Sequence | BFD\*        | 3B     | 35.6     | 57.8     |
-| Transformer-6                                                                     | Sequence | UR50/S       | 43M    | 13.2     | 21.5     |
-| Transformer-12                                                                    | Sequence | UR50/S       | 85M    | 23.7     | 39.3     |
-| Transformer-34                                                                    | Sequence | UR50/S       | 670M   | 34.7     | 56.0     |
-| **ESM-1b**                                                                        | Sequence | UR50/S       | 650M   | **41.1** | **66.1** |
-| **ESM-MSA-1**                                                                     | MSA      | UR50/S + MSA | 100M   | **57.7** | **83.1** |
-
-Comparison to related protein language models on unsupervised contact prediction:
-a sparse linear combination of the attention heads is used to directly predict protein contacts.
-Average Top-L and Top-L/5 long range contact precision on 14842 test structures, sparse logistic regression trained on 20 structures. 
-Direct coupling analysis methods (Gremlin, mfDCA, Psicov) and ESM-MSA-1 use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
-For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761).
-
 ## Usage <a name="usage"></a>
 
 ### Quick Start <a name="quickstart"></a>
