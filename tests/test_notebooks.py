@@ -8,8 +8,9 @@ import subprocess
 import pytest
 from pathlib import Path
 
-notebook_dir = Path(__file__).parents[1] / 'examples'
-notebook_fns = notebook_dir.glob('*.ipynb')
+notebook_dir = Path(__file__).parents[1] / "examples"
+notebook_fns = notebook_dir.glob("*.ipynb")
+
 
 def convert_notebook_to_py(nb_fn: Path, py_fn: Path) -> None:
     """
@@ -17,6 +18,7 @@ def convert_notebook_to_py(nb_fn: Path, py_fn: Path) -> None:
     """
     import nbformat
     from nbconvert import PythonExporter
+
     with open(nb_fn) as fh:
         nb = nbformat.reads(fh.read(), nbformat.NO_CONVERT)
 
@@ -26,13 +28,15 @@ def convert_notebook_to_py(nb_fn: Path, py_fn: Path) -> None:
     # Skip the magic, which gets converted to `get_ipython()`
     source.replace("get_ipython", "# get_ipython")
 
-    with open(py_fn, 'w+') as fh:
+    with open(py_fn, "w+") as fh:
         fh.writelines(source)
 
+
 def run_multiple(cmds):
-    for cmd in cmds.strip().split('\n'):
+    for cmd in cmds.strip().split("\n"):
         print(cmd)
         subprocess.run(cmd.strip(), shell=True, check=True)
+
 
 def do_setup(nb_name):
     """ Do any setup work; see intro of the notebook """
@@ -50,7 +54,7 @@ def do_setup(nb_name):
 @pytest.mark.parametrize("nb_fn", list(notebook_fns))
 def test_run_notebook(nb_fn: Path, tmp_path: Path):
     """ Simply make sure the notebooks run from a-z """
-    py_fn = tmp_path / (nb_fn.stem + '.py')
+    py_fn = tmp_path / (nb_fn.stem + ".py")
     print(py_fn)
     convert_notebook_to_py(nb_fn, py_fn)
     os.chdir(notebook_dir)

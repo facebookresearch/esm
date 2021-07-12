@@ -12,9 +12,12 @@ from pathlib import Path
 import torch
 import esm
 
+
 def test_readme_1():
     import torch
+
     model, alphabet = torch.hub.load("facebookresearch/esm", "esm1b_t33_650M_UR50S")
+
 
 def test_readme_2():
     import torch
@@ -44,15 +47,18 @@ def test_readme_2():
 
     # Look at the unsupervised self-attention map contact predictions
     import matplotlib.pyplot as plt
+
     for (_, seq), attention_contacts in zip(data, results["contacts"]):
         plt.matshow(attention_contacts[: len(seq), : len(seq)])
         plt.title(seq)
         plt.show()
 
+
 def _run_py_cmd(cmd):
     this_python = sys.executable
-    cmd.replace('python', this_python)
+    cmd.replace("python", this_python)
     subprocess.run(cmd, shell=True, check=True)
+
 
 def test_readme_3():
     # NOTE modification on copy paste from README for speed:
@@ -64,9 +70,10 @@ python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/som
 """
     _run_py_cmd(cmd)
     confirm_all_tensors_equal(
-        'examples/few_proteins_emb_esm1/',
-        'https://dl.fbaipublicfiles.com/fair-esm/tests/some_proteins_emb_esm1_t34_670M_UR50S_ref'
+        "examples/few_proteins_emb_esm1/",
+        "https://dl.fbaipublicfiles.com/fair-esm/tests/some_proteins_emb_esm1_t34_670M_UR50S_ref",
     )
+
 
 def assert_pt_file_equal(f, fref):
     a = torch.load(f)
@@ -75,21 +82,24 @@ def assert_pt_file_equal(f, fref):
     which_layers = a["representations"].keys() & b["representations"].keys()
     assert which_layers, "Expected at least one layer appearing in both dumps"
     for layer in which_layers:
-        assert torch.allclose(a['representations'][layer], b['representations'][layer], atol=1e-3)
+        assert torch.allclose(a["representations"][layer], b["representations"][layer], atol=1e-3)
+
 
 def confirm_all_tensors_equal(local_dir: str, ref_dir: str) -> None:
     # TODO use pytest built-in fixtures for tmp_path https://docs.pytest.org/en/6.2.x/fixture.html#fixtures
-    for fn in Path(local_dir).glob('*.pt'):
-        with tempfile.NamedTemporaryFile(mode='w+b', prefix=fn.name) as f:
-            ref_url = f'{ref_dir}/{fn.name}'
+    for fn in Path(local_dir).glob("*.pt"):
+        with tempfile.NamedTemporaryFile(mode="w+b", prefix=fn.name) as f:
+            ref_url = f"{ref_dir}/{fn.name}"
             with requests.get(ref_url, stream=True) as r:
                 shutil.copyfileobj(r.raw, f)
             f.seek(0)
             assert_pt_file_equal(fn, f)
 
+
 def test_msa_transformers():
     _test_msa_transformer(*esm.pretrained.esm_msa1_t12_100M_UR50S())
     _test_msa_transformer(*esm.pretrained.esm_msa1b_t12_100M_UR50S())
+
 
 def _test_msa_transformer(model, alphabet):
     batch_converter = alphabet.get_batch_converter()
@@ -106,6 +116,7 @@ def _test_msa_transformer(model, alphabet):
     token_representations = results["representations"][12]
     assert token_representations.shape == (1, 3, 66, 768)
 
+
 def test_variant_readme_1():
     cmd = """
 python variant-prediction/predict.py \
@@ -118,6 +129,7 @@ python variant-prediction/predict.py \
     --scoring-strategy wt-marginals
     """
     _run_py_cmd(cmd)
+
 
 def test_variant_readme_2():
     cmd = """
@@ -133,8 +145,9 @@ python variant-prediction/predict.py \
     """
     _run_py_cmd(cmd)
 
+
 if __name__ == "__main__":
     confirm_all_tensors_equal(
-        'examples/few_proteins_emb_esm1/',
-        'https://dl.fbaipublicfiles.com/fair-esm/tests/some_proteins_emb_esm1_t34_670M_UR50S_ref/'
+        "examples/few_proteins_emb_esm1/",
+        "https://dl.fbaipublicfiles.com/fair-esm/tests/some_proteins_emb_esm1_t34_670M_UR50S_ref/",
     )

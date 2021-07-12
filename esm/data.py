@@ -163,9 +163,7 @@ class Alphabet(object):
             use_msa = True
         else:
             raise ValueError("Unknown architecture selected")
-        return cls(
-            standard_toks, prepend_toks, append_toks, prepend_bos, append_eos, use_msa
-        )
+        return cls(standard_toks, prepend_toks, append_toks, prepend_bos, append_eos, use_msa)
 
 
 class BatchConverter(object):
@@ -183,9 +181,7 @@ class BatchConverter(object):
         tokens = torch.empty(
             (
                 batch_size,
-                max_len
-                + int(self.alphabet.prepend_bos)
-                + int(self.alphabet.append_eos),
+                max_len + int(self.alphabet.prepend_bos) + int(self.alphabet.append_eos),
             ),
             dtype=torch.int64,
         )
@@ -198,18 +194,13 @@ class BatchConverter(object):
             strs.append(seq_str)
             if self.alphabet.prepend_bos:
                 tokens[i, 0] = self.alphabet.cls_idx
-            seq = torch.tensor(
-                [self.alphabet.get_idx(s) for s in seq_str], dtype=torch.int64
-            )
+            seq = torch.tensor([self.alphabet.get_idx(s) for s in seq_str], dtype=torch.int64)
             tokens[
                 i,
-                int(self.alphabet.prepend_bos) : len(seq_str)
-                + int(self.alphabet.prepend_bos),
+                int(self.alphabet.prepend_bos) : len(seq_str) + int(self.alphabet.prepend_bos),
             ] = seq
             if self.alphabet.append_eos:
-                tokens[
-                    i, len(seq_str) + int(self.alphabet.prepend_bos)
-                ] = self.alphabet.eos_idx
+                tokens[i, len(seq_str) + int(self.alphabet.prepend_bos)] = self.alphabet.eos_idx
 
         return labels, strs, tokens
 
@@ -230,9 +221,7 @@ class MSABatchConverter(BatchConverter):
             (
                 batch_size,
                 max_alignments,
-                max_seqlen
-                + int(self.alphabet.prepend_bos)
-                + int(self.alphabet.append_eos),
+                max_seqlen + int(self.alphabet.prepend_bos) + int(self.alphabet.append_eos),
             ),
             dtype=torch.int64,
         )
@@ -351,14 +340,14 @@ class ESMStructuralSplitDataset(torch.utils.data.Dataset):
         split_level,
         cv_partition,
         split,
-        root_path=os.path.expanduser('~/.cache/torch/data/esm'),
+        root_path=os.path.expanduser("~/.cache/torch/data/esm"),
         download=False,
     ):
         super().__init__()
         assert split in [
-            'train',
-            'valid',
-        ], "train_valid must be \'train\' or \'valid\'"
+            "train",
+            "valid",
+        ], "train_valid must be 'train' or 'valid'"
         self.root_path = root_path
         self.base_path = os.path.join(self.root_path, self.base_folder)
 
@@ -367,9 +356,9 @@ class ESMStructuralSplitDataset(torch.utils.data.Dataset):
             self.download()
 
         self.split_file = os.path.join(
-            self.base_path, 'splits', split_level, cv_partition, f'{split}.txt'
+            self.base_path, "splits", split_level, cv_partition, f"{split}.txt"
         )
-        self.pkl_dir = os.path.join(self.base_path, 'pkl')
+        self.pkl_dir = os.path.join(self.base_path, "pkl")
         self.names = []
         with open(self.split_file) as f:
             self.names = f.read().splitlines()
@@ -387,16 +376,14 @@ class ESMStructuralSplitDataset(torch.utils.data.Dataset):
     def download(self):
 
         if self._check_exists():
-            print('Files already downloaded and verified')
+            print("Files already downloaded and verified")
             return
 
         from torchvision.datasets.utils import download_url
 
         for url, tar_filename, filename, md5_hash in self.file_list:
             download_path = os.path.join(self.base_path, tar_filename)
-            download_url(
-                url=url, root=self.base_path, filename=tar_filename, md5=md5_hash
-            )
+            download_url(url=url, root=self.base_path, filename=tar_filename, md5=md5_hash)
             shutil.unpack_archive(download_path, self.base_path)
 
     def __getitem__(self, idx):
@@ -408,7 +395,7 @@ class ESMStructuralSplitDataset(torch.utils.data.Dataset):
          - coords : np.array (3D coordinates)
         """
         name = self.names[idx]
-        pkl_fname = os.path.join(self.pkl_dir, name[1:3], f'{name}.pkl')
-        with open(pkl_fname, 'rb') as f:
+        pkl_fname = os.path.join(self.pkl_dir, name[1:3], f"{name}.pkl")
+        with open(pkl_fname, "rb") as f:
             obj = pickle.load(f)
         return obj
