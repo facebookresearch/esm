@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import pytest
+from pathlib import Path
 import torch
 import esm
 
@@ -28,7 +29,7 @@ model_names = [mn.strip() for mn in model_names.strip(" ,\n").split(",")]
 
 
 @pytest.mark.parametrize("model_name", model_names)
-def test_load_fwd_model(model_name: str) -> None:
+def test_load_hub_fwd_model(model_name: str) -> None:
     model, alphabet = getattr(esm.pretrained, model_name)()
     # batch_size = 2, seq_len = 3, tokens within vocab
     dummy_inp = torch.tensor([[0, 1, 2], [3, 4, 5]])
@@ -37,3 +38,11 @@ def test_load_fwd_model(model_name: str) -> None:
     output = model(dummy_inp)  # dict
     logits = output["logits"].squeeze(0)
     assert logits.shape == (2, 3, len(alphabet))
+
+@pytest.mark.parametrize("model_name", model_names)
+def test_load_local(model_name: str) -> None:
+    # Assumes everything has already been loaded & cached.
+    local_path = Path.home() / ".cache/torch/hub/checkpoints" / (model_name + ".pt")
+    if model_name.endswith('esm1v_t33_650M_UR90S'):
+        return  # skip; needs to get rerouted to specific instance
+    model, alphabet = esm.pretrained.load_model_and_alphabet_local(local_path)
