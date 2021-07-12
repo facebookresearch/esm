@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import sys
 import subprocess
 import tempfile
 import requests
@@ -48,6 +49,11 @@ def test_readme_2():
         plt.title(seq)
         plt.show()
 
+def _run_py_cmd(cmd):
+    this_python = sys.executable
+    cmd.replace('python', this_python)
+    subprocess.run(cmd, shell=True, check=True)
+
 def test_readme_3():
     # NOTE modification on copy paste from README for speed:
     # * some_proteins -> few_proteins (subset)
@@ -56,7 +62,7 @@ def test_readme_3():
 python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
     --repr_layers 0 32 33 --include mean per_tok
 """
-    subprocess.run(cmd, shell=True, check=True)
+    _run_py_cmd(cmd)
     confirm_all_tensors_equal(
         'examples/few_proteins_emb_esm1/',
         'https://dl.fbaipublicfiles.com/fair-esm/tests/some_proteins_emb_esm1_t34_670M_UR50S_ref'
@@ -111,7 +117,7 @@ python variant-prediction/predict.py \
     --offset-idx 24 \
     --scoring-strategy wt-marginals
     """
-    subprocess.run(cmd, shell=True, check=True)
+    _run_py_cmd(cmd)
 
 def test_variant_readme_2():
     cmd = """
@@ -125,7 +131,7 @@ python variant-prediction/predict.py \
     --scoring-strategy masked-marginals \
     --msa-path ./variant-prediction/examples/BLAT_ECOLX_1_b0.5.a3m
     """
-    subprocess.run(cmd, shell=True, check=True)
+    _run_py_cmd(cmd)
 
 if __name__ == "__main__":
     confirm_all_tensors_equal(

@@ -24,10 +24,11 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 <details><summary>Table of contents</summary>
   
 - [Main models you should use](#main-models)
-- [Comparison to related works](#perf-related)
+- [Comparison to related works](#perf_related)
 - [Usage](#usage)
   - [Quick Start](#quickstart)
-  - [Compute embeddings in bulk from FASTA](#bulk-fasta)
+  - [Compute embeddings in bulk from FASTA](#bulk_fasta)
+  - [Zero-shot variant prediction](#zs_variant)
   - [Notebooks](#notebooks)
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
@@ -43,7 +44,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 - July 2021: New MSA Transformer released, with a minor fix in the row positional embeddings (`ESM-MSA-1b`).
 - Feb 2021: MSA Transformer added (see [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1)). Example usage in [notebook](#notebooks).
 - Dec 2020: [Self-Attention Contacts](#notebooks) for all pre-trained models (see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761))
-- Dec 2020: Added new pre-trained model [ESM-1b](#perf-related) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix B)
+- Dec 2020: Added new pre-trained model [ESM-1b](#perf_related) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix B)
 - Dec 2020: [ESM Structural Split Dataset](#available-esmssd) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix A.10)
   
 </details>
@@ -58,7 +59,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 
 For a complete list of available models, with details and release notes, see [Pre-trained Models](#available-models).
 
-## Comparison to related works <a name="perf-related"></a>
+## Comparison to related works <a name="perf_related"></a>
 <!--
 DO NOT EDIT THIS TABLE! This is the master copy:
 https://docs.google.com/spreadsheets/d/1RPvWF47rIMEr-Jg-SRCoGElHcwCl5d7RyEeSyPgp59A/edit#gid=0
@@ -265,6 +266,11 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
   * `bos` includes the embeddings from the beginning-of-sequence token. 
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
+### Zero-shot variant prediction <a name="zs_variant"></a>
+See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in 
+[Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1).
+
+
 ### Notebooks <a name="notebooks"></a> 
 
 #### Supervised variant prediction - training a classifier on the embeddings
@@ -286,7 +292,7 @@ $ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_re
 Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb).
 
 **Note this is somewhat outdated: use `esm1v_t33_650M_UR90S` instead, and
-see [the newer instructions for zero-shot variant prediction](variant-prediction/README.md),
+see [the newer instructions for zero-shot variant prediction](variant-prediction/),
 that is without any supervised training.**
 
 
