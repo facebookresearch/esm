@@ -126,7 +126,7 @@ class Alphabet(object):
         return self.all_toks[ind]
 
     def to_dict(self):
-        return {"toks": self.toks}
+        return {"toks": self.standard_toks}
 
     def get_batch_converter(self):
         if self.use_msa:
