@@ -126,17 +126,13 @@ class Alphabet(object):
         return self.all_toks[ind]
 
     def to_dict(self):
-        return {"toks": self.toks}
+        return self.tok_to_idx.copy()
 
     def get_batch_converter(self):
         if self.use_msa:
             return MSABatchConverter(self)
         else:
             return BatchConverter(self)
-
-    @classmethod
-    def from_dict(cls, d, **kwargs):
-        return cls(standard_toks=d["toks"], **kwargs)
 
     @classmethod
     def from_architecture(cls, name: str) -> "Alphabet":
