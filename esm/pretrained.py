@@ -58,7 +58,7 @@ def load_model_and_alphabet_hub(model_name):
 def load_model_and_alphabet_local(model_location):
     """ Load from local path. The regression weights need to be co-located """
     model_location = Path(model_location)
-    model_data = torch.load(model_location, map_location="cpu")
+    model_data = torch.load(str(model_location), map_location="cpu")
     model_name = model_location.stem
     if _has_regression_weights(model_name):
         regression_location = str(model_location.with_suffix("")) + "-contact-regression.pt"
