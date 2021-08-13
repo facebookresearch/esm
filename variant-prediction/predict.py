@@ -179,7 +179,11 @@ def main(args):
                     token_probs = torch.log_softmax(model(batch_tokens.cuda())["logits"], dim=-1)
                 df[model_location] = df.apply(
                     lambda row: label_row(
-                        row[args.mutation_col], args.sequence, token_probs, alphabet, args.offset_idx
+                        row[args.mutation_col],
+                        args.sequence,
+                        token_probs,
+                        alphabet,
+                        args.offset_idx,
                     ),
                     axis=1,
                 )
@@ -196,7 +200,11 @@ def main(args):
                 token_probs = torch.cat(all_token_probs, dim=0).unsqueeze(0)
                 df[model_location] = df.apply(
                     lambda row: label_row(
-                        row[args.mutation_col], args.sequence, token_probs, alphabet, args.offset_idx
+                        row[args.mutation_col],
+                        args.sequence,
+                        token_probs,
+                        alphabet,
+                        args.offset_idx,
                     ),
                     axis=1,
                 )
