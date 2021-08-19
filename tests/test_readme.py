@@ -31,6 +31,14 @@ def test_readme_2():
     data = [
         ("protein1", "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"),
         ("protein2", "KALTARQQEVFDLIRDHISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
+        (
+            "protein2 with mask",
+            "KALTARQQEVFDLIRD<mask>ISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"
+        ),
+        (
+            "protein3",
+            "K A <mask> I S Q"
+        ),
     ]
     batch_labels, batch_strs, batch_tokens = batch_converter(data)
 

@@ -40,6 +40,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 
 <details><summary>What's New</summary>
   
+- August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like <mask>) in sequence.
 - July 2021: New pre-trained model ESM-1v released, trained on UniRef90 (see [Meier et al. 2021](https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1)).
 - July 2021: New MSA Transformer released, with a minor fix in the row positional embeddings (`ESM-MSA-1b`).
 - Feb 2021: MSA Transformer added (see [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1)). Example usage in [notebook](#notebooks).
@@ -224,6 +225,8 @@ batch_converter = alphabet.get_batch_converter()
 data = [
     ("protein1", "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"),
     ("protein2", "KALTARQQEVFDLIRDHISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
+    ("protein2 with mask","KALTARQQEVFDLIRD<mask>ISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
+    ("protein3",  "K A <mask> I S Q"),
 ]
 batch_labels, batch_strs, batch_tokens = batch_converter(data)
 

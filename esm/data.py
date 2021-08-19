@@ -3,6 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+import itertools
 import os
 from typing import Sequence, Tuple, List, Union
 import pickle
@@ -49,7 +50,9 @@ class FastaBatchedDataset(object):
 
         _flush_current_seq()
 
-        assert len(set(sequence_labels)) == len(sequence_labels), "Found duplicate sequence labels"
+        assert len(set(sequence_labels)) == len(
+            sequence_labels
+        ), "Found duplicate sequence labels"
 
         return cls(sequence_labels, sequence_strs)
 
@@ -115,6 +118,8 @@ class Alphabet(object):
         self.cls_idx = self.get_idx("<cls>")
         self.mask_idx = self.get_idx("<mask>")
         self.eos_idx = self.get_idx("<eos>")
+        self.all_special_tokens = ['<eos>', '<unk>', '<pad>', '<cls>', '<mask>']
+        self.unique_no_split_tokens = self.all_toks
 
     def __len__(self):
         return len(self.all_toks)
@@ -161,6 +166,82 @@ class Alphabet(object):
             raise ValueError("Unknown architecture selected")
         return cls(standard_toks, prepend_toks, append_toks, prepend_bos, append_eos, use_msa)
 
+    def _tokenize(self, text) -> str:
+        return text.split()
+
+    def tokenize(self, text, **kwargs) -> List[str]:
+        """
+        Inspired by https://github.com/huggingface/transformers/blob/master/src/transformers/tokenization_utils.py
+        Converts a string in a sequence of tokens, using the tokenizer.
+
+        Args:
+            text (:obj:`str`):
+                The sequence to be encoded.
+
+        Returns:
+            :obj:`List[str]`: The list of tokens.
+        """
+
+        def split_on_token(tok, text):
+            result = []
+            split_text = text.split(tok)
+            for i, sub_text in enumerate(split_text):
+                # AddedToken can control whitespace stripping around them.
+                # We use them for GPT2 and Roberta to have different behavior depending on the special token
+                # Cf. https://github.com/huggingface/transformers/pull/2778
+                # and https://github.com/huggingface/transformers/issues/3788
+                # We strip left and right by default
+                if i < len(split_text) - 1:
+                    sub_text = sub_text.rstrip()
+                if i > 0:
+                    sub_text = sub_text.lstrip()
+
+                if i == 0 and not sub_text:
+                    result.append(tok)
+                elif i == len(split_text) - 1:
+                    if sub_text:
+                        result.append(sub_text)
+                    else:
+                        pass
+                else:
+                    if sub_text:
+                        result.append(sub_text)
+                    result.append(tok)
+            return result
+
+        def split_on_tokens(tok_list, text):
+            if not text.strip():
+                return []
+
+            tokenized_text = []
+            text_list = [text]
+            for tok in tok_list:
+                tokenized_text = []
+                for sub_text in text_list:
+                    if sub_text not in self.unique_no_split_tokens:
+                        tokenized_text.extend(split_on_token(tok, sub_text))
+                    else:
+                        tokenized_text.append(sub_text)
+                text_list = tokenized_text
+
+            return list(
+                itertools.chain.from_iterable(
+                    (
+                        self._tokenize(token)
+                        if token not in self.unique_no_split_tokens
+                        else [token]
+                        for token in tokenized_text
+                    )
+                )
+            )
+
+        no_split_token = self.unique_no_split_tokens
+        tokenized_text = split_on_tokens(no_split_token, text)
+        return tokenized_text
+
+    def encode(self, text):
+        return [self.tok_to_idx[tok] for tok in self.tokenize(text)]
+
 
 class BatchConverter(object):
     """Callable to convert an unprocessed (labels + strings) batch to a
@@ -173,7 +254,9 @@ class BatchConverter(object):
     def __call__(self, raw_batch: Sequence[Tuple[str, str]]):
         # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
-        max_len = max(len(seq_str) for _, seq_str in raw_batch)
+        batch_labels, seq_str_list = zip(*raw_batch)
+        seq_encoded_list = [self.alphabet.encode(seq_str) for seq_str in seq_str_list]
+        max_len = max(len(seq_encoded) for seq_encoded in seq_encoded_list)
         tokens = torch.empty(
             (
                 batch_size,
@@ -185,15 +268,18 @@ class BatchConverter(object):
         labels = []
         strs = []
 
-        for i, (label, seq_str) in enumerate(raw_batch):
+        for i, (label, seq_str, seq_encoded) in enumerate(
+            zip(batch_labels, seq_str_list, seq_encoded_list)
+        ):
             labels.append(label)
             strs.append(seq_str)
             if self.alphabet.prepend_bos:
                 tokens[i, 0] = self.alphabet.cls_idx
-            seq = torch.tensor([self.alphabet.get_idx(s) for s in seq_str], dtype=torch.int64)
+            seq = torch.tensor(seq_encoded, dtype=torch.int64)
             tokens[
                 i,
-                int(self.alphabet.prepend_bos) : len(seq_str) + int(self.alphabet.prepend_bos),
+                int(self.alphabet.prepend_bos) : len(seq_encoded)
+                + int(self.alphabet.prepend_bos),
             ] = seq
             if self.alphabet.append_eos:
                 tokens[i, len(seq_str) + int(self.alphabet.prepend_bos)] = self.alphabet.eos_idx
