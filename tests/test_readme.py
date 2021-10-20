@@ -16,7 +16,7 @@ import esm
 def test_readme_1():
     import torch
 
-    model, alphabet = torch.hub.load("facebookresearch/esm", "esm1b_t33_650M_UR50S")
+    model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
 
 
 def test_readme_2():

@@ -208,7 +208,7 @@ We also support PyTorch Hub, which removes the need to clone and/or install this
 
 ```python
 import torch
-model, alphabet = torch.hub.load("facebookresearch/esm", "esm1b_t33_650M_UR50S")
+model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
 ```
 
 Then, you can load and use a pretrained model as follows:
