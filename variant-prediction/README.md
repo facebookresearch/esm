@@ -1,7 +1,7 @@
 # Zero-shot variant prediction with protein language models
 
 This folder contains code and pre-trained weights for the ESM-1v models described in 
-[Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1).
+[Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
 
 ### Labeling a deep mutational scan with model predictions
 
@@ -32,7 +32,7 @@ python variant-prediction/predict.py \
 
 ### Per-task raw data
 In `data/` we release data files of model predictions of the 41 Deep Mutational Scanning datasets reported in the paper
-[Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1).
+[Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
 
 The order of the datasets matches the paper Figure 3 and Figure 8;
 the first 10 proteins are validation proteins used during method development, and the next 31 are test proteins.
