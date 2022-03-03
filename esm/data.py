@@ -11,7 +11,7 @@ import re
 import shutil
 import torch
 from pathlib import Path
-from .constants import proteinseq_toks
+from esm.constants import proteinseq_toks
 
 RawMSA = Sequence[Tuple[str, str]]
 
@@ -162,6 +162,13 @@ class Alphabet(object):
             prepend_bos = True
             append_eos = False
             use_msa = True
+        elif name.lower() in ("inverse_folding", "inverse folding"):
+            standard_toks = proteinseq_toks["toks"]
+            prepend_toks = ("<null_0>", "<pad>", "<eos>", "<unk>")
+            append_toks = ("<mask>", "<cath>", "<af2>")
+            prepend_bos = True
+            append_eos = False
+            use_msa = False
         else:
             raise ValueError("Unknown architecture selected")
         return cls(standard_toks, prepend_toks, append_toks, prepend_bos, append_eos, use_msa)
