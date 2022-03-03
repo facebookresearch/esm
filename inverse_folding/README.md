@@ -11,6 +11,8 @@ structurally held-out backbones with 71% recovery for buried residues.
 The model is also trained with span masking to tolerate missing backbone
 coordinates and therefore can predict sequences for partially masked structures.
 
+![Illustration](illustration.png)
+
 ## Recommended environment
 It is highly recommended to start a new conda environment from scratch due to
 potential CUDA compatability issues between pytorch and the pytorch-geometric
