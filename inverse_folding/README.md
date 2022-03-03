@@ -97,14 +97,11 @@ from inverse_folding import load_structure, extract_coords_from_structure
 structure = load_structure(fpath, chain_id)
 coords, seq = extract_coords_from_structure(structure)
 ```
-### Batched inference
-For batched inference, `CoordBatchConverter` converts a list of coordinate lists
-into a Tensor with the appropriate padding. See the batched inference example in
-the Jupyter notebook below for more details.
 
 ### Example Jupyter notebook
-See `inverse_folding/notebook.ipynb` for examples of calculating perplexity and
-sampling sequences.
+See `inverse_folding/notebook.ipynb` for examples of sampling sequences, 
+calculating conditional log-likelihoods, and extracting encoder output as
+structure representation.
 
 ### Sample sequence designs
 To sample sequences for a given set of backbone coordinates,
