@@ -68,6 +68,10 @@ def main(args):
 
     dataset = FastaBatchedDataset.from_file(args.fasta_file)
     batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
+    if isinstance(alphabet.get_batch_converter(), MSABatchConverter):
+        raise ValueError(
+            "This script currently does not handle models with MSAs as input (MSA Transformer)."
+        )
     data_loader = torch.utils.data.DataLoader(
         dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches
     )
