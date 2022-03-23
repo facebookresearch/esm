@@ -22,7 +22,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 </details>
 
 <details><summary>Table of contents</summary>
-  
+
 - [Main models you should use](#main-models)
 - [Comparison to related works](#perf_related)
 - [Usage](#usage)
@@ -39,7 +39,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 </details>
 
 <details><summary>What's New</summary>
-  
+
 - August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like `<mask>`) in sequence.
 - July 2021: New pre-trained model ESM-1v released, trained on UniRef90 (see [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648)).
 - July 2021: New MSA Transformer released, with a minor fix in the row positional embeddings (`ESM-MSA-1b`).
@@ -47,7 +47,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 - Dec 2020: [Self-Attention Contacts](#notebooks) for all pre-trained models (see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761))
 - Dec 2020: Added new pre-trained model [ESM-1b](#perf_related) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix B)
 - Dec 2020: [ESM Structural Split Dataset](#available-esmssd) (see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix A.10)
-  
+
 </details>
 
 ## Main models you should use <a name="main-models"></a>
@@ -185,7 +185,7 @@ Comparison to related protein language models on structure prediction tasks.
 
 * All contact numbers are the top-L,LR precision metric, where long range means sequence separation of at least 24 residues
 * For unsupervised contact prediction, a sparse linear combination of the attention heads is used to directly predict protein contacts,
-fitted with logistic regression on 20 structures. 
+fitted with logistic regression on 20 structures.
 For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761).
 * Supervised contact prediction all uses the same resnet (32 layers) and trRosetta training data, cf [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2).
 * (SSP) Secondary structure Q8 accuracy on CB513, transformer finetuned with convolution + LSTM head.
@@ -267,15 +267,15 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
 * `--include` specifies what embeddings to save. You can use the following:
   * `per_tok` includes the full sequence, with an embedding per amino acid (seq_len x hidden_dim).
   * `mean` includes the embeddings averaged over the full sequence, per layer.
-  * `bos` includes the embeddings from the beginning-of-sequence token. 
+  * `bos` includes the embeddings from the beginning-of-sequence token.
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
 ### Zero-shot variant prediction <a name="zs_variant"></a>
-See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in 
+See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
 
 
-### Notebooks <a name="notebooks"></a> 
+### Notebooks <a name="notebooks"></a>
 
 #### Supervised variant prediction - training a classifier on the embeddings
 
@@ -305,7 +305,7 @@ that is without any supervised training.**
 
 This [jupyter notebook tutorial](examples/contact_prediction.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
 Contact prediction is based on a logistic regression over the model's attention maps.
-This methodology is based on our ICLR 2021 paper, 
+This methodology is based on our ICLR 2021 paper,
 [Transformer protein language models are unsupervised structure learners. (Rao et al. 2020)](https://doi.org/10.1101/2020.12.15.422761)
 The MSA Transformer (ESM-MSA-1) takes a multiple sequence alignment (MSA) as input, and uses the tied row self-attention maps in the same way.
 See [MSA Transformer. (Rao et al. 2021)](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1).
@@ -358,19 +358,19 @@ train and test sets. For a given classification level each structure appears in 
 in the cross validation experiment each of the structures will be evaluated exactly once.
 
 The dataset provides 3d coordinates, distance maps, and secondary structure labels.
-For further details on the construction of the dataset 
+For further details on the construction of the dataset
 see [Rives et al. 2019](https://doi.org/10.1101/622803) Appendix A.10.
 
 This [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) shows how to load and index the `ESMStructuralSplitDataset`.
 
-`ESMStructuralSplitDataset`, upon initializing, will download `splits` and `pkl`. 
+`ESMStructuralSplitDataset`, upon initializing, will download `splits` and `pkl`.
 We also provide `msas` for each of the domains. The data can be directly downloaded below.
 
 | Name   | Description                                                                   | URL                                                                   |
 |--------|-------------------------------------------------------------------------------|-----------------------------------------------------------------------|
 | splits | train/valid splits                                                            | https://dl.fbaipublicfiles.com/fair-esm/structural-data/splits.tar.gz |
 | pkl    | pkl objects containing sequence, SSP labels, distance map, and 3d coordinates | https://dl.fbaipublicfiles.com/fair-esm/structural-data/pkl.tar.gz    |
-| msas   | a3m files containing MSA for each domain                                      | https://dl.fbaipublicfiles.com/fair-esm/structural-data/msas.tar.gz   | 
+| msas   | a3m files containing MSA for each domain                                      | https://dl.fbaipublicfiles.com/fair-esm/structural-data/msas.tar.gz   |
 
 ### Pre-training Dataset Split  <a name="available-pretraining-split"></a>
 The split files establishing which UniRef50 clusters were used as held-out evaluation set for pre-training
@@ -395,7 +395,7 @@ If you find the models useful in your research, we ask that you cite the relevan
   journal={bioRxiv}
 }
 ```
- 
+
 For the self-attention contact prediction:
 
 ```bibtex
@@ -436,6 +436,12 @@ For variant prediction using ESM-1v:
 ```
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.
+
+Additionally, if you would like to use the variant prediction benchmark from Meier et al. (2021), we provide a bibtex file with citations for all data in [variant-prediction/mutation_data.bib](variant-prediction/mutation_data.bib). You can cite each paper individually, or add all citations in bulk using the LaTeX command:
+
+```tex
+\nocite{wrenbeck2017deep,klesmith2015comprehensive,haddox2018mapping,romero2015dissecting,firnberg2014comprehensive,deng2012deep,stiffler2015evolvability,jacquier2013capturing,findlay2018comprehensive,mclaughlin2012spatial,kitzman2015massively,doud2016accurate,pokusaeva2019experimental,mishra2016systematic,kelsic2016rna,melnikov2014comprehensive,brenan2016phenotypic,rockah2015systematic,wu2015functional,aakre2015evolving,qi2014quantitative,matreyek2018multiplex,bandaru2017deconstruction,roscoe2013analyses,roscoe2014systematic,mavor2016determination,chan2017correlation,melamed2013deep,starita2013activity,araya2012fundamental}
+```
 
 ## License <a name="license"></a>
 
