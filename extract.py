@@ -9,7 +9,7 @@ import pathlib
 
 import torch
 
-from esm import Alphabet, FastaBatchedDataset, ProteinBertModel, pretrained
+from esm import Alphabet, FastaBatchedDataset, ProteinBertModel, pretrained, MSATransformer
 
 
 def create_parser():
@@ -62,16 +62,16 @@ def create_parser():
 def main(args):
     model, alphabet = pretrained.load_model_and_alphabet(args.model_location)
     model.eval()
+    if isinstance(model, MSATransformer):
+        raise ValueError(
+            "This script currently does not handle models with MSA input (MSA Transformer)."
+        )
     if torch.cuda.is_available() and not args.nogpu:
         model = model.cuda()
         print("Transferred model to GPU")
 
     dataset = FastaBatchedDataset.from_file(args.fasta_file)
     batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
-    if isinstance(alphabet.get_batch_converter(), MSABatchConverter):
-        raise ValueError(
-            "This script currently does not handle models with MSAs as input (MSA Transformer)."
-        )
     data_loader = torch.utils.data.DataLoader(
         dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches
     )
