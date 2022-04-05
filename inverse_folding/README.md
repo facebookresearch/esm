@@ -2,7 +2,7 @@
 
 The inverse folding module considers the problem of predicting a protein
 sequence from its backbone atom coordinates. This folder contains code for the
-GVP-Transformer inverse folding model described in TODO: <paper_link>. 
+GVP-Transformer inverse folding model. 
 
 Trained with 12M protein structures predicted by AlphaFold2, the GVP-Transformer
 model consists of invariant geometric input processing layers followed by a
@@ -162,6 +162,3 @@ Ingraham, Vikas Garg, Regina Barzilay, and Tommi Jaakkola.
 
 The Transformer implementation is adapted from
 [fairseq](https://github.com/pytorch/fairseq).
-
-## Citation
-TODO
