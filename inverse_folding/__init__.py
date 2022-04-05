@@ -5,7 +5,8 @@
 
 from .gvp_transformer import (
     CoordBatchConverter,
-    load_model_and_alphabet,
+    GVPTransformerModel,
+    gvp_transformer_architecture,
 )
 from .util import (
     extract_coords_from_structure,

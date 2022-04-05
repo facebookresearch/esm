@@ -13,8 +13,8 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
+from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
 from inverse_folding import (
-    load_model_and_alphabet,
     load_coords,
     score_sequence,
 )
@@ -43,7 +43,7 @@ def main():
     )
     args = parser.parse_args()
 
-    model, alphabet = load_model_and_alphabet()
+    model, alphabet = esm_if1_gvp4_t16_142M_UR50()
     coords, seq = load_coords(args.pdbfile, args.chain)
     print('Native sequence loaded from structure file:')
     print(seq)

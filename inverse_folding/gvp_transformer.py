@@ -13,17 +13,32 @@ from scipy.spatial import transform
 
 from esm.data import Alphabet
 
-from .features import DihedralFeatures
-from .gvp_encoder import GVPEncoder
-from .gvp_utils import unflatten_graph
-from .transformer_encoder import TransformerEncoder
-from .transformer_decoder import TransformerDecoder
-from .util import rotate, CoordBatchConverter 
+from inverse_folding.features import DihedralFeatures
+from inverse_folding.gvp_encoder import GVPEncoder
+from inverse_folding.gvp_utils import unflatten_graph
+from inverse_folding.transformer_encoder import TransformerEncoder
+from inverse_folding.transformer_decoder import TransformerDecoder
+from inverse_folding.util import rotate, CoordBatchConverter 
 
 
 class GVPTransformerModel(nn.Module):
-    def __init__(self, args, encoder, decoder):
+    """
+    GVP-Transformer inverse folding model.
+
+    Architecture: Geometric GVP-GNN as initial layers, followed by
+    sequence-to-sequence Transformer encoder and decoder.
+    """
+
+    def __init__(self, args, alphabet):
         super().__init__()
+        encoder_embed_tokens = self.build_embedding(
+            args, alphabet, args.encoder_embed_dim,
+        )
+        decoder_embed_tokens = self.build_embedding(
+            args, alphabet, args.decoder_embed_dim, 
+        )
+        encoder = self.build_encoder(args, alphabet, encoder_embed_tokens)
+        decoder = self.build_decoder(args, alphabet, decoder_embed_tokens)
         self.args = args
         self.encoder = encoder
         self.decoder = decoder
@@ -41,18 +56,6 @@ class GVPTransformerModel(nn.Module):
             embed_tokens,
         )
         return decoder
-
-    @classmethod
-    def build_model(cls, args, dictionary):
-        encoder_embed_tokens = cls.build_embedding(
-            args, dictionary, args.encoder_embed_dim,
-        )
-        decoder_embed_tokens = cls.build_embedding(
-            args, dictionary, args.decoder_embed_dim, 
-        )
-        encoder = cls.build_encoder(args, dictionary, encoder_embed_tokens)
-        decoder = cls.build_decoder(args, dictionary, decoder_embed_tokens)
-        return cls(args, encoder, decoder)
 
     @classmethod
     def build_embedding(cls, args, dictionary, embed_dim):
@@ -155,35 +158,19 @@ def gvp_transformer_architecture(args):
             "gvp_edge_hidden_dim_vector", 1)
 
 
-def load_model_and_alphabet(eval_mode=True,
-        path='/home/chloehsu/inverse_opensource/model.pt'):
-    # TODO: update path to torchhub
-    args = argparse.Namespace()
-    gvp_transformer_architecture(args)
-    alphabet = Alphabet.from_architecture("inverse_folding")
-    model = GVPTransformerModel.build_model(args, alphabet)
-    # TODO: update this to torchhub path
-    path = '/home/chloehsu/inverse_opensource/model.pt'
-    with open(path, "rb") as f:
-        state = torch.load(f, map_location=torch.device("cpu"))
-    model.load_state_dict(state, strict=True)
-    model = model.cpu()
-    if eval_mode:
-        model = model.eval()
-    return model, alphabet
-
-
 def test_model():
     import json
     import numpy as np
     from tqdm import tqdm
     from scipy.stats import special_ortho_group
     from pathlib import Path
-    example_file = Path(__file__).absolute().parent / "example.json"
+    example_file = Path(__file__).absolute().parent / "example/example.json"
     with open(example_file) as f:
         examples = json.load(f)
 
-    model, alphabet = load_model_and_alphabet()
+    from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
+    model, alphabet = esm_if1_gvp4_t16_142M_UR50()
+    model = model.eval()
     batch_converter = CoordBatchConverter(alphabet)
 
     with torch.no_grad():

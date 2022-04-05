@@ -9,8 +9,8 @@ import argparse
 import numpy as np
 from pathlib import Path
 
+from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
 from inverse_folding import (
-    load_model_and_alphabet,
     load_coords,
 )
 
@@ -44,7 +44,7 @@ def main():
     )
     args = parser.parse_args()
 
-    model, alphabet = load_model_and_alphabet()
+    model, alphabet = esm_if1_gvp4_t16_142M_UR50()
     coords, seq = load_coords(args.pdbfile, args.chain)
     print('Sequence loaded from file:')
     print(seq)
@@ -58,7 +58,7 @@ def main():
             sampled_seq = model.sample(coords, temperature=args.temperature)
             print('Sampled sequence:')
             print(sampled_seq)
-            f.write(f'>sampled_seq_{i+1}')
+            f.write(f'>sampled_seq_{i+1}\n')
             f.write(sampled_seq + '\n')
 
             recovery = np.mean([(a==b) for a, b in zip(seq, sampled_seq)])
