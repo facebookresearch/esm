@@ -48,7 +48,7 @@ python scripts/sample_sequences.py example/5YH2.pdb --chain C \
 
 The sampled sequences will be saved in a fasta format to the output file.
 
-The temperature parameter controls the ``sharpness`` of the probability
+The temperature parameter controls the sharpness of the probability
 distribution for sequence sampling. Higher sampling temperatures yield more
 diverse sequences but likely with lower native sequence recovery.
 The default sampling temperature is 1. To optimize for native sequence
@@ -72,13 +72,13 @@ the average log-likelihoods averaged over all amino acids in a sequence.
 ## General usage
 
 ### Load model
-The `load_model_and_alphabet` function loads the pretrained model and its
+The `esm_if1_gvp4_t16_142M_UR50` function loads the pretrained model and its
 corresponding alphabet. The alphabet represents the amino acids and the special
 tokens encoded by the model.
 
 ```
-from inverse_folding import load_model_and_alphabet
-model, alphabet = load_model_and_alphabet()
+from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
+model, alphabet = esm_if1_gvp4_t16_142M_UR50()
 ```
 
 ### Input format
