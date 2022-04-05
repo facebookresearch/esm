@@ -162,7 +162,7 @@ class Alphabet(object):
             prepend_bos = True
             append_eos = False
             use_msa = True
-        elif name.lower() in ("inverse_folding", "inverse folding"):
+        elif "invariant_gvp" in name.lower():
             standard_toks = proteinseq_toks["toks"]
             prepend_toks = ("<null_0>", "<pad>", "<eos>", "<unk>")
             append_toks = ("<mask>", "<cath>", "<af2>")

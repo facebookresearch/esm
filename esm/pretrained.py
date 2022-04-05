@@ -13,8 +13,8 @@ import esm
 
 def _has_regression_weights(model_name):
     """Return whether we expect / require regression weights;
-    Right now that is all models except ESM-1v"""
-    return not ("esm1v" in model_name)
+    Right now that is all models except ESM-1v and ESM-IF"""
+    return not ("esm1v" in model_name or "esm_if" in model_name)
 
 
 def load_model_and_alphabet(model_name):
@@ -116,6 +116,30 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
             model_args["embed_positions_msa_dim"] = emb_dim  # initial release, bug: emb_dim==1
 
         model_type = esm.MSATransformer
+
+    elif "invariant_gvp" in model_data["args"].arch:
+        import inverse_folding
+        model_type = inverse_folding.GVPTransformerModel 
+        model_args = model_data["args"]
+        inverse_folding.gvp_transformer_architecture(model_args)
+        model_args = vars(model_data["args"])
+        def update_name(s):
+            s = s.replace("W_v", "embed_graph.embed_node")
+            s = s.replace("W_e", "embed_graph.embed_edge")
+            s = s.replace("embed_scores.0", "embed_confidence")
+            s = s.replace("embed_score.", "embed_graph.embed_confidence.")
+            s = s.replace("seq_logits_projection.", "")
+            s = s.replace("embed_ingraham_features", "embed_dihedrals")
+            s = s.replace("embed_gvp_in_local_frame.0", "embed_gvp_output")
+            s = s.replace("embed_features_in_local_frame.0",
+            "embed_gvp_input_features")
+            return s
+        # convert internal state names to match the code
+        model_state = {
+            update_name(sname): svalue for sname, svalue in
+            model_data["model"].items()
+            if "version" not in sname
+        }
 
     else:
         raise ValueError("Unknown architecture selected")
@@ -267,3 +291,14 @@ def esm1v_t33_650M_UR90S_5():
     Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm1v_t33_650M_UR90S_5")
+
+
+def esm_if1_gvp4_t16_142M_UR50():
+    """Inverse folding model with 142M params, with 4 GVP-GNN layers, 8
+    Transformer encoder layers, and 8 Transformer decoder layers, trained on
+    CATH structures and 12 million alphafold2 predicted structures from UniRef50
+    sequences.
+
+    Returns a tuple of (Model, Alphabet).
+    """
+    return load_model_and_alphabet_hub("esm_if1_gvp4_t16_142M_UR50")
