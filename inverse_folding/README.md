@@ -11,6 +11,8 @@ structurally held-out backbones with 71% recovery for buried residues.
 The model is also trained with span masking to tolerate missing backbone
 coordinates and therefore can predict sequences for partially masked structures.
 
+![Illustration](illustration.png)
+
 ## Recommended environment
 It is highly recommended to start a new conda environment from scratch due to
 potential CUDA compatability issues between pytorch and the pytorch-geometric
@@ -46,7 +48,7 @@ python scripts/sample_sequences.py example/5YH2.pdb --chain C \
 
 The sampled sequences will be saved in a fasta format to the output file.
 
-The temperature parameter controls the ``sharpness`` of the probability
+The temperature parameter controls the sharpness of the probability
 distribution for sequence sampling. Higher sampling temperatures yield more
 diverse sequences but likely with lower native sequence recovery.
 The default sampling temperature is 1. To optimize for native sequence
@@ -70,13 +72,13 @@ the average log-likelihoods averaged over all amino acids in a sequence.
 ## General usage
 
 ### Load model
-The `load_model_and_alphabet` function loads the pretrained model and its
+The `esm_if1_gvp4_t16_142M_UR50` function loads the pretrained model and its
 corresponding alphabet. The alphabet represents the amino acids and the special
 tokens encoded by the model.
 
 ```
-from inverse_folding import load_model_and_alphabet
-model, alphabet = load_model_and_alphabet()
+from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
+model, alphabet = esm_if1_gvp4_t16_142M_UR50()
 ```
 
 ### Input format
@@ -95,14 +97,11 @@ from inverse_folding import load_structure, extract_coords_from_structure
 structure = load_structure(fpath, chain_id)
 coords, seq = extract_coords_from_structure(structure)
 ```
-### Batched inference
-For batched inference, `CoordBatchConverter` converts a list of coordinate lists
-into a Tensor with the appropriate padding. See the batched inference example in
-the Jupyter notebook below for more details.
 
 ### Example Jupyter notebook
-See `inverse_folding/notebook.ipynb` for examples of calculating perplexity and
-sampling sequences.
+See `inverse_folding/notebook.ipynb` for examples of sampling sequences, 
+calculating conditional log-likelihoods, and extracting encoder output as
+structure representation.
 
 ### Sample sequence designs
 To sample sequences for a given set of backbone coordinates,
