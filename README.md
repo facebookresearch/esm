@@ -29,6 +29,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
   - [Quick Start](#quickstart)
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
   - [Zero-shot variant prediction](#zs_variant)
+  - [Inverse folding](#invf)
   - [Notebooks](#notebooks)
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
@@ -39,7 +40,8 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 </details>
 
 <details><summary>What's New</summary>
-
+  
+- April 2022: New inverse folding model ESM-IF1 released, trained on CATH and UniRef50 predicted structures.
 - August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like `<mask>`) in sequence.
 - July 2021: New pre-trained model ESM-1v released, trained on UniRef90 (see [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648)).
 - July 2021: New MSA Transformer released, with a minor fix in the row positional embeddings (`ESM-MSA-1b`).
@@ -57,6 +59,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 | ESM-1b    | `esm1b_t33_650M_UR50S()`       | UR50  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Rives et al. 2019](https://doi.org/10.1101/622803) (Dec 2020 update). |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S()` |  UR50 + MSA  | MSA Transformer language model. Can be used to extract embeddings from an MSA. Enables SOTA inference of structure. Released with [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2) (ICML'21 version, June 2021).  |
 | ESM-1v    | `esm1v_t33_650M_UR90S_1()` ... `esm1v_t33_650M_UR90S_5()`| UR90  | Language model specialized for prediction of variant effects. Enables SOTA zero-shot prediction of the functional effects of sequence variations. Same architecture as ESM-1b, but trained on UniRef90. Released with [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648). |
+| ESM-IF1  | `esm_if1_gvp4_t16_142M_UR50()` | CATH + UR50 | Inverse folding model. Can be used to design sequences for given structures, or to predict functional effects of sequence variation for given structures. Enables SOTA fixed backbone sequence design. |
 
 For a complete list of available models, with details and release notes, see [Pre-trained Models](#available-models).
 
@@ -273,7 +276,9 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
 ### Zero-shot variant prediction <a name="zs_variant"></a>
 See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
-
+  
+### Inverse folding <a name="invf"></a>
+See "[./inverse_folding/](inverse_folding/)" for code and pre-trained weights for the ESM-IF1 model, along with detailed user guide and example Jupyter notebook.
 
 ### Notebooks <a name="notebooks"></a>
 
@@ -326,6 +331,7 @@ and computes the self-attention map unsupervised contact predictions using ESM-1
 
 | Shorthand | `esm.pretrained.`           | #layers | #params | Dataset | Embedding Dim |  Model URL (automatically downloaded to `~/.cache/torch/hub/checkpoints`) |
 |-----------|---------------------|---------|---------|---------|---------------|-----------------------------------------------------------------------|
+| ESM-IF1    | `esm_if1_gvp4_t16_142M_UR50` | 20     | 124M    | CATH 4.3 + predicted structures for UR50 | 512          | https://dl.fbaipublicfiles.com/fair-esm/models/esm_if1_gvp4_t16_142M_UR50.pt   |
 | ESM-1v    | `esm1v_t33_650M_UR90S_[1-5]` | 33     | 650M    | UR90/S 2020_03  | 1280          | https://dl.fbaipublicfiles.com/fair-esm/models/esm1v_t33_650M_UR90S_1.pt   |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S` | 12     | 100M    | UR50/S + MSA 2018_03 | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1b_t12_100M_UR50S.pt   |
 | ESM-MSA-1 | `esm_msa1_t12_100M_UR50S` | 12     | 100M    | UR50/S + MSA 2018_03 | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1_t12_100M_UR50S.pt   |
@@ -346,6 +352,7 @@ Here is a chronological list of the released models and the paper they were intr
 | ESM-MSA-1 | Released with Rao et al. 2021 (Preprint v1). |
 | ESM-MSA-1b | Released with Rao et al. 2021 (ICML'21 version, June 2021). |
 | ESM-1v     | Released with Meier et al. 2021. |
+| ESM-IF1     | Released with Hsu et al. 2022. |  
 
 ### ESM Structural Split Dataset <a name="available-esmssd"></a>
 This is a five-fold cross validation dataset of protein domain structures that can be used to measure generalization of representations
