@@ -2,9 +2,10 @@
 
 The inverse folding module considers the problem of predicting a protein
 sequence from its backbone atom coordinates. This folder contains code for the
-GVP-Transformer inverse folding model. 
+ESM-IF1 inverse folding model, along with scripts to sample sequence 
+designs for a given structure and to score sequences for a given structure. 
 
-Trained with 12M protein structures predicted by AlphaFold2, the GVP-Transformer
+Trained with 12M protein structures predicted by AlphaFold2, the ESM-IF1
 model consists of invariant geometric input processing layers followed by a
 sequence-to-sequence transformer, and achieves 51% native sequence recovery on
 structurally held-out backbones with 71% recovery for buried residues.
