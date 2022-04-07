@@ -1,9 +1,8 @@
-# Inverse folding
+# Inverse folding with ESM-IF1
 
-The inverse folding module considers the problem of predicting a protein
-sequence from its backbone atom coordinates. This folder contains code for the
-ESM-IF1 inverse folding model, along with scripts to sample sequence 
-designs for a given structure and to score sequences for a given structure. 
+The ESM-IF1 inverse folding model is built for predicting protein sequences 
+from their backbone atom coordinates. We provide scripts here 1) to sample sequence 
+designs for a given structure and 2) to score sequences for a given structure. 
 
 Trained with 12M protein structures predicted by AlphaFold2, the ESM-IF1
 model consists of invariant geometric input processing layers followed by a
@@ -27,10 +26,8 @@ conda install pytorch cudatoolkit=11.3 -c pytorch
 conda install pyg -c pyg -c conda-forge
 conda install pip
 pip install biotite
+pip install fair-esm
 ```
-
-Followed by `pip install fair-esm`. (If you wish to edit the code in this repo
-yourself, use `pip install -e .` for editable package.)
 
 ## Quickstart
 
@@ -41,13 +38,15 @@ To sample sequences for a given structure in PDB or mmCIF format, use the
 
 For example, to sample 3 sequence designs for the golgi casein kinase structure
 (PDB [5YH2](https://www.rcsb.org/structure/5yh2); [PDB Molecule of the Month
-from January 2022](https://pdb101.rcsb.org/motm/265)),
+from January 2022](https://pdb101.rcsb.org/motm/265)), we can run the following
+command from the esm root directory:
 ```
-python scripts/sample_sequences.py example/5YH2.pdb --chain C \
-    --temperature 1 --num-samples 3 --outpath output/sampled_sequences.fasta
+python examples/inverse_folding/sample_sequences.py examples/inverse_folding/data/5YH2.pdb \
+    --chain C --temperature 1 --num-samples 3 \
+    --outpath examples/inverse_folding/output/sampled_sequences.fasta
 ```
 
-The sampled sequences will be saved in a fasta format to the output file.
+The sampled sequences will be saved in a fasta format to the specified output file.
 
 The temperature parameter controls the sharpness of the probability
 distribution for sequence sampling. Higher sampling temperatures yield more
@@ -59,16 +58,17 @@ recovery, we recommend sampling with low temperature such as 1e-6.
 To score the conditional log-likelihoods for sequences conditioned on a given
 structure, use the `score_log_likelihoods.py` script.
 
-For example, to score the sequences in `example/5YH2_mutated_seqs.fasta`
-according to the structure in `example/5YH2.pdb`,
+For example, to score the sequences in `examples/inverse_folding/data/5YH2_mutated_seqs.fasta`
+according to the structure in `examples/inverse_folding/data/5YH2.pdb`, we can run
+the following command from the esm root directory:
 ```
-python scripts/score_log_likelihoods.py example/5YH2.pdb \
-    example/5YH2_mutated_seqs.fasta \
-    --chain C --outpath output/5YH2_mutated_seqs_scores.csv
+python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \
+    examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C \
+    --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
 ```
 
-The conditional log-likelihoods are saved in a csv format. The output values are
-the average log-likelihoods averaged over all amino acids in a sequence.
+The conditional log-likelihoods are saved in a csv format in the specified output path. 
+The output values are the average log-likelihoods averaged over all amino acids in a sequence.
 
 ## General usage
 
@@ -78,8 +78,8 @@ corresponding alphabet. The alphabet represents the amino acids and the special
 tokens encoded by the model.
 
 ```
-from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
-model, alphabet = esm_if1_gvp4_t16_142M_UR50()
+import esm
+model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
 ```
 
 ### Input format
@@ -94,13 +94,13 @@ be of shape L x 3 x 3, where L is the number of amino acids in the structure.
 To load a structure from PDB and mmCIF file formats and extract the backbone
 coordinates of the N, CA, C atoms as model input,
 ```
-from inverse_folding import load_structure, extract_coords_from_structure
-structure = load_structure(fpath, chain_id)
-coords, seq = extract_coords_from_structure(structure)
+import esm
+structure = esm.inverse_folding.util.load_structure(fpath, chain_id)
+coords, seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
 ```
 
 ### Example Jupyter notebook
-See `inverse_folding/notebook.ipynb` for examples of sampling sequences, 
+See `examples/inverse_folding/notebook.ipynb` for examples of sampling sequences, 
 calculating conditional log-likelihoods, and extracting encoder output as
 structure representation.
 
@@ -120,8 +120,8 @@ recovery, we recommend sampling with low temperature such as `T=1e-6`.
 To score the conditional log-likelihoods for sequences conditioned on a given
 set of backbone coordinates, use the `score_sequence` function,
 ```
-from inverse_folding import score_sequence
-ll_fullseq, ll_withcoord = score_sequence(model, alphabet, coords, seq)
+import esm
+ll_fullseq, ll_withcoord = esm.inverse_folding.util.score_sequence(model, alphabet, coords, seq)
 ```
 
 The first returned value ``ll_fullseq`` is the average log-likelihood averaged
@@ -141,8 +141,8 @@ coords[:10, :] = np.inf
 ### Encoder output as structure representation
 To extract the encoder output as structure representation,
 ```
-from inverse_folding import get_encoder_output
-rep = get_encoder_output(model, alphabet, coords)
+import esm
+rep = esm.inverse_folding.util.get_encoder_output(model, alphabet, coords)
 ```
 For a set of input coordinates with L amino acids, the encoder output will have
 shape L x 512.
