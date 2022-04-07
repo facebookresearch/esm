@@ -7,7 +7,7 @@ designs for a given structure and 2) to score sequences for a given structure.
 Trained with 12M protein structures predicted by AlphaFold2, the ESM-IF1
 model consists of invariant geometric input processing layers followed by a
 sequence-to-sequence transformer, and achieves 51% native sequence recovery on
-structurally held-out backbones with 71% recovery for buried residues.
+structurally held-out backbones with 72% recovery for buried residues.
 The model is also trained with span masking to tolerate missing backbone
 coordinates and therefore can predict sequences for partially masked structures.
 
@@ -103,6 +103,10 @@ coords, seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
 See `examples/inverse_folding/notebook.ipynb` for examples of sampling sequences, 
 calculating conditional log-likelihoods, and extracting encoder output as
 structure representation.
+
+This notebook is also available on colab:
+  
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/inverse_folding/notebook.ipynb)
 
 ### Sample sequence designs
 To sample sequences for a given set of backbone coordinates,
