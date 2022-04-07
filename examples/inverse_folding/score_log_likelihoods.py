@@ -13,11 +13,7 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
-from inverse_folding import (
-    load_coords,
-    score_sequence,
-)
+import esm
 
 
 def main():
@@ -43,13 +39,14 @@ def main():
     )
     args = parser.parse_args()
 
-    model, alphabet = esm_if1_gvp4_t16_142M_UR50()
-    coords, seq = load_coords(args.pdbfile, args.chain)
+    model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    coords, seq = esm.inverse_folding.util.load_coords(args.pdbfile, args.chain)
     print('Native sequence loaded from structure file:')
     print(seq)
     print('\n')
 
-    ll, _ = score_sequence(model, alphabet, coords, seq) 
+    ll, _ = esm.inverse_folding.util.score_sequence(
+            model, alphabet, coords, seq) 
     print('Native sequence')
     print(f'Log likelihood: {ll:.2f}')
     print(f'Perplexity: {np.exp(-ll):.2f}')
@@ -62,7 +59,8 @@ def main():
     with open(args.outpath, 'w') as fout:
         fout.write('seqid,log_likelihood\n')
         for header, seq in tqdm(seqs.items()):
-            ll, _ = score_sequence(model, alphabet, coords, str(seq))
+            ll, _ = esm.inverse_folding.util.score_sequence(
+                    model, alphabet, coords, str(seq))
             fout.write(header + ',' + str(ll) + '\n')
     print(f'Results saved to {args.outpath}') 
 

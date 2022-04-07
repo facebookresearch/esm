@@ -118,12 +118,14 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
         model_type = esm.MSATransformer
 
     elif "invariant_gvp" in model_data["args"].arch:
-        import inverse_folding
-        model_type = inverse_folding.GVPTransformerModel 
+        model_type = esm.inverse_folding.gvp_transformer.GVPTransformerModel 
         model_args = model_data["args"]
-        inverse_folding.gvp_transformer_architecture(model_args)
+        esm.inverse_folding.gvp_transformer.architecture(model_args)
         model_args = vars(model_data["args"])
+
         def update_name(s):
+            # Map the module names in checkpoints trained with internal code to
+            # the updated module names in open source code
             s = s.replace("W_v", "embed_graph.embed_node")
             s = s.replace("W_e", "embed_graph.embed_edge")
             s = s.replace("embed_scores.0", "embed_confidence")
@@ -134,7 +136,7 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
             s = s.replace("embed_features_in_local_frame.0",
             "embed_gvp_input_features")
             return s
-        # convert internal state names to match the code
+
         model_state = {
             update_name(sname): svalue for sname, svalue in
             model_data["model"].items()

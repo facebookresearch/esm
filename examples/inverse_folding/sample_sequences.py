@@ -9,10 +9,7 @@ import argparse
 import numpy as np
 from pathlib import Path
 
-from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
-from inverse_folding import (
-    load_coords,
-)
+import esm
 
 
 def main():
@@ -44,8 +41,8 @@ def main():
     )
     args = parser.parse_args()
 
-    model, alphabet = esm_if1_gvp4_t16_142M_UR50()
-    coords, seq = load_coords(args.pdbfile, args.chain)
+    model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    coords, seq = esm.inverse_folding.util.load_coords(args.pdbfile, args.chain)
     print('Sequence loaded from file:')
     print(seq)
 

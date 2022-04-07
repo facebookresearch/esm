@@ -20,7 +20,7 @@ from .transformer_layer import TransformerEncoderLayer
 from .util import nan_to_num, get_rotation_frames, rotate, rbf
 
 
-class TransformerEncoder(nn.Module):
+class GVPTransformerEncoder(nn.Module):
     """
     Transformer encoder consisting of *args.encoder.layers* layers. Each layer
     is a :class:`TransformerEncoderLayer`.

@@ -13,12 +13,12 @@ from scipy.spatial import transform
 
 from esm.data import Alphabet
 
-from inverse_folding.features import DihedralFeatures
-from inverse_folding.gvp_encoder import GVPEncoder
-from inverse_folding.gvp_utils import unflatten_graph
-from inverse_folding.transformer_encoder import TransformerEncoder
-from inverse_folding.transformer_decoder import TransformerDecoder
-from inverse_folding.util import rotate, CoordBatchConverter 
+from .features import DihedralFeatures
+from .gvp_encoder import GVPEncoder
+from .gvp_utils import unflatten_graph
+from .gvp_transformer_encoder import GVPTransformerEncoder
+from .transformer_decoder import TransformerDecoder
+from .util import rotate, CoordBatchConverter 
 
 
 class GVPTransformerModel(nn.Module):
@@ -45,7 +45,7 @@ class GVPTransformerModel(nn.Module):
 
     @classmethod
     def build_encoder(cls, args, src_dict, embed_tokens):
-        encoder = TransformerEncoder(args, src_dict, embed_tokens)
+        encoder = GVPTransformerEncoder(args, src_dict, embed_tokens)
         return encoder
 
     @classmethod
@@ -127,7 +127,7 @@ class GVPTransformerModel(nn.Module):
         return ''.join([self.decoder.dictionary.get_tok(a) for a in sampled_seq])
 
 
-def gvp_transformer_architecture(args):
+def architecture(args):
     # Transformer args
     args.encoder_embed_dim = getattr(args, "encoder_embed_dim", 512)
     args.encoder_ffn_embed_dim = getattr(args, "encoder_ffn_embed_dim", 2048)
@@ -156,65 +156,3 @@ def gvp_transformer_architecture(args):
             "gvp_edge_hidden_dim_scalar", 32)
     args.gvp_edge_hidden_dim_vector = getattr(args,
             "gvp_edge_hidden_dim_vector", 1)
-
-
-def test_model():
-    import json
-    import numpy as np
-    from tqdm import tqdm
-    from scipy.stats import special_ortho_group
-    from pathlib import Path
-    example_file = Path(__file__).absolute().parent / "example/example.json"
-    with open(example_file) as f:
-        examples = json.load(f)
-
-    from esm.pretrained import esm_if1_gvp4_t16_142M_UR50
-    model, alphabet = esm_if1_gvp4_t16_142M_UR50()
-    model = model.eval()
-    batch_converter = CoordBatchConverter(alphabet)
-
-    with torch.no_grad():
-        print('Testing batch inference on 3 examples...')
-        # Test batch with multiple examples
-        batch = [(e["coords"], None, e["seq"]) for e in examples[:3]]
-        coords, confidence, strs, tokens, padding_mask = (
-            batch_converter(batch)
-        )
-        prev_output_tokens = tokens[:, :-1]
-        target = tokens[:, 1:]
-        logits, _ = model.forward(coords, padding_mask, confidence,
-                prev_output_tokens)
-        loss = torch.nn.functional.cross_entropy(logits, target, reduction='none')
-        coord_mask = torch.all(torch.all(torch.isfinite(coords), dim=-1), dim=-1)
-        coord_mask = coord_mask[:, 1:-1]
-        avgloss = torch.sum(loss * coord_mask) / torch.sum(coord_mask)
-        print('ppl:', torch.exp(avgloss).item())
-
-        print('Testing on 10 examples from validation set...')
-        # Test batch with single example
-        for example in tqdm(examples):
-            batch = [(example["coords"], None, example["seq"])]
-            coords, confidence, strs, tokens, padding_mask = (
-                batch_converter(batch)
-            )
-            prev_output_tokens = tokens[:, :-1]
-            target = tokens[:, 1:]
-            logits, _ = model.forward(coords, padding_mask, confidence,
-                    prev_output_tokens)
-            assert torch.any(torch.isnan(logits)) == False
-
-            # Test equivariance
-            R = special_ortho_group.rvs(3)
-            R = torch.tensor(R, dtype=torch.float32)
-            coords = torch.matmul(coords, R)
-            logits_rotated, _ = model.forward(coords, padding_mask,
-                    confidence, prev_output_tokens)
-            np.testing.assert_allclose(
-                    logits.detach().numpy(), 
-                    logits_rotated.detach().numpy(), 
-                    atol=1e-01
-            )
-
-
-if  __name__ == "__main__":
-    test_model()
