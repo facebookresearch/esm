@@ -278,9 +278,86 @@ See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weig
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
   
 ### Inverse folding <a name="invf"></a>
-See "[./inverse_folding/](inverse_folding/)" for code and pre-trained weights for the ESM-IF1 model, along with detailed user guide and example Jupyter notebook.
+See "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. 
+We also provide a colab notebook for the sequence design and sequence scoring functionalities.
+  
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/inverse_folding/notebook.ipynb)
+  
+The ESM-IF1 inverse folding model is built for predicting protein sequences 
+from their backbone atom coordinates. We provide scripts here 1) to sample sequence 
+designs for a given structure and 2) to score sequences for a given structure. 
+
+Trained with 12M protein structures predicted by AlphaFold2, the ESM-IF1
+model consists of invariant geometric input processing layers followed by a
+sequence-to-sequence transformer, and achieves 51% native sequence recovery on
+structurally held-out backbones with 72% recovery for buried residues.
+The model is also trained with span masking to tolerate missing backbone
+coordinates and therefore can predict sequences for partially masked structures.
+  
+#### Recommended environment
+The ESM-IF1 model requires the pytorch-geometric package. It is highly recommended to start a new conda environment from scratch due to
+potential CUDA compatability issues between pytorch and the pytorch-geometric package.
+
+To set up a new conda environment with required packages,
+
+```
+conda create -n inverse python=3.9
+conda install pytorch cudatoolkit=11.3 -c pytorch
+conda install pyg -c pyg -c conda-forge
+conda install pip
+pip install biotite
+pip install fair-esm
+```
+  
+#### Sample sequence designs for a given structure
+To sample sequences for a given structure in PDB or mmCIF format, use the
+`sample_sequences.py` script. The input file can have either `.pdb` or
+`.cif` as suffix.
+
+For example, to sample 3 sequence designs for the golgi casein kinase structure
+(PDB [5YH2](https://www.rcsb.org/structure/5yh2); [PDB Molecule of the Month
+from January 2022](https://pdb101.rcsb.org/motm/265)), we can run the following
+command from the esm root directory:
+```
+python examples/inverse_folding/sample_sequences.py examples/inverse_folding/data/5YH2.pdb \
+    --chain C --temperature 1 --num-samples 3 \
+    --outpath examples/inverse_folding/output/sampled_sequences.fasta
+```
+
+The sampled sequences will be saved in a fasta format to the specified output file.
+
+The temperature parameter controls the sharpness of the probability
+distribution for sequence sampling. Higher sampling temperatures yield more
+diverse sequences but likely with lower native sequence recovery.
+The default sampling temperature is 1. To optimize for native sequence
+recovery, we recommend sampling with low temperature such as 1e-6.
+
+#### Scoring sequences
+To score the conditional log-likelihoods for sequences conditioned on a given
+structure, use the `score_log_likelihoods.py` script.
+
+For example, to score the sequences in `examples/inverse_folding/data/5YH2_mutated_seqs.fasta`
+according to the structure in `examples/inverse_folding/data/5YH2.pdb`, we can run
+the following command from the esm root directory:
+```
+python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \
+    examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C \
+    --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
+```
+
+The conditional log-likelihoods are saved in a csv format in the specified output path. 
+The output values are the average log-likelihoods averaged over all amino acids in a sequence.
+  
+For more information, see "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide.
 
 ### Notebooks <a name="notebooks"></a>
+  
+#### Inverse folding - predicting or scoring sequences based on backbone structures
+
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/inverse_folding/notebook.ipynb)
+
+The ESM-IF1 inverse folding model predicts protein sequences from their backbone atom coordinates, trained with 12M protein structures predicted by AlphaFold2.
+This notetook guide you through examples of sampling sequences, calculating conditional log-likelihoods, and extracting encoder output as structure representation.
 
 #### Supervised variant prediction - training a classifier on the embeddings
 
