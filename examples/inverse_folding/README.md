@@ -22,6 +22,7 @@ To set up a new conda environment with required packages,
 
 ```
 conda create -n inverse python=3.9
+conda activate inverse
 conda install pytorch cudatoolkit=11.3 -c pytorch
 conda install pyg -c pyg -c conda-forge
 conda install pip
