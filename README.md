@@ -199,12 +199,18 @@ For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/20
 
 ### Quick Start <a name="quickstart"></a>
 
-As a prerequisite, you must have PyTorch 1.5 or later installed to use this repository.
+As a prerequisite, you must have PyTorch installed to use this repository.
 
-You can use this one-liner for installation:
+You can use this one-liner for installation, using the latest release of esm:
 
 ```bash
 $ pip install fair-esm
+```
+
+or alternatively to work with the current repository state (includes any updates since last release):
+```bash
+$ git clone https://github.com/facebookresearch/esm.git
+$ cd esm; pip install .
 ```
 
 We also support PyTorch Hub, which removes the need to clone and/or install this repository yourself:
@@ -214,7 +220,7 @@ import torch
 model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
 ```
 
-Then, you can load and use a pretrained model as follows:
+After pip install, you can load and use a pretrained model as follows:
 
 ```python
 import torch
@@ -260,12 +266,12 @@ A cuda device is optional and will be auto-detected.
 The following command extracts the final-layer embedding for a FASTA file from the ESM-1b model:
 
 ```bash
-$ python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
+$ python scripts/extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
     --repr_layers 0 32 33 --include mean per_tok
 ```
 
 Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
-`extract.py` has flags that determine what's included in the `.pt` file:
+`scripts/extract.py` has flags that determine what's included in the `.pt` file:
 * `--repr-layers` (default: final only) selects which layers to include embeddings from.
 * `--include` specifies what embeddings to save. You can use the following:
   * `per_tok` includes the full sequence, with an embedding per amino acid (seq_len x hidden_dim).
@@ -274,7 +280,7 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
 ### Zero-shot variant prediction <a name="zs_variant"></a>
-See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
+See "[./examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
   
 ### Inverse folding <a name="invf"></a>
@@ -359,14 +365,14 @@ as instructed in the notebook or by running the following:
 
 ```bash
 # Obtain the embeddings
-$ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_reprs/ \
+$ python scripts/extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_reprs/ \
     --repr_layers 34 --include mean
 ```
 
-Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb).
+Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/sup_variant_prediction.ipynb).
 
 **Note this is somewhat outdated: use `esm1v_t33_650M_UR90S` instead, and
-see [the newer instructions for zero-shot variant prediction](variant-prediction/),
+see [the newer instructions for zero-shot variant prediction](examples/variant-prediction/),
 that is without any supervised training.**
 
 
@@ -523,7 +529,7 @@ For inverse folding using ESM-IF1:
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.
 
-Additionally, if you would like to use the variant prediction benchmark from Meier et al. (2021), we provide a bibtex file with citations for all data in [variant-prediction/mutation_data.bib](variant-prediction/mutation_data.bib). You can cite each paper individually, or add all citations in bulk using the LaTeX command:
+Additionally, if you would like to use the variant prediction benchmark from Meier et al. (2021), we provide a bibtex file with citations for all data in [./examples/variant-prediction/mutation_data.bib](./examples/variant-prediction/mutation_data.bib). You can cite each paper individually, or add all citations in bulk using the LaTeX command:
 
 ```tex
 \nocite{wrenbeck2017deep,klesmith2015comprehensive,haddox2018mapping,romero2015dissecting,firnberg2014comprehensive,deng2012deep,stiffler2015evolvability,jacquier2013capturing,findlay2018comprehensive,mclaughlin2012spatial,kitzman2015massively,doud2016accurate,pokusaeva2019experimental,mishra2016systematic,kelsic2016rna,melnikov2014comprehensive,brenan2016phenotypic,rockah2015systematic,wu2015functional,aakre2015evolving,qi2014quantitative,matreyek2018multiplex,bandaru2017deconstruction,roscoe2013analyses,roscoe2014systematic,mavor2016determination,chan2017correlation,melamed2013deep,starita2013activity,araya2012fundamental}
