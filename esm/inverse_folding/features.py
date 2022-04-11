@@ -212,8 +212,8 @@ class GVPGraphEmbedding(GVPInputFeaturizer):
     def __init__(self, args):
         super().__init__()
         self.top_k_neighbors = args.top_k_neighbors
-        self.num_positional_embeddings = args.num_positional_embeddings
-        self.remove_edges_without_coords = args.remove_edges_without_coords
+        self.num_positional_embeddings = 16
+        self.remove_edges_without_coords = True
         node_input_dim = (7, 3)
         edge_input_dim = (34, 1)
         node_hidden_dim = (args.node_hidden_dim_scalar,

@@ -119,9 +119,7 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
 
     elif "invariant_gvp" in model_data["args"].arch:
         model_type = esm.inverse_folding.gvp_transformer.GVPTransformerModel 
-        model_args = model_data["args"]
-        esm.inverse_folding.gvp_transformer.architecture(model_args)
-        model_args = vars(model_data["args"])
+        model_args = vars(model_data["args"]) # convert Namespace -> dict
 
         def update_name(s):
             # Map the module names in checkpoints trained with internal code to

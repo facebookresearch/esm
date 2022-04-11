@@ -3,7 +3,10 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 #
-# usage: redesign_from_pdbfile.py [-h] [--chain CHAIN] [--temperature TEMPERATURE] PDBFILE
+# Sample sequences based on a given structure (greedy sampling, no beam search).
+#
+# usage: sample_sequences.py [-h] [--chain CHAIN] [--temperature TEMPERATURE]
+# [--outpath OUTPATH] [--num-samples NUM_SAMPLES] pdbfile
 
 import argparse
 import numpy as np

@@ -3,7 +3,10 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 #
-# usage: redesign_from_pdbfile.py [-h] [--chain CHAIN] [--temperature TEMPERATURE] PDBFILE
+# Scores sequences based on a given structure.
+#
+# usage:
+# score_log_likelihoods.py [-h] [--outpath OUTPATH] [--chain CHAIN] pdbfile seqfile
 
 import argparse
 from biotite.sequence.io.fasta import FastaFile, get_sequences

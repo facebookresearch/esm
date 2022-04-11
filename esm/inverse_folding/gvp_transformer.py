@@ -87,6 +87,8 @@ class GVPTransformerModel(nn.Module):
     
     def sample(self, coords, temperature=1.0, confidence=None):
         """
+        Samples sequences based on greedy sampling (no beam search).
+
         Args:
             coords: L x 3 x 3 list representing one backbone
             temperature: sampling temperature, use low temperature for higher
@@ -125,34 +127,3 @@ class GVPTransformerModel(nn.Module):
         
         # Convert back to string via lookup
         return ''.join([self.decoder.dictionary.get_tok(a) for a in sampled_seq])
-
-
-def architecture(args):
-    # Transformer args
-    args.encoder_embed_dim = getattr(args, "encoder_embed_dim", 512)
-    args.encoder_ffn_embed_dim = getattr(args, "encoder_ffn_embed_dim", 2048)
-    args.encoder_attention_heads = getattr(args, "encoder_attention_heads", 8)
-    args.encoder_layers = getattr(args, "encoder_layers", 8)
-    args.decoder_embed_dim = getattr(args, "decoder_embed_dim", 512)
-    args.decoder_ffn_embed_dim = getattr(args, "decoder_ffn_embed_dim", 2048)
-    args.decoder_attention_heads = getattr(args, "decoder_attention_heads", 8)
-    args.decoder_layers = getattr(args, "decoder_layers", 8)
-    args.attention_dropout = getattr(args, "attention_dropout", 0.1)
-    args.dropout = getattr(args, "dropout", 0.1)
-
-    # GVP encoder args
-    args.gvp_num_encoder_layers = getattr(args, "gvp_num_encoder_layers", 4)
-    args.gvp_dropout = getattr(args, "gvp_dropout", 0.1)
-    args.gvp_top_k_neighbors = getattr(args, "gvp_top_k_neighbors", 30)
-    args.gvp_num_positional_embeddings = getattr(args,
-            "gvp_num_positional_embeddings", 16)
-    args.gvp_remove_edges_without_coords = getattr(args,
-            "gvp_remove_edges_without_coords", True)
-    args.gvp_node_hidden_dim_scalar = getattr(args,
-            "gvp_node_hidden_dim_scalar", 1024)
-    args.gvp_node_hidden_dim_vector = getattr(args,
-            "gvp_node_hidden_dim_vector", 256)
-    args.gvp_edge_hidden_dim_scalar = getattr(args,
-            "gvp_edge_hidden_dim_scalar", 32)
-    args.gvp_edge_hidden_dim_vector = getattr(args,
-            "gvp_edge_hidden_dim_vector", 1)
