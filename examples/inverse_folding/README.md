@@ -11,6 +11,8 @@ structurally held-out backbones with 72% recovery for buried residues.
 The model is also trained with span masking to tolerate missing backbone
 coordinates and therefore can predict sequences for partially masked structures.
 
+More details in our bioRxiv [pre-print](https://www.biorxiv.org/content/10.1101/2022.04.10.487779v1).
+
 ![Illustration](illustration.png)
 
 ## Recommended environment
@@ -40,11 +42,11 @@ To sample sequences for a given structure in PDB or mmCIF format, use the
 For example, to sample 3 sequence designs for the golgi casein kinase structure
 (PDB [5YH2](https://www.rcsb.org/structure/5yh2); [PDB Molecule of the Month
 from January 2022](https://pdb101.rcsb.org/motm/265)), we can run the following
-command from the esm root directory:
+command from the `examples/inverse_folding` directory:
 ```
-python examples/inverse_folding/sample_sequences.py examples/inverse_folding/data/5YH2.pdb \
+python sample_sequences.py data/5YH2.pdb \
     --chain C --temperature 1 --num-samples 3 \
-    --outpath examples/inverse_folding/output/sampled_sequences.fasta
+    --outpath output/sampled_sequences.fasta
 ```
 
 The sampled sequences will be saved in a fasta format to the specified output file.
@@ -59,13 +61,13 @@ recovery, we recommend sampling with low temperature such as 1e-6.
 To score the conditional log-likelihoods for sequences conditioned on a given
 structure, use the `score_log_likelihoods.py` script.
 
-For example, to score the sequences in `examples/inverse_folding/data/5YH2_mutated_seqs.fasta`
-according to the structure in `examples/inverse_folding/data/5YH2.pdb`, we can run
-the following command from the esm root directory:
+For example, to score the sequences in `data/5YH2_mutated_seqs.fasta`
+according to the structure in `data/5YH2.pdb`, we can run
+the following command from the `examples/inverse_folding` directory:
 ```
-python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \
-    examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C \
-    --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
+python score_log_likelihoods.py data/5YH2.pdb \
+    data/5YH2_mutated_seqs.fasta --chain C \
+    --outpath output/5YH2_mutated_seqs_scores.csv
 ```
 
 The conditional log-likelihoods are saved in a csv format in the specified output path. 
@@ -140,7 +142,7 @@ To mask a parts of the input backbone coordinates, simply set those coordinate
 values to `np.inf`. For example, to mask the backbone coordinates for the first
 ten amino acid in the structure,
 ```
-coords[:10, :] = np.inf
+coords[:10, :] = float('inf')
 ```
 
 ### Encoder output as structure representation
