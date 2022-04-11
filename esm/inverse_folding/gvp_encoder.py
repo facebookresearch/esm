@@ -16,7 +16,6 @@ from .gvp_utils import unflatten_graph
 
 
 class GVPEncoder(nn.Module):
-    """ Encoder ported over from https://github.com/drorlab/gvp-pytorch. """
 
     def __init__(self, args):
         super().__init__()
