@@ -65,7 +65,7 @@ For a complete list of available models, with details and release notes, see [Pr
 
 ## Comparison to related works <a name="perf_related"></a>
 <!--
-DO NOT EDIT THIS TABLE! This is the master copy:
+DO NOT EDIT THIS TABLE! This is the source of truth:
 https://docs.google.com/spreadsheets/d/1RPvWF47rIMEr-Jg-SRCoGElHcwCl5d7RyEeSyPgp59A/edit#gid=0
 exported via https://www.tablesgenerator.com/html_tables
 -->
@@ -355,7 +355,7 @@ This notetook guide you through examples of sampling sequences, calculating cond
 
 ### Supervised variant prediction - training a classifier on the embeddings
 
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/sup_variant_prediction.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/sup_variant_prediction.ipynb)
 
 
 To help you get started with using the embeddings, this [jupyter notebook tutorial](examples/sup_variant_prediction.ipynb) shows how to train a supervised variant predictor using embeddings from ESM-1.
@@ -369,7 +369,7 @@ $ python scripts/extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P
     --repr_layers 34 --include mean
 ```
 
-Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/sup_variant_prediction.ipynb).
+Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/sup_variant_prediction.ipynb).
 
 **Note this is somewhat outdated: use `esm1v_t33_650M_UR90S` instead, and
 see [the newer instructions for zero-shot variant prediction](examples/variant-prediction/),
@@ -377,7 +377,7 @@ that is without any supervised training.**
 
 
 ### Unsupervised contact prediction
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/contact_prediction.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/contact_prediction.ipynb)
 
 This [jupyter notebook tutorial](examples/contact_prediction.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
 Contact prediction is based on a logistic regression over the model's attention maps.
@@ -390,7 +390,7 @@ To get unsupervised attention-based contacts, call `model.predict_contacts(token
 
 
 ### ESMStructuralSplitDataset and self-attention contact prediction
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/esm_structural_dataset.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/esm_structural_dataset.ipynb)
 
 And this [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) shows how to load and index the `ESMStructuralSplitDataset`,
 and computes the self-attention map unsupervised contact predictions using ESM-1b.
