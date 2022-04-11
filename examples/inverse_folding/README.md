@@ -29,7 +29,7 @@ conda install pytorch cudatoolkit=11.3 -c pytorch
 conda install pyg -c pyg -c conda-forge
 conda install pip
 pip install biotite
-pip install fair-esm
+pip install git+https://github.com/facebookresearch/esm.git
 ```
 
 ## Quickstart
