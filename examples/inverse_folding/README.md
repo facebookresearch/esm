@@ -11,7 +11,7 @@ structurally held-out backbones with 72% recovery for buried residues.
 The model is also trained with span masking to tolerate missing backbone
 coordinates and therefore can predict sequences for partially masked structures.
 
-More details in our bioRxiv [pre-print](https://www.biorxiv.org/content/10.1101/2022.04.10.487779v1).
+More details in our bioRxiv [pre-print](https://doi.org/10.1101/2022.04.10.487779).
 
 ![Illustration](illustration.png)
 
