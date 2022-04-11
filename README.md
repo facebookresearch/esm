@@ -30,7 +30,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
   - [Zero-shot variant prediction](#zs_variant)
   - [Inverse folding](#invf)
-  - [Notebooks](#notebooks)
+- [Notebooks](#notebooks)
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
   - [ESM Structural Split Dataset](#available-esmssd)
@@ -344,16 +344,16 @@ The output values are the average log-likelihoods averaged over all amino acids 
   
 For more information, see "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide.
 
-### Notebooks <a name="notebooks"></a>
-  
-#### Inverse folding - predicting or scoring sequences based on backbone structures
+## Notebooks <a name="notebooks"></a>
+
+### Inverse folding - predicting or scoring sequences based on backbone structures
 
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook.ipynb)
 
 The ESM-IF1 inverse folding model predicts protein sequences from their backbone atom coordinates, trained with 12M protein structures predicted by AlphaFold2.
 This notetook guide you through examples of sampling sequences, calculating conditional log-likelihoods, and extracting encoder output as structure representation.
 
-#### Supervised variant prediction - training a classifier on the embeddings
+### Supervised variant prediction - training a classifier on the embeddings
 
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/sup_variant_prediction.ipynb)
 
@@ -376,7 +376,7 @@ see [the newer instructions for zero-shot variant prediction](examples/variant-p
 that is without any supervised training.**
 
 
-#### Unsupervised contact prediction
+### Unsupervised contact prediction
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/contact_prediction.ipynb)
 
 This [jupyter notebook tutorial](examples/contact_prediction.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
@@ -389,7 +389,7 @@ See [MSA Transformer. (Rao et al. 2021)](https://www.biorxiv.org/content/10.1101
 To get unsupervised attention-based contacts, call `model.predict_contacts(tokens)` or `model(tokens, return_contacts=True)`.
 
 
-#### ESMStructuralSplitDataset and self-attention contact prediction
+### ESMStructuralSplitDataset and self-attention contact prediction
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/esm_structural_dataset.ipynb)
 
 And this [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) shows how to load and index the `ESMStructuralSplitDataset`,
