@@ -1,7 +1,7 @@
 # Evolutionary Scale Modeling
 
 
-This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b** and **MSA Transformer**.
+This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b** and **MSA Transformer**, as well as **ESM-1v** for predicting variant effects and **ESM-IF1** for inverse folding.
 Transformer protein language models were introduced in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
 
 **ESM-1b outperforms all tested single-sequence protein language models across a range of structure prediction tasks.**
@@ -59,7 +59,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 | ESM-1b    | `esm1b_t33_650M_UR50S()`       | UR50  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Rives et al. 2019](https://doi.org/10.1101/622803) (Dec 2020 update). |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S()` |  UR50 + MSA  | MSA Transformer language model. Can be used to extract embeddings from an MSA. Enables SOTA inference of structure. Released with [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2) (ICML'21 version, June 2021).  |
 | ESM-1v    | `esm1v_t33_650M_UR90S_1()` ... `esm1v_t33_650M_UR90S_5()`| UR90  | Language model specialized for prediction of variant effects. Enables SOTA zero-shot prediction of the functional effects of sequence variations. Same architecture as ESM-1b, but trained on UniRef90. Released with [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648). |
-| ESM-IF1  | `esm_if1_gvp4_t16_142M_UR50()` | CATH + UR50 | Inverse folding model. Can be used to design sequences for given structures, or to predict functional effects of sequence variation for given structures. Enables SOTA fixed backbone sequence design. |
+| ESM-IF1  | `esm_if1_gvp4_t16_142M_UR50()` | CATH + UR50 | Inverse folding model. Can be used to design sequences for given structures, or to predict functional effects of sequence variation for given structures. Enables SOTA fixed backbone sequence design. Released with [Hsu et al. 2022](https://doi.org/10.1101/2022.04.10.487779). |
 
 For a complete list of available models, with details and release notes, see [Pre-trained Models](#available-models).
 
@@ -278,7 +278,8 @@ See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weig
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
   
 ### Inverse folding <a name="invf"></a>
-See "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. 
+See "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
+  
 We also provide a colab notebook for the sequence design and sequence scoring functionalities.
   
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/inverse_folding/notebook.ipynb)
@@ -517,6 +518,20 @@ For variant prediction using ESM-1v:
   url={https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1},
   journal={bioRxiv}
 }
+```
+  
+For inverse folding using ESM-IF1:
+
+```bibtex
+@article{hsu2022learning,
+	author = {Hsu, Chloe and Verkuil, Robert and Liu, Jason and Lin, Zeming and Hie, Brian and Sercu, Tom and Lerer, Adam and Rives, Alexander},
+	title = {Learning inverse folding from millions of predicted structures},
+	year = {2022},
+	doi = {10.1101/2022.04.10.487779},
+	url = {https://www.biorxiv.org/content/early/2022/04/10/2022.04.10.487779},
+	journal = {bioRxiv}
+}
+
 ```
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.
