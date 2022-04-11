@@ -1,7 +1,7 @@
 # Evolutionary Scale Modeling
 
 
-This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b** and **MSA Transformer**.
+This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-1b** and **MSA Transformer**, as well as **ESM-1v** for predicting variant effects and **ESM-IF1** for inverse folding.
 Transformer protein language models were introduced in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
 
 **ESM-1b outperforms all tested single-sequence protein language models across a range of structure prediction tasks.**
@@ -29,6 +29,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
   - [Quick Start](#quickstart)
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
   - [Zero-shot variant prediction](#zs_variant)
+  - [Inverse folding](#invf)
   - [Notebooks](#notebooks)
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
@@ -39,7 +40,8 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 </details>
 
 <details><summary>What's New</summary>
-
+  
+- April 2022: New inverse folding model ESM-IF1 released, trained on CATH and UniRef50 predicted structures.
 - August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like `<mask>`) in sequence.
 - July 2021: New pre-trained model ESM-1v released, trained on UniRef90 (see [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648)).
 - July 2021: New MSA Transformer released, with a minor fix in the row positional embeddings (`ESM-MSA-1b`).
@@ -57,6 +59,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
 | ESM-1b    | `esm1b_t33_650M_UR50S()`       | UR50  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Rives et al. 2019](https://doi.org/10.1101/622803) (Dec 2020 update). |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S()` |  UR50 + MSA  | MSA Transformer language model. Can be used to extract embeddings from an MSA. Enables SOTA inference of structure. Released with [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2) (ICML'21 version, June 2021).  |
 | ESM-1v    | `esm1v_t33_650M_UR90S_1()` ... `esm1v_t33_650M_UR90S_5()`| UR90  | Language model specialized for prediction of variant effects. Enables SOTA zero-shot prediction of the functional effects of sequence variations. Same architecture as ESM-1b, but trained on UniRef90. Released with [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648). |
+| ESM-IF1  | `esm_if1_gvp4_t16_142M_UR50()` | CATH + UR50 | Inverse folding model. Can be used to design sequences for given structures, or to predict functional effects of sequence variation for given structures. Enables SOTA fixed backbone sequence design. Released with [Hsu et al. 2022](https://doi.org/10.1101/2022.04.10.487779). |
 
 For a complete list of available models, with details and release notes, see [Pre-trained Models](#available-models).
 
@@ -273,9 +276,76 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
 ### Zero-shot variant prediction <a name="zs_variant"></a>
 See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
+  
+### Inverse folding <a name="invf"></a>
+See "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
+  
+We also provide a colab notebook for the sequence design and sequence scoring functionalities.
+  
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook.ipynb)
+  
+The ESM-IF1 inverse folding model is built for predicting protein sequences 
+from their backbone atom coordinates. We provide scripts here 1) to sample sequence 
+designs for a given structure and 2) to score sequences for a given structure. 
 
+Trained with 12M protein structures predicted by AlphaFold2, the ESM-IF1
+model consists of invariant geometric input processing layers followed by a
+sequence-to-sequence transformer, and achieves 51% native sequence recovery on
+structurally held-out backbones with 72% recovery for buried residues.
+The model is also trained with span masking to tolerate missing backbone
+coordinates and therefore can predict sequences for partially masked structures.
+ 
+#### Sample sequence designs for a given structure
+The environment setup is described in [this subsection of examples/inverse_folding](examples/inverse_folding#recommended-environment).
+
+To sample sequences for a given structure in PDB or mmCIF format, use the
+`sample_sequences.py` script. The input file can have either `.pdb` or
+`.cif` as suffix.
+
+For example, to sample 3 sequence designs for the golgi casein kinase structure
+(PDB [5YH2](https://www.rcsb.org/structure/5yh2); [PDB Molecule of the Month
+from January 2022](https://pdb101.rcsb.org/motm/265)), we can run the following
+command from the esm root directory:
+```
+python examples/inverse_folding/sample_sequences.py examples/inverse_folding/data/5YH2.pdb \
+    --chain C --temperature 1 --num-samples 3 \
+    --outpath examples/inverse_folding/output/sampled_sequences.fasta
+```
+
+The sampled sequences will be saved in a fasta format to the specified output file.
+
+The temperature parameter controls the sharpness of the probability
+distribution for sequence sampling. Higher sampling temperatures yield more
+diverse sequences but likely with lower native sequence recovery.
+The default sampling temperature is 1. To optimize for native sequence
+recovery, we recommend sampling with low temperature such as 1e-6.
+
+#### Scoring sequences
+To score the conditional log-likelihoods for sequences conditioned on a given
+structure, use the `score_log_likelihoods.py` script.
+
+For example, to score the sequences in `examples/inverse_folding/data/5YH2_mutated_seqs.fasta`
+according to the structure in `examples/inverse_folding/data/5YH2.pdb`, we can run
+the following command from the esm root directory:
+```
+python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \
+    examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C \
+    --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
+```
+
+The conditional log-likelihoods are saved in a csv format in the specified output path. 
+The output values are the average log-likelihoods averaged over all amino acids in a sequence.
+  
+For more information, see "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide.
 
 ### Notebooks <a name="notebooks"></a>
+  
+#### Inverse folding - predicting or scoring sequences based on backbone structures
+
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook.ipynb)
+
+The ESM-IF1 inverse folding model predicts protein sequences from their backbone atom coordinates, trained with 12M protein structures predicted by AlphaFold2.
+This notetook guide you through examples of sampling sequences, calculating conditional log-likelihoods, and extracting encoder output as structure representation.
 
 #### Supervised variant prediction - training a classifier on the embeddings
 
@@ -326,6 +396,7 @@ and computes the self-attention map unsupervised contact predictions using ESM-1
 
 | Shorthand | `esm.pretrained.`           | #layers | #params | Dataset | Embedding Dim |  Model URL (automatically downloaded to `~/.cache/torch/hub/checkpoints`) |
 |-----------|---------------------|---------|---------|---------|---------------|-----------------------------------------------------------------------|
+| ESM-IF1    | `esm_if1_gvp4_t16_142M_UR50` | 20     | 124M    | CATH 4.3 + predicted structures for UR50 | 512          | https://dl.fbaipublicfiles.com/fair-esm/models/esm_if1_gvp4_t16_142M_UR50.pt   |
 | ESM-1v    | `esm1v_t33_650M_UR90S_[1-5]` | 33     | 650M    | UR90/S 2020_03  | 1280          | https://dl.fbaipublicfiles.com/fair-esm/models/esm1v_t33_650M_UR90S_1.pt   |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S` | 12     | 100M    | UR50/S + MSA 2018_03 | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1b_t12_100M_UR50S.pt   |
 | ESM-MSA-1 | `esm_msa1_t12_100M_UR50S` | 12     | 100M    | UR50/S + MSA 2018_03 | 768        | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1_t12_100M_UR50S.pt   |
@@ -346,6 +417,7 @@ Here is a chronological list of the released models and the paper they were intr
 | ESM-MSA-1 | Released with Rao et al. 2021 (Preprint v1). |
 | ESM-MSA-1b | Released with Rao et al. 2021 (ICML'21 version, June 2021). |
 | ESM-1v     | Released with Meier et al. 2021. |
+| ESM-IF1     | Released with Hsu et al. 2022. |  
 
 ### ESM Structural Split Dataset <a name="available-esmssd"></a>
 This is a five-fold cross validation dataset of protein domain structures that can be used to measure generalization of representations
@@ -433,6 +505,20 @@ For variant prediction using ESM-1v:
   url={https://www.biorxiv.org/content/10.1101/2021.07.09.450648v1},
   journal={bioRxiv}
 }
+```
+  
+For inverse folding using ESM-IF1:
+
+```bibtex
+@article{hsu2022learning,
+	author = {Hsu, Chloe and Verkuil, Robert and Liu, Jason and Lin, Zeming and Hie, Brian and Sercu, Tom and Lerer, Adam and Rives, Alexander},
+	title = {Learning inverse folding from millions of predicted structures},
+	year = {2022},
+	doi = {10.1101/2022.04.10.487779},
+	url = {https://www.biorxiv.org/content/early/2022/04/10/2022.04.10.487779},
+	journal = {bioRxiv}
+}
+
 ```
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.

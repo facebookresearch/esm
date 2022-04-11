@@ -24,6 +24,7 @@ model_names = """
     esm1v_t33_650M_UR90S_3,
     esm1v_t33_650M_UR90S_4,
     esm1v_t33_650M_UR90S_5,
+    esm_if1_gvp4_t16_142M_UR50,
 """
 model_names = [mn.strip() for mn in model_names.strip(" ,\n").split(",")]
 
