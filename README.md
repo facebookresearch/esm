@@ -30,7 +30,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance further by leveraging MS
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
   - [Zero-shot variant prediction](#zs_variant)
   - [Inverse folding](#invf)
-  - [Notebooks](#notebooks)
+- [Notebooks](#notebooks)
 - [Available Models and Datasets](#available)
   - [Pre-trained Models](#available-models)
   - [ESM Structural Split Dataset](#available-esmssd)
@@ -65,7 +65,7 @@ For a complete list of available models, with details and release notes, see [Pr
 
 ## Comparison to related works <a name="perf_related"></a>
 <!--
-DO NOT EDIT THIS TABLE! This is the master copy:
+DO NOT EDIT THIS TABLE! This is the source of truth:
 https://docs.google.com/spreadsheets/d/1RPvWF47rIMEr-Jg-SRCoGElHcwCl5d7RyEeSyPgp59A/edit#gid=0
 exported via https://www.tablesgenerator.com/html_tables
 -->
@@ -199,13 +199,15 @@ For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/20
 
 ### Quick Start <a name="quickstart"></a>
 
-As a prerequisite, you must have PyTorch 1.5 or later installed to use this repository.
+As a prerequisite, you must have PyTorch installed to use this repository.
 
-You can use this one-liner for installation:
+You can use this one-liner for installation, using the latest release of esm:
 
 ```bash
-$ pip install fair-esm
+$ pip install fair-esm  # latest release, OR:
+$ pip install git+https://github.com/facebookresearch/esm.git  # bleeding edge, current repo main branch
 ```
+
 
 We also support PyTorch Hub, which removes the need to clone and/or install this repository yourself:
 
@@ -214,7 +216,7 @@ import torch
 model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
 ```
 
-Then, you can load and use a pretrained model as follows:
+After pip install, you can load and use a pretrained model as follows:
 
 ```python
 import torch
@@ -260,12 +262,12 @@ A cuda device is optional and will be auto-detected.
 The following command extracts the final-layer embedding for a FASTA file from the ESM-1b model:
 
 ```bash
-$ python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
+$ python scripts/extract.py esm1b_t33_650M_UR50S examples/data/some_proteins.fasta examples/data/some_proteins_emb_esm1b/ \
     --repr_layers 0 32 33 --include mean per_tok
 ```
 
-Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
-`extract.py` has flags that determine what's included in the `.pt` file:
+Directory `some_proteins_emb_esm1b/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
+`scripts/extract.py` has flags that determine what's included in the `.pt` file:
 * `--repr-layers` (default: final only) selects which layers to include embeddings from.
 * `--include` specifies what embeddings to save. You can use the following:
   * `per_tok` includes the full sequence, with an embedding per amino acid (seq_len x hidden_dim).
@@ -274,11 +276,11 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
 ### Zero-shot variant prediction <a name="zs_variant"></a>
-See "[./variant-prediction/](variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
+See "[examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
   
 ### Inverse folding <a name="invf"></a>
-See "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
+See "[examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
   
 We also provide a colab notebook for the sequence design and sequence scoring functionalities.
   
@@ -338,40 +340,39 @@ The output values are the average log-likelihoods averaged over all amino acids 
   
 For more information, see "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide.
 
-### Notebooks <a name="notebooks"></a>
-  
-#### Inverse folding - predicting or scoring sequences based on backbone structures
+## Notebooks <a name="notebooks"></a>
+
+### Inverse folding - predicting or scoring sequences based on backbone structures
 
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook.ipynb)
 
 The ESM-IF1 inverse folding model predicts protein sequences from their backbone atom coordinates, trained with 12M protein structures predicted by AlphaFold2.
 This notetook guide you through examples of sampling sequences, calculating conditional log-likelihoods, and extracting encoder output as structure representation.
 
-#### Supervised variant prediction - training a classifier on the embeddings
+### Supervised variant prediction - training a classifier on the embeddings
 
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/sup_variant_prediction.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/sup_variant_prediction.ipynb)
 
 
 To help you get started with using the embeddings, this [jupyter notebook tutorial](examples/sup_variant_prediction.ipynb) shows how to train a supervised variant predictor using embeddings from ESM-1.
 You can adopt a similar protocol to train a model for any downstream task, even with limited data.
-First you can obtain the embeddings for ``examples/P62593.fasta`` either by [downloading the precomputed](https://dl.fbaipublicfiles.com/fair-esm/examples/P62593_reprs.tar.gz) embeddings
+First you can obtain the embeddings for ``examples/data/P62593.fasta`` either by [downloading the precomputed](https://dl.fbaipublicfiles.com/fair-esm/examples/P62593_reprs.tar.gz) embeddings
 as instructed in the notebook or by running the following:
 
 ```bash
 # Obtain the embeddings
-$ python extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_reprs/ \
-    --repr_layers 34 --include mean
+$ python scripts/extract.py esm1v_t33_650M_UR90S_1 examples/data/P62593.fasta examples/data/P62593_emb_esm1v/ \
+    --repr_layers 33 --include mean
 ```
 
-Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/variant_prediction.ipynb).
+Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/sup_variant_prediction.ipynb).
 
-**Note this is somewhat outdated: use `esm1v_t33_650M_UR90S` instead, and
-see [the newer instructions for zero-shot variant prediction](variant-prediction/),
-that is without any supervised training.**
+**Note, alternatively use [the newer instructions for zero-shot variant prediction](examples/variant-prediction/),
+which predicts mutational effects without any supervised training.**
 
 
-#### Unsupervised contact prediction
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/contact_prediction.ipynb)
+### Unsupervised contact prediction
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/contact_prediction.ipynb)
 
 This [jupyter notebook tutorial](examples/contact_prediction.ipynb) demonstrates contact prediction with both the ESM-1b and MSA Transformer (ESM-MSA-1) models.
 Contact prediction is based on a logistic regression over the model's attention maps.
@@ -383,8 +384,8 @@ See [MSA Transformer. (Rao et al. 2021)](https://www.biorxiv.org/content/10.1101
 To get unsupervised attention-based contacts, call `model.predict_contacts(tokens)` or `model(tokens, return_contacts=True)`.
 
 
-#### ESMStructuralSplitDataset and self-attention contact prediction
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/esm_structural_dataset.ipynb)
+### ESMStructuralSplitDataset and self-attention contact prediction
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/esm_structural_dataset.ipynb)
 
 And this [jupyter notebook tutorial](examples/esm_structural_dataset.ipynb) shows how to load and index the `ESMStructuralSplitDataset`,
 and computes the self-attention map unsupervised contact predictions using ESM-1b.
@@ -523,7 +524,7 @@ For inverse folding using ESM-IF1:
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.
 
-Additionally, if you would like to use the variant prediction benchmark from Meier et al. (2021), we provide a bibtex file with citations for all data in [variant-prediction/mutation_data.bib](variant-prediction/mutation_data.bib). You can cite each paper individually, or add all citations in bulk using the LaTeX command:
+Additionally, if you would like to use the variant prediction benchmark from Meier et al. (2021), we provide a bibtex file with citations for all data in [./examples/variant-prediction/mutation_data.bib](./examples/variant-prediction/mutation_data.bib). You can cite each paper individually, or add all citations in bulk using the LaTeX command:
 
 ```tex
 \nocite{wrenbeck2017deep,klesmith2015comprehensive,haddox2018mapping,romero2015dissecting,firnberg2014comprehensive,deng2012deep,stiffler2015evolvability,jacquier2013capturing,findlay2018comprehensive,mclaughlin2012spatial,kitzman2015massively,doud2016accurate,pokusaeva2019experimental,mishra2016systematic,kelsic2016rna,melnikov2014comprehensive,brenan2016phenotypic,rockah2015systematic,wu2015functional,aakre2015evolving,qi2014quantitative,matreyek2018multiplex,bandaru2017deconstruction,roscoe2013analyses,roscoe2014systematic,mavor2016determination,chan2017correlation,melamed2013deep,starita2013activity,araya2012fundamental}
