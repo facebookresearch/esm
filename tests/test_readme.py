@@ -63,10 +63,10 @@ def test_readme_2():
         plt.show()
 
 
-def _run_py_cmd(cmd):
+def _run_py_cmd(cmd, **kwargs):
     this_python = sys.executable
     cmd.replace("python", this_python)
-    subprocess.run(cmd, shell=True, check=True)
+    subprocess.run(cmd, shell=True, check=True, **kwargs)
 
 
 def test_readme_3():
@@ -74,8 +74,8 @@ def test_readme_3():
     # * some_proteins -> few_proteins (subset)
     # * I computed reference values a while ago for: esm1b -> esm1 and layers 33 -> 34
     cmd = """
-python extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
-    --repr_layers 0 32 33 --include mean per_tok
+python scripts/extract.py esm1_t34_670M_UR50S examples/data/few_proteins.fasta examples/data/few_proteins_emb_esm1/ \
+    --repr_layers 0 33 34 --include mean per_tok
 """
     _run_py_cmd(cmd)
     confirm_all_tensors_equal(
@@ -128,31 +128,31 @@ def _test_msa_transformer(model, alphabet):
 
 def test_variant_readme_1():
     cmd = """
-python variant-prediction/predict.py \
+python predict.py \
     --model-location esm1v_t33_650M_UR90S_1 esm1v_t33_650M_UR90S_2 esm1v_t33_650M_UR90S_3 esm1v_t33_650M_UR90S_4 esm1v_t33_650M_UR90S_5 \
     --sequence HPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRVDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPAAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW \
-    --dms-input ./variant-prediction/examples/BLAT_ECOLX_Ranganathan2015.csv \
+    --dms-input ./data/BLAT_ECOLX_Ranganathan2015.csv \
     --mutation-col mutant \
-    --dms-output ./variant-prediction/examples/BLAT_ECOLX_Ranganathan2015_labeled.csv \
+    --dms-output ./data/BLAT_ECOLX_Ranganathan2015_labeled.csv \
     --offset-idx 24 \
     --scoring-strategy wt-marginals
     """
-    _run_py_cmd(cmd)
+    _run_py_cmd(cmd, cwd="examples/variant-prediction/")
 
 
 def test_variant_readme_2():
     cmd = """
-python variant-prediction/predict.py \
+python predict.py \
     --model-location esm_msa1b_t12_100M_UR50S \
     --sequence HPETLVKVKDAEDQLGARVGYIELDLNSGKILESFRPEERFPMMSTFKVLLCGAVLSRVDAGQEQLGRRIHYSQNDLVEYSPVTEKHLTDGMTVRELCSAAITMSDNTAANLLLTTIGGPKELTAFLHNMGDHVTRLDRWEPELNEAIPNDERDTTMPAAMATTLRKLLTGELLTLASRQQLIDWMEADKVAGPLLRSALPAGWFIADKSGAGERGSRGIIAALGPDGKPSRIVVIYTTGSQATMDERNRQIAEIGASLIKHW \
-    --dms-input ./variant-prediction/examples/BLAT_ECOLX_Ranganathan2015.csv \
+    --dms-input ./data/BLAT_ECOLX_Ranganathan2015.csv \
     --mutation-col mutant \
-    --dms-output ./variant-prediction/examples/BLAT_ECOLX_Ranganathan2015_labeled.csv \
+    --dms-output ./data/BLAT_ECOLX_Ranganathan2015_labeled.csv \
     --offset-idx 24 \
     --scoring-strategy masked-marginals \
-    --msa-path ./variant-prediction/examples/BLAT_ECOLX_1_b0.5.a3m
+    --msa-path ./data/BLAT_ECOLX_1_b0.5.a3m
     """
-    _run_py_cmd(cmd)
+    _run_py_cmd(cmd, cwd="examples/variant-prediction/")
 
 
 if __name__ == "__main__":

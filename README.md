@@ -204,14 +204,10 @@ As a prerequisite, you must have PyTorch installed to use this repository.
 You can use this one-liner for installation, using the latest release of esm:
 
 ```bash
-$ pip install fair-esm
+$ pip install fair-esm  # latest release, OR:
+$ pip install git+https://github.com/facebookresearch/esm.git  # bleeding edge, current repo main branch
 ```
 
-or alternatively to work with the current repository state (includes any updates since last release):
-```bash
-$ git clone https://github.com/facebookresearch/esm.git
-$ cd esm; pip install .
-```
 
 We also support PyTorch Hub, which removes the need to clone and/or install this repository yourself:
 
@@ -266,11 +262,11 @@ A cuda device is optional and will be auto-detected.
 The following command extracts the final-layer embedding for a FASTA file from the ESM-1b model:
 
 ```bash
-$ python scripts/extract.py esm1b_t33_650M_UR50S examples/some_proteins.fasta examples/some_proteins_emb_esm1b/ \
+$ python scripts/extract.py esm1b_t33_650M_UR50S examples/data/some_proteins.fasta examples/data/some_proteins_emb_esm1b/ \
     --repr_layers 0 32 33 --include mean per_tok
 ```
 
-Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
+Directory `some_proteins_emb_esm1b/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
 `scripts/extract.py` has flags that determine what's included in the `.pt` file:
 * `--repr-layers` (default: final only) selects which layers to include embeddings from.
 * `--include` specifies what embeddings to save. You can use the following:
@@ -280,11 +276,11 @@ Directory `examples/some_proteins_emb_esm1b/` now contains one `.pt` file per FA
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
 ### Zero-shot variant prediction <a name="zs_variant"></a>
-See "[./examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
+See "[examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
   
 ### Inverse folding <a name="invf"></a>
-See "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
+See "[examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
   
 We also provide a colab notebook for the sequence design and sequence scoring functionalities.
   
@@ -360,20 +356,19 @@ This notetook guide you through examples of sampling sequences, calculating cond
 
 To help you get started with using the embeddings, this [jupyter notebook tutorial](examples/sup_variant_prediction.ipynb) shows how to train a supervised variant predictor using embeddings from ESM-1.
 You can adopt a similar protocol to train a model for any downstream task, even with limited data.
-First you can obtain the embeddings for ``examples/P62593.fasta`` either by [downloading the precomputed](https://dl.fbaipublicfiles.com/fair-esm/examples/P62593_reprs.tar.gz) embeddings
+First you can obtain the embeddings for ``examples/data/P62593.fasta`` either by [downloading the precomputed](https://dl.fbaipublicfiles.com/fair-esm/examples/P62593_reprs.tar.gz) embeddings
 as instructed in the notebook or by running the following:
 
 ```bash
 # Obtain the embeddings
-$ python scripts/extract.py esm1_t34_670M_UR50S examples/P62593.fasta examples/P62593_reprs/ \
-    --repr_layers 34 --include mean
+$ python scripts/extract.py esm1v_t33_650M_UR90S_1 examples/data/P62593.fasta examples/data/P62593_emb_esm1v/ \
+    --repr_layers 33 --include mean
 ```
 
 Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/sup_variant_prediction.ipynb).
 
-**Note this is somewhat outdated: use `esm1v_t33_650M_UR90S` instead, and
-see [the newer instructions for zero-shot variant prediction](examples/variant-prediction/),
-that is without any supervised training.**
+**Note, alternatively use [the newer instructions for zero-shot variant prediction](examples/variant-prediction/),
+which predicts mutational effects without any supervised training.**
 
 
 ### Unsupervised contact prediction
