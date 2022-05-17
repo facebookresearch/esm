@@ -148,6 +148,7 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
         Namespace(**model_args),
         alphabet,
     )
+    model = model.eval()
 
     expected_keys = set(model.state_dict().keys())
     found_keys = set(model_state.keys())
