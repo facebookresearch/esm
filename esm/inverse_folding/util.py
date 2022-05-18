@@ -9,7 +9,7 @@ import math
 import biotite.structure
 from biotite.structure.io import pdbx, pdb
 from biotite.structure.residues import get_residues
-from biotite.structure import filter_solvent
+from biotite.structure import filter_backbone
 from biotite.structure import get_chains
 from biotite.sequence import ProteinSequence
 import numpy as np
@@ -40,8 +40,8 @@ def load_structure(fpath, chain=None):
         with open(fpath) as fin:
             pdbf = pdb.PDBFile.read(fin)
         structure = pdb.get_structure(pdbf, model=1)
-    issolvent = filter_solvent(structure)
-    structure = structure[~issolvent]
+    bbmask = filter_backbone(structure)
+    structure = structure[bbmask]
     chains = get_chains(structure)
     print(f'Found {len(chains)} chains:', chains, '\n')
     if len(chains) == 0:
