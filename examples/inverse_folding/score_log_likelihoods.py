@@ -17,6 +17,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 
 import esm
+import esm.inverse_folding
 
 
 def main():
