@@ -74,6 +74,7 @@ def has_emb_layer_norm_before(model_state):
 
 
 def load_model_and_alphabet_core(model_data, regression_data=None):
+    import esm  # conditional esm.inverse_folding below
     if regression_data is not None:
         model_data["model"].update(regression_data["model"])
 
@@ -118,6 +119,7 @@ def load_model_and_alphabet_core(model_data, regression_data=None):
         model_type = esm.MSATransformer
 
     elif "invariant_gvp" in model_data["args"].arch:
+        import esm.inverse_folding
         model_type = esm.inverse_folding.gvp_transformer.GVPTransformerModel 
         model_args = vars(model_data["args"]) # convert Namespace -> dict
 

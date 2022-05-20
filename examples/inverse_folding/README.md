@@ -97,7 +97,7 @@ be of shape L x 3 x 3, where L is the number of amino acids in the structure.
 To load a structure from PDB and mmCIF file formats and extract the backbone
 coordinates of the N, CA, C atoms as model input,
 ```
-import esm
+import esm.inverse_folding
 structure = esm.inverse_folding.util.load_structure(fpath, chain_id)
 coords, seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
 ```
@@ -127,7 +127,7 @@ recovery, we recommend sampling with low temperature such as `T=1e-6`.
 To score the conditional log-likelihoods for sequences conditioned on a given
 set of backbone coordinates, use the `score_sequence` function,
 ```
-import esm
+import esm.inverse_folding
 ll_fullseq, ll_withcoord = esm.inverse_folding.util.score_sequence(model, alphabet, coords, seq)
 ```
 

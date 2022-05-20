@@ -8,6 +8,7 @@ def test_esm_if1():
     import torch
     
     import esm
+    import esm.inverse_folding
 
     example_file = Path(__file__).absolute().parent / "inverse_folding_test_example.json"
     with open(example_file) as f:
