@@ -16,6 +16,53 @@ import esm
 import esm.inverse_folding
 
 
+def sample_seq_singlechain(model, alphabet, args):
+    coords, native_seq = esm.inverse_folding.util.load_coords(args.pdbfile, args.chain)
+    print('Native sequence loaded from structure file:')
+    print(native_seq)
+
+    print(f'Saving sampled sequences to {args.outpath}.')
+
+    Path(args.outpath).parent.mkdir(parents=True, exist_ok=True)
+    with open(args.outpath, 'w') as f:
+        for i in range(args.num_samples):
+            print(f'\nSampling.. ({i+1} of {args.num_samples})')
+            sampled_seq = model.sample(coords, temperature=args.temperature)
+            print('Sampled sequence:')
+            print(sampled_seq)
+            f.write(f'>sampled_seq_{i+1}\n')
+            f.write(sampled_seq + '\n')
+
+            recovery = np.mean([(a==b) for a, b in zip(native_seq, sampled_seq)])
+            print('Sequence recovery:', recovery)
+
+
+def sample_seq_multichain(model, alphabet, args):
+    structure = esm.inverse_folding.util.load_structure(args.pdbfile)
+    coords, native_seqs = esm.inverse_folding.multichain_util.extract_coords_from_complex(structure)
+    target_chain_id = args.chain
+    native_seq = native_seqs[target_chain_id]
+    print('Native sequence loaded from structure file:')
+    print(native_seq)
+    print('\n')
+
+    print(f'Saving sampled sequences to {args.outpath}.')
+
+    Path(args.outpath).parent.mkdir(parents=True, exist_ok=True)
+    with open(args.outpath, 'w') as f:
+        for i in range(args.num_samples):
+            print(f'\nSampling.. ({i+1} of {args.num_samples})')
+            sampled_seq = esm.inverse_folding.multichain_util.sample_sequence_in_complex(
+                    model, coords, target_chain_id, temperature=args.temperature)
+            print('Sampled sequence:')
+            print(sampled_seq)
+            f.write(f'>sampled_seq_{i+1}\n')
+            f.write(sampled_seq + '\n')
+
+            recovery = np.mean([(a==b) for a, b in zip(native_seq, sampled_seq)])
+            print('Sequence recovery:', recovery)
+
+
 def main():
     parser = argparse.ArgumentParser(
             description='Sample sequences based on a given structure.'
@@ -43,28 +90,25 @@ def main():
             help='number of sequences to sample',
             default=1,
     )
+    parser.set_defaults(multichain_backbone=False)
+    parser.add_argument(
+            '--multichain-backbone', action='store_true',
+            help='use the backbones of all chains in the input for conditioning'
+    )
+    parser.add_argument(
+            '--singlechain-backbone', dest='multichain_backbone',
+            action='store_false',
+            help='use the backbone of only target chain in the input for conditioning'
+    )
     args = parser.parse_args()
 
     model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
     model = model.eval()
-    coords, seq = esm.inverse_folding.util.load_coords(args.pdbfile, args.chain)
-    print('Sequence loaded from file:')
-    print(seq)
 
-    print(f'Saving sampled sequences to {args.outpath}.')
-
-    Path(args.outpath).parent.mkdir(parents=True, exist_ok=True)
-    with open(args.outpath, 'w') as f:
-        for i in range(args.num_samples):
-            print(f'\nSampling.. ({i+1} of {args.num_samples})')
-            sampled_seq = model.sample(coords, temperature=args.temperature)
-            print('Sampled sequence:')
-            print(sampled_seq)
-            f.write(f'>sampled_seq_{i+1}\n')
-            f.write(sampled_seq + '\n')
-
-            recovery = np.mean([(a==b) for a, b in zip(seq, sampled_seq)])
-            print('Sequence recovery:', recovery)
+    if args.multichain_backbone:
+        sample_seq_multichain(model, alphabet, args)
+    else:
+        sample_seq_singlechain(model, alphabet, args)
 
 
 if __name__ == '__main__':

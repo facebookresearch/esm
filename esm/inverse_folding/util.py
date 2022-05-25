@@ -28,7 +28,7 @@ def load_structure(fpath, chain=None):
     """
     Args:
         fpath: filepath to either pdb or cif file
-        chain: the chain id
+        chain: the chain id or list of chain ids to load
     Returns:
         biotite.structure.AtomArray
     """
@@ -42,16 +42,20 @@ def load_structure(fpath, chain=None):
         structure = pdb.get_structure(pdbf, model=1)
     bbmask = filter_backbone(structure)
     structure = structure[bbmask]
-    chains = get_chains(structure)
-    print(f'Found {len(chains)} chains:', chains, '\n')
-    if len(chains) == 0:
+    all_chains = get_chains(structure)
+    if len(all_chains) == 0:
         raise ValueError('No chains found in the input file.')
     if chain is None:
-        chain = chains[0]
-    if chain not in chains:
-        raise ValueError(f'Chain {chain} not found in input file')
-    structure = structure[structure.chain_id == chain]
-    print(f'Loaded chain {chain}\n')
+        chain_ids = all_chains
+    elif isinstance(chain, list):
+        chain_ids = chain
+    else:
+        chain_ids = [chain] 
+    for chain in chain_ids:
+        if chain not in all_chains:
+            raise ValueError(f'Chain {chain} not found in input file')
+    chain_filter = [a.chain_id in chain_ids for a in structure]
+    structure = structure[chain_filter]
     return structure
 
 
@@ -101,7 +105,7 @@ def get_atom_coords_residuewise(atoms: List[str], struct: biotite.structure.Atom
     return biotite.structure.apply_residue_wise(struct, struct, filterfn)
 
 
-def score_sequence(model, alphabet, coords, seq):
+def get_sequence_loss(model, alphabet, coords, seq):
     batch_converter = CoordBatchConverter(alphabet)
     batch = [(coords, None, seq)]
     coords, confidence, strs, tokens, padding_mask = batch_converter(batch)
@@ -111,15 +115,17 @@ def score_sequence(model, alphabet, coords, seq):
     target_padding_mask = (target == alphabet.padding_idx)
     logits, _ = model.forward(coords, padding_mask, confidence, prev_output_tokens)
     loss = F.cross_entropy(logits, target, reduction='none')
-    
-    avgloss = torch.sum(loss * ~target_padding_mask, dim=-1) / torch.sum(~target_padding_mask, dim=-1)
-    ll_fullseq = -avgloss.detach().numpy().item()
+    loss = loss[0].detach().numpy()
+    target_padding_mask = target_padding_mask[0].numpy()
+    return loss, target_padding_mask
 
-    coord_mask = torch.all(torch.all(torch.isfinite(coords), dim=-1), dim=-1)
-    coord_mask = coord_mask[:, 1:-1]
-    avgloss = torch.sum(loss * coord_mask, dim=-1) / torch.sum(coord_mask, dim=-1)
-    ll_withcoord = -avgloss.detach().numpy().item()
 
+def score_sequence(model, alphabet, coords, seq):
+    loss, target_padding_mask = get_sequence_loss(model, alphabet, coords, seq)
+    ll_fullseq = -np.sum(loss * ~target_padding_mask) / np.sum(~target_padding_mask)
+    # Also calculate average when excluding masked portions
+    coord_mask = np.all(np.isfinite(coords), axis=(-1, -2))
+    ll_withcoord = -np.sum(loss * coord_mask) / np.sum(coord_mask)
     return ll_fullseq, ll_withcoord
 
 
