@@ -80,9 +80,13 @@ The `esm_if1_gvp4_t16_142M_UR50` function loads the pretrained model and its
 corresponding alphabet. The alphabet represents the amino acids and the special
 tokens encoded by the model.
 
+**Update**: It is important to set the model in eval mode to avoid random
+dropout from training mode for best performance.
+
 ```
 import esm
 model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+model = model.eval()
 ```
 
 ### Input format

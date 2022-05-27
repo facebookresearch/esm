@@ -44,6 +44,7 @@ def main():
     args = parser.parse_args()
 
     model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
+    model = model.eval()
     coords, seq = esm.inverse_folding.util.load_coords(args.pdbfile, args.chain)
     print('Native sequence loaded from structure file:')
     print(seq)
