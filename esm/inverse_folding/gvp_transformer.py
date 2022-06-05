@@ -87,7 +87,7 @@ class GVPTransformerModel(nn.Module):
     
     def sample(self, coords, temperature=1.0, confidence=None):
         """
-        Samples sequences based on greedy sampling (no beam search).
+        Samples sequences based on multinomial sampling (no beam search).
 
         Args:
             coords: L x 3 x 3 list representing one backbone
