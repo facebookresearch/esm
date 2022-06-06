@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 #
-# Sample sequences based on a given structure (greedy sampling, no beam search).
+# Sample sequences based on a given structure (multinomial sampling, no beam search).
 #
 # usage: sample_sequences.py [-h] [--chain CHAIN] [--temperature TEMPERATURE]
 # [--outpath OUTPATH] [--num-samples NUM_SAMPLES] pdbfile
