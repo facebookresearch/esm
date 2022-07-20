@@ -14,7 +14,6 @@ import pandas as pd
 from tqdm import tqdm
 from Bio import SeqIO
 import itertools
-from scipy.spatial.distance import squareform, pdist, cdist
 from typing import List, Tuple
 import numpy as np
 
