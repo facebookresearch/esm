@@ -85,12 +85,14 @@ class GVPTransformerModel(nn.Module):
         )
         return logits, extra
     
-    def sample(self, coords, temperature=1.0, confidence=None):
+    def sample(self, coords, partial_seq=None, temperature=1.0, confidence=None):
         """
         Samples sequences based on multinomial sampling (no beam search).
 
         Args:
             coords: L x 3 x 3 list representing one backbone
+            partial_seq: Optional, partial sequence with mask tokens if part of
+                the sequence is known
             temperature: sampling temperature, use low temperature for higher
                 sequence recovery and high temperature for higher diversity
             confidence: optional length L list of confidence scores for coordinates
@@ -103,8 +105,12 @@ class GVPTransformerModel(nn.Module):
         )
         
         # Start with prepend token
-        sampled_tokens = torch.zeros(1, 1+L, dtype=int)
+        mask_idx = self.decoder.dictionary.get_idx('<mask>')
+        sampled_tokens = torch.full((1, 1+L), mask_idx, dtype=int)
         sampled_tokens[0, 0] = self.decoder.dictionary.get_idx('<cath>')
+        if partial_seq is not None:
+            for i, c in enumerate(partial_seq):
+                sampled_tokens[0, i+1] = self.decoder.dictionary.get_idx(c)
             
         # Save incremental states for faster sampling
         incremental_state = dict()
@@ -114,6 +120,8 @@ class GVPTransformerModel(nn.Module):
         
         # Decode one token at a time
         for i in range(1, L+1):
+            if sampled_tokens[0, i] != mask_idx:
+                continue
             logits, _ = self.decoder(
                 sampled_tokens[:, :i], 
                 encoder_out,

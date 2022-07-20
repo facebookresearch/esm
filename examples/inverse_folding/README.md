@@ -51,11 +51,32 @@ python sample_sequences.py data/5YH2.pdb \
 
 The sampled sequences will be saved in a fasta format to the specified output file.
 
+**By default, the script only loads the backbone of the specified target chain 
+as model input.** To instead use the entire complex backbone as model input for 
+conditioning, use the `--multichain-backbone` flag to load all chains. (In the
+example below, the encoder loads the backbone of all chains as input to the
+encoder, and the decoder samples sequences for chain C.)
+```
+python sample_sequences.py data/5YH2.pdb \
+    --chain C --temperature 1 --num-samples 3 \
+    --outpath output/sampled_sequences_multichain.fasta \
+    --multichain-backbone
+```
+
 The temperature parameter controls the sharpness of the probability
 distribution for sequence sampling. Higher sampling temperatures yield more
 diverse sequences but likely with lower native sequence recovery.
 The default sampling temperature is 1. To optimize for native sequence
 recovery, we recommend sampling with low temperature such as 1e-6.
+
+**We recommend trying both the single-chain and multi-chain design modes.** While in
+our paper we showed that conditioning on the entire multi-chain backbone often
+reduces perplexity and increases sequence recovery, on some proteins the
+single-chain performance is better.
+
+Sometimes, one failure mode in sampled sequences is a high number of repeated
+amino acids, e.g. `EEEEEEEE`. We recommend checking for that and filtering out
+sampled sequences with long repeats.
 
 ### Scoring sequences
 To score the conditional log-likelihoods for sequences conditioned on a given
@@ -73,6 +94,23 @@ python score_log_likelihoods.py data/5YH2.pdb \
 The conditional log-likelihoods are saved in a csv format in the specified output path. 
 The output values are the average log-likelihoods averaged over all amino acids in a sequence.
 
+**By default, the script only loads the backbone of the specified target chain 
+as model input.** To instead use the entire complex backbone as model input for 
+conditioning, use the `--multichain-backbone` flag to load all chains. (In the
+example below, the encoder loads the backbone of all chains as input to the
+encoder, and the decoder scores sequences for chain C.)
+```
+python score_log_likelihoods.py data/5YH2.pdb \
+    data/5YH2_mutated_seqs.fasta --chain C \
+    --outpath output/5YH2_mutated_seqs_scores.csv \
+    --multichain-backbone
+```
+
+We recommend trying both the single-chain and multi-chain design modes. While in
+our paper we showed that conditioning on the entire multi-chain backbone often
+reduces perplexity and increases sequence recovery, on some proteins the
+single-chain performance is better.
+
 ## General usage
 
 ### Load model
@@ -84,7 +122,7 @@ tokens encoded by the model.
 dropout from training mode for best performance.
 
 ```
-import esm
+import esm.inverse_folding
 model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
 model = model.eval()
 ```
@@ -98,28 +136,53 @@ be of shape L x 3 x 3, where L is the number of amino acids in the structure.
 `coords[i][2]` is the 3D coordinate for the C atom in amino acid `i`. 
 
 ### Load input data from PDB and mmCIF file formats
-To load a structure from PDB and mmCIF file formats and extract the backbone
+To load a single chain from PDB and mmCIF file formats and extract the backbone
 coordinates of the N, CA, C atoms as model input,
 ```
 import esm.inverse_folding
 structure = esm.inverse_folding.util.load_structure(fpath, chain_id)
 coords, seq = esm.inverse_folding.util.extract_coords_from_structure(structure)
 ```
+Note this only loads the specified chain.
+
+To load multiple chains for the multichain complex use cases, list all chain ids
+when loading the structure, e.g. `chain_ids = ['A', 'B', 'C']`:
+```
+structure = esm.inverse_folding.util.load_structure(fpath, chain_ids)
+coords, native_seqs = esm.inverse_folding.multichain_util.extract_coords_from_complex(structure)
+```
 
 ### Example Jupyter notebook
 See `examples/inverse_folding/notebook.ipynb` for examples of sampling sequences, 
 calculating conditional log-likelihoods, and extracting encoder output as
-structure representation.
+structure representation (on a single chain).
 
 This notebook is also available on colab:
   
 [<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/inverse_folding/notebook.ipynb)
 
+For multichain complexes, ESM-IF1 can design sequences for a specific chain in the complex,
+conditioned on the backbone structure of the entire multichain complex.
+
+See `examples/inverse_folding/notebook_multichain.ipynb` for sequence design and sequence scoring in multichain complexes, or find the notebook on colab:
+
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/master/examples/inverse_folding/notebook_multichain.ipynb)
+
 ### Sample sequence designs
-To sample sequences for a given set of backbone coordinates,
+To sample sequences for a given set of backbone coordinates for a single chain,
 ```
 sampled_seq = model.sample(coords, temperature=T)
 ```
+where `coords` is an array as described in the above section on input format.
+
+To sample sequences for a given chain in a multichain complex,
+```
+import esm.inverse_folding
+sampled_seq = esm.inverse_folding.multichain_util.sample_sequence_in_complex(
+    model, coords, target_chain_id, temperature=T
+)
+```
+where `coords` is a dictionary mapping chain ids to backbone coordinate arrays.
 
 The temperature parameter controls the ``sharpness`` of the probability
 distribution for sequence sampling. Higher sampling temperatures yield more
@@ -129,9 +192,8 @@ recovery, we recommend sampling with low temperature such as `T=1e-6`.
 
 ### Scoring sequences
 To score the conditional log-likelihoods for sequences conditioned on a given
-set of backbone coordinates, use the `score_sequence` function,
+set of backbone coordinates for a single chain, use the `score_sequence` function,
 ```
-import esm.inverse_folding
 ll_fullseq, ll_withcoord = esm.inverse_folding.util.score_sequence(model, alphabet, coords, seq)
 ```
 
@@ -140,6 +202,14 @@ over all amino acids in a sequence.
 The second return value ``ll_withcoord`` is averaged only over those amino acids
 with associated backbone coordinates in the input, i.e., excluding those with
 missing backbone coordinates.
+
+For multichain complexes,
+```
+ll_fullseq, ll_withcoord = esm.inverse_folding.multichain_util.score_sequence_in_complex(
+    model, alphabet, coords, target_chain_id, target_seq
+)
+```
+where `coords` is a dictionary mapping chain ids to backbone coordinate arrays. 
 
 ### Partially masking backbone coordinates
 To mask a parts of the input backbone coordinates, simply set those coordinate
@@ -152,11 +222,17 @@ coords[:10, :] = float('inf')
 ### Encoder output as structure representation
 To extract the encoder output as structure representation,
 ```
-import esm
 rep = esm.inverse_folding.util.get_encoder_output(model, alphabet, coords)
 ```
 For a set of input coordinates with L amino acids, the encoder output will have
 shape L x 512.
+
+Or, for multichain complex,
+```
+rep = esm.inverse_folding.multichain_util.get_encoder_output_for_complex(
+    model, alphabet, coords, target_chain_id
+)
+```
 
 That's it for now, have fun!
 
