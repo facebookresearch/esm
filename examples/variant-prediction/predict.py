@@ -5,6 +5,7 @@
 
 import argparse
 import pathlib
+import string
 
 import torch
 
@@ -14,16 +15,30 @@ from tqdm import tqdm
 from Bio import SeqIO
 import itertools
 from typing import List, Tuple
+import numpy as np
+
+
+def remove_insertions(sequence: str) -> str:
+    """ Removes any insertions into the sequence. Needed to load aligned sequences in an MSA. """
+    # This is an efficient way to delete lowercase characters and insertion characters from a string
+    deletekeys = dict.fromkeys(string.ascii_lowercase)
+    deletekeys["."] = None
+    deletekeys["*"] = None
+
+    translation = str.maketrans(deletekeys)
+    return sequence.translate(translation)
 
 
 def read_msa(filename: str, nseq: int) -> List[Tuple[str, str]]:
-    """ Reads the first nseq sequences from an MSA file, automatically removes insertions."""
+    """ Reads the first nseq sequences from an MSA file, automatically removes insertions.
+    
+    The input file must be in a3m format (although we use the SeqIO fasta parser)
+    for remove_insertions to work properly."""
 
     msa = [
-        (record.description, str(record.seq))
+        (record.description, remove_insertions(str(record.seq)))
         for record in itertools.islice(SeqIO.parse(filename, "fasta"), nseq)
     ]
-    msa = [(desc, seq.upper()) for desc, seq in msa]
     return msa
 
 
@@ -76,13 +91,13 @@ def create_parser():
     parser.add_argument(
         "--msa-path",
         type=pathlib.Path,
-        help="path to MSA (required for MSA Transformer)"
+        help="path to MSA in a3m format (required for MSA Transformer)"
     )
     parser.add_argument(
         "--msa-samples",
         type=int,
         default=400,
-        help="number of sequences to randomly sample from the MSA"
+        help="number of sequences to select from the start of the MSA"
     )
     # fmt: on
     parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
