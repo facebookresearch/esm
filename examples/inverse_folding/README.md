@@ -234,6 +234,12 @@ rep = esm.inverse_folding.multichain_util.get_encoder_output_for_complex(
 )
 ```
 
+## Data split
+
+The CATH v4.3 data split are available at:
+https://dl.fbaipublicfiles.com/fair-esm/data/cath4.3_topologysplit_202206/splits.json
+https://dl.fbaipublicfiles.com/fair-esm/data/cath4.3_topologysplit_202206/chain_set.jsonl
+
 That's it for now, have fun!
 
 ## Acknowledgements
