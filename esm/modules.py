@@ -348,7 +348,7 @@ class ContactPredictionHead(nn.Module):
 
         # features: B x C x T x T
         attentions = attentions.to(
-            next(self.parameters())
+            self.regression.weight.device
         )  # attentions always float32, may need to convert to float16
         attentions = apc(symmetrize(attentions))
         attentions = attentions.permute(0, 2, 3, 1)
