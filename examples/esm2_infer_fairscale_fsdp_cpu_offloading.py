@@ -10,7 +10,7 @@ url="tcp://localhost:23456"
 torch.distributed.init_process_group(backend='nccl', init_method=url, world_size=1, rank=0)
 
 # download model data from the hub
-model_data, regression_data = esm.pretrained._download_model_and_regression_data("esm2_t48_15B_UR90S")
+model_data, regression_data = esm.pretrained._download_model_and_regression_data("esm2_t48_15B_UR50D")
 if regression_data is not None:
    model_data["model"].update(regression_data["model"])
 
