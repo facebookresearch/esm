@@ -37,6 +37,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 - [Usage](#usage)
   - [Quick Start](#quickstart)
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
+  - [CPU offloading for inference with large models](#fsdp)
   - [Zero-shot variant prediction](#zs_variant)
   - [Inverse folding](#invf)
 - [Notebooks](#notebooks)
@@ -49,6 +50,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 </details>
 
 <details><summary>What's New</summary>
+
 - August 2022: ESM-2 - new SOTA Language Models released (see [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1))
 - April 2022: New inverse folding model ESM-IF1 released, trained on CATH and UniRef50 predicted structures.
 - August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like `<mask>`) in sequence.
@@ -65,7 +67,8 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 
 | Shorthand | `esm.pretrained.`           | Dataset | Description  |
 |-----------|-----------------------------|---------|--------------|
-| ESM-2    | `esm2_t33_650M_UR50D()`       | UR50 (sample UR90)  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1) (Aug 2022 update). |
+| ESM-2    | `esm2_t36_3B_UR50D()` `esm2_t48_15B_UR50D()`       | UR50 (sample UR90)  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1) (Aug 2022 update). |
+| ESM-1b    | `esm1b_t33_650M_UR50S()`       | UR50  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Rives et al. 2019](https://doi.org/10.1101/622803) (Dec 2020 update). |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S()` |  UR50 + MSA  | MSA Transformer language model. Can be used to extract embeddings from an MSA. Enables SOTA inference of structure. Released with [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2) (ICML'21 version, June 2021).  |
 | ESM-1v    | `esm1v_t33_650M_UR90S_1()` ... `esm1v_t33_650M_UR90S_5()`| UR90  | Language model specialized for prediction of variant effects. Enables SOTA zero-shot prediction of the functional effects of sequence variations. Same architecture as ESM-1b, but trained on UniRef90. Released with [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648). |
 | ESM-IF1  | `esm_if1_gvp4_t16_142M_UR50()` | CATH + UR50 | Inverse folding model. Can be used to design sequences for given structures, or to predict functional effects of sequence variation for given structures. Enables SOTA fixed backbone sequence design. Released with [Hsu et al. 2022](https://doi.org/10.1101/2022.04.10.487779). |
@@ -290,10 +293,6 @@ for (_, seq), attention_contacts in zip(data, results["contacts"]):
     plt.show()
 ```
 
-### Loading large models and doing inference on long sequences
-If you want to load very large models like 15B or do inference on long sequences on your machine, and you are hitting OOM errors, you can try loading the model with Fairscale's FSDP which is an implementation of the ZeRO technology. Via its CPU offloading feature, you should be able to do inference of large models on a single GPU.
-Please check out `examples/esm2_infer_fairscale_fsdp_cpu_offloading.py` for more details.
-
 ### Compute embeddings in bulk from FASTA <a name="bulk_fasta"></a>
 
 We provide a script that efficiently extracts embeddings in bulk from a FASTA file.
@@ -314,9 +313,18 @@ Directory `some_proteins_emb_esm2/` now contains one `.pt` file per FASTA sequen
   * `bos` includes the embeddings from the beginning-of-sequence token.
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
 
+### CPU offloading for inference with large models <a name="fsdp"></a>
+If you want to load very large models like 15B and/or do inference on long sequences on your machine, regular GPU inference may lead to OOM errors.
+We show how to load the model with Fairscale's [Fully Sharded Data Parallel (FSDP)](https://fairscale.readthedocs.io/en/stable/api/nn/fsdp.html) and
+use its CPU offloading feature.
+This allows to do inference of large models on a single GPU.
+Please check out `examples/esm2_infer_fairscale_fsdp_cpu_offloading.py` for more details.
+
 ### Zero-shot variant prediction <a name="zs_variant"></a>
 See "[examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
+
+Note that ESM-2 could be used for variant prediction as well, and is expected to have similar performance to ESM-1v.
 
 ### Inverse folding <a name="invf"></a>
 See "[examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
