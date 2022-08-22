@@ -323,6 +323,8 @@ Please check out `examples/esm2_infer_fairscale_fsdp_cpu_offloading.py` for more
 See "[examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
 [Language models enable zero-shot prediction of the effects of mutations on protein function. (Meier et al. 2021)](https://doi.org/10.1101/2021.07.09.450648).
 
+Note that ESM-2 could be used for variant prediction as well, and is expected to have similar performance to ESM-1v.
+
 ### Inverse folding <a name="invf"></a>
 See "[examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide. The ESM-IF1 model is described as `GVPTransformer` in [Learning inverse folding from millions of predicted structures. (Hsu et al. 2022)](https://doi.org/10.1101/2022.04.10.487779).
 
