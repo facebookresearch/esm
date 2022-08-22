@@ -10,6 +10,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 from torch.nn import Parameter
+from esm.rotary_embedding import RotaryEmbedding
 
 import uuid
 
@@ -78,10 +79,11 @@ class MultiheadAttention(nn.Module):
         vdim=None,
         dropout=0.0,
         bias=True,
-        add_bias_kv=False,
-        add_zero_attn=False,
-        self_attention=False,
-        encoder_decoder_attention=False,
+        add_bias_kv: bool = False,
+        add_zero_attn: bool = False,
+        self_attention: bool = False,
+        encoder_decoder_attention: bool = False,
+        use_rotary_embeddings: bool = False,
     ):
         super().__init__()
         self.embed_dim = embed_dim
@@ -95,7 +97,7 @@ class MultiheadAttention(nn.Module):
         assert (
             self.head_dim * num_heads == self.embed_dim
         ), "embed_dim must be divisible by num_heads"
-        self.scaling = self.head_dim ** -0.5
+        self.scaling = self.head_dim**-0.5
 
         self.self_attention = self_attention
         self.encoder_decoder_attention = encoder_decoder_attention
@@ -121,6 +123,9 @@ class MultiheadAttention(nn.Module):
         self.reset_parameters()
 
         self.onnx_trace = False
+        self.rot_emb = None
+        if use_rotary_embeddings:
+            self.rot_emb = RotaryEmbedding(dim=self.head_dim)
 
         self.enable_torch_version = False
         if hasattr(F, "multi_head_attention_forward"):
@@ -189,7 +194,8 @@ class MultiheadAttention(nn.Module):
         assert list(query.size()) == [tgt_len, bsz, embed_dim]
 
         if (
-            self.enable_torch_version
+            not self.rot_emb
+            and self.enable_torch_version
             and not self.onnx_trace
             and incremental_state is None
             and not static_kv
@@ -222,7 +228,6 @@ class MultiheadAttention(nn.Module):
                 k_proj_weight=self.k_proj.weight,
                 v_proj_weight=self.v_proj.weight,
             )
-
         if incremental_state is not None:
             saved_state = self._get_input_buffer(incremental_state)
             if saved_state is not None and "prev_key" in saved_state:
@@ -346,6 +351,9 @@ class MultiheadAttention(nn.Module):
                     dim=1,
                 )
 
+        if self.rot_emb:
+            q, k = self.rot_emb(q, k)
+
         attn_weights = torch.bmm(q, k.transpose(1, 2))
         attn_weights = MultiheadAttention.apply_sparse_mask(attn_weights, tgt_len, src_len, bsz)
 
@@ -389,7 +397,7 @@ class MultiheadAttention(nn.Module):
         if need_weights:
             attn_weights = attn_weights_float.view(
                 bsz, self.num_heads, tgt_len, src_len
-            ).transpose(1, 0)
+            ).type_as(attn).transpose(1, 0)
             if not need_head_weights:
                 # average attention weights over heads
                 attn_weights = attn_weights.mean(dim=0)
