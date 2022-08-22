@@ -50,6 +50,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 </details>
 
 <details><summary>What's New</summary>
+
 - August 2022: ESM-2 - new SOTA Language Models released (see [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1))
 - April 2022: New inverse folding model ESM-IF1 released, trained on CATH and UniRef50 predicted structures.
 - August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like `<mask>`) in sequence.
