@@ -37,6 +37,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 - [Usage](#usage)
   - [Quick Start](#quickstart)
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
+  - [CPU offloading for inference with large models](#fsdp)
   - [Zero-shot variant prediction](#zs_variant)
   - [Inverse folding](#invf)
 - [Notebooks](#notebooks)
@@ -290,10 +291,6 @@ for (_, seq), attention_contacts in zip(data, results["contacts"]):
     plt.show()
 ```
 
-### Loading large models and doing inference on long sequences
-If you want to load very large models like 15B or do inference on long sequences on your machine, and you are hitting OOM errors, you can try loading the model with Fairscale's FSDP which is an implementation of the ZeRO technology. Via its CPU offloading feature, you should be able to do inference of large models on a single GPU.
-Please check out `examples/esm2_infer_fairscale_fsdp_cpu_offloading.py` for more details.
-
 ### Compute embeddings in bulk from FASTA <a name="bulk_fasta"></a>
 
 We provide a script that efficiently extracts embeddings in bulk from a FASTA file.
@@ -313,6 +310,13 @@ Directory `some_proteins_emb_esm2/` now contains one `.pt` file per FASTA sequen
   * `mean` includes the embeddings averaged over the full sequence, per layer.
   * `bos` includes the embeddings from the beginning-of-sequence token.
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
+
+### CPU offloading for inference with large models <a name="fsdp"></a>
+If you want to load very large models like 15B and/or do inference on long sequences on your machine, regular GPU inference may lead to OOM errors.
+We show how to load the model with Fairscale's [Fully Sharded Data Parallel (FSDP)](https://fairscale.readthedocs.io/en/stable/api/nn/fsdp.html) and
+use its CPU offloading feature.
+This allows to do inference of large models on a single GPU.
+Please check out `examples/esm2_infer_fairscale_fsdp_cpu_offloading.py` for more details.
 
 ### Zero-shot variant prediction <a name="zs_variant"></a>
 See "[examples/variant-prediction/](examples/variant-prediction/)" for code and pre-trained weights for the ESM-1v models described in
