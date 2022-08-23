@@ -3,15 +3,13 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-from argparse import Namespace
 import re
-import warnings
 import urllib
+import warnings
+from argparse import Namespace
 from pathlib import Path
+
 import torch
-from fairscale.nn.wrap import wrap
-from typing import Dict
-from torch import Tensor
 
 import esm
 from esm.model.esm2 import ESM2
@@ -60,6 +58,7 @@ def _download_model_and_regression_data(model_name):
         regression_data = None
     return model_data, regression_data
 
+
 def load_model_and_alphabet_hub(model_name):
     model_data, regression_data = _download_model_and_regression_data(model_name)
     return load_model_and_alphabet_core(model_name, model_data, regression_data)
@@ -85,6 +84,7 @@ def has_emb_layer_norm_before(model_state):
 
 def _load_model_and_alphabet_core_v1(model_data):
     import esm  # since esm.inverse_folding is imported below, you actually have to re-import esm here
+
     alphabet = esm.Alphabet.from_architecture(model_data["args"].arch)
 
     if model_data["args"].arch == "roberta_large":
@@ -162,7 +162,7 @@ def _load_model_and_alphabet_core_v1(model_data):
 
 
 def _load_model_and_alphabet_core_v2(model_data):
-    def upgrade_state_dict(state_dict: Dict[str, Tensor]) -> Dict[str, Tensor]:
+    def upgrade_state_dict(state_dict):
         """Removes prefixes 'model.encoder.sentence_encoder.' and 'model.encoder.'."""
         prefixes = ["encoder.sentence_encoder.", "encoder."]
         pattern = re.compile("^" + "|".join(prefixes))
@@ -180,14 +180,6 @@ def _load_model_and_alphabet_core_v2(model_data):
         alphabet=alphabet,
         token_dropout=cfg.token_dropout,
     )
-
-    # Wrap is for use with FSDP. This falls back to no-op if FSDP is not enabled
-    for name, child in model.named_children():
-        if name == "layers":
-            for layer_name, layer in child.named_children():
-                wrapped_layer = wrap(layer)
-                setattr(child, layer_name, wrapped_layer)
-
     return model, alphabet, state_dict
 
 
