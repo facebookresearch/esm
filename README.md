@@ -356,7 +356,8 @@ For example, to sample 3 sequence designs for the golgi casein kinase structure
 from January 2022](https://pdb101.rcsb.org/motm/265)), we can run the following
 command from the esm root directory:
 ```
-python examples/inverse_folding/sample_sequences.py examples/inverse_folding/data/5YH2.pdb --chain C --temperature 1 --num-samples 3 --outpath examples/inverse_folding/output/sampled_sequences.fasta
+python examples/inverse_folding/sample_sequences.py examples/inverse_folding/data/5YH2.pdb \
+  --chain C --temperature 1 --num-samples 3 --outpath examples/inverse_folding/output/sampled_sequences.fasta
 ```
 
 The sampled sequences will be saved in a fasta format to the specified output file.
@@ -375,7 +376,9 @@ For example, to score the sequences in `examples/inverse_folding/data/5YH2_mutat
 according to the structure in `examples/inverse_folding/data/5YH2.pdb`, we can run
 the following command from the esm root directory:
 ```
-python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
+python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \ 
+  examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C \
+  --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
 ```
 
 The conditional log-likelihoods are saved in a csv format in the specified output path.
@@ -404,7 +407,8 @@ as instructed in the notebook or by running the following:
 
 ```bash
 # Obtain the embeddings
-python scripts/extract.py esm1v_t33_650M_UR90S_1 examples/data/P62593.fasta examples/data/P62593_emb_esm1v --repr_layers 33 --include mean
+python scripts/extract.py esm1v_t33_650M_UR90S_1 examples/data/P62593.fasta \
+  examples/data/P62593_emb_esm1v --repr_layers 33 --include mean
 ```
 
 Then, follow the remaining instructions in the tutorial. You can also run the tutorial in a [colab notebook](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/sup_variant_prediction.ipynb).
