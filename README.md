@@ -300,7 +300,8 @@ A cuda device is optional and will be auto-detected.
 The following command extracts the final-layer embedding for a FASTA file from the ESM-2 model:
 
 ```bash
-python scripts/extract.py esm2_t33_650M_UR50D examples/data/some_proteins.fasta examples/data/some_proteins_emb_esm2 --repr_layers 0 32 33 --include mean per_tok
+python scripts/extract.py esm2_t33_650M_UR50D examples/data/some_proteins.fasta \
+  examples/data/some_proteins_emb_esm2 --repr_layers 0 32 33 --include mean per_tok
 ```
 
 Directory `some_proteins_emb_esm2/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
