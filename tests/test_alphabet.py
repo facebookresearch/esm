@@ -6,7 +6,7 @@
 def _test_esm1b(alphabet):
     import torch
 
-    batch_converter = alphabet.get_batch_converter()
+    batch_converter = alphabet.get_batch_converter(truncate=True)
 
     data = [
         ("protein1", "MKTVRQG"),
@@ -44,7 +44,7 @@ def test_esm1_msa1b_alphabet():
 
     # Load ESM-1b model
     _, alphabet = esm.pretrained.esm_msa1b_t12_100M_UR50S()
-    batch_converter = alphabet.get_batch_converter()
+    batch_converter = alphabet.get_batch_converter(truncate=True)
 
     data = [
         ("protein1", "MKTVRQG"),

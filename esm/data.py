@@ -97,6 +97,7 @@ class Alphabet(object):
         prepend_bos: bool = True,
         append_eos: bool = False,
         use_msa: bool = False,
+        truncate: bool = True,
     ):
         self.standard_toks = list(standard_toks)
         self.prepend_toks = list(prepend_toks)
@@ -104,6 +105,7 @@ class Alphabet(object):
         self.prepend_bos = prepend_bos
         self.append_eos = append_eos
         self.use_msa = use_msa
+        self.truncate = truncate
 
         self.all_toks = list(self.prepend_toks)
         self.all_toks.extend(self.standard_toks)
@@ -133,11 +135,11 @@ class Alphabet(object):
     def to_dict(self):
         return self.tok_to_idx.copy()
 
-    def get_batch_converter(self):
+    def get_batch_converter(self, truncate: bool):
         if self.use_msa:
-            return MSABatchConverter(self)
+            return MSABatchConverter(self, truncate)
         else:
-            return BatchConverter(self)
+            return BatchConverter(self, truncate)
 
     @classmethod
     def from_architecture(cls, name: str) -> "Alphabet":
@@ -255,14 +257,17 @@ class BatchConverter(object):
     processed (labels + tensor) batch.
     """
 
-    def __init__(self, alphabet):
+    def __init__(self, alphabet, truncate: bool):
         self.alphabet = alphabet
+        self.truncate = truncate
 
     def __call__(self, raw_batch: Sequence[Tuple[str, str]]):
         # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
         batch_labels, seq_str_list = zip(*raw_batch)
         seq_encoded_list = [self.alphabet.encode(seq_str) for seq_str in seq_str_list]
+        if self.truncate:
+            seq_encoded_list = [seq_str[:1022] for seq_str in seq_encoded_list]
         max_len = max(len(seq_encoded) for seq_encoded in seq_encoded_list)
         tokens = torch.empty(
             (

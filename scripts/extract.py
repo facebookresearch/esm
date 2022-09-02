@@ -73,7 +73,7 @@ def main(args):
     dataset = FastaBatchedDataset.from_file(args.fasta_file)
     batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
     data_loader = torch.utils.data.DataLoader(
-        dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches
+        dataset, collate_fn=alphabet.get_batch_converter(args.truncate), batch_sampler=batches
     )
     print(f"Read {args.fasta_file} with {len(dataset)} sequences")
 
@@ -90,11 +90,6 @@ def main(args):
             )
             if torch.cuda.is_available() and not args.nogpu:
                 toks = toks.to(device="cuda", non_blocking=True)
-
-            # The model is trained on truncated sequences and passing longer ones in at
-            # infernce will cause an error. See https://github.com/facebookresearch/esm/issues/21
-            if args.truncate:
-                toks = toks[:, :1022]
 
             out = model(toks, repr_layers=repr_layers, return_contacts=return_contacts)
 

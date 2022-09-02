@@ -115,7 +115,7 @@ def label_row(row, sequence, token_probs, alphabet, offset_idx):
     return score.item()
 
 
-def compute_pppl(row, sequence, model, alphabet, offset_idx):
+def compute_pppl(row, sequence, model, alphabet, offset_idx, truncate_sequence):
     wt, idx, mt = row[0], int(row[1:-1]) - offset_idx, row[-1]
     assert sequence[idx] == wt, "The listed wildtype does not match the provided sequence"
 
@@ -127,7 +127,7 @@ def compute_pppl(row, sequence, model, alphabet, offset_idx):
         ("protein1", sequence),
     ]
 
-    batch_converter = alphabet.get_batch_converter()
+    batch_converter = alphabet.get_batch_converter(truncate_sequence)
 
     batch_labels, batch_strs, batch_tokens = batch_converter(data)
 
@@ -156,7 +156,7 @@ def main(args):
             model = model.cuda()
             print("Transferred model to GPU")
 
-        batch_converter = alphabet.get_batch_converter()
+        batch_converter = alphabet.get_batch_converter(args.truncate)
 
         if isinstance(model, MSATransformer):
             data = [read_msa(args.msa_path, args.msa_samples)]
