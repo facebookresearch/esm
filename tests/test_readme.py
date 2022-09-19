@@ -111,7 +111,7 @@ def test_msa_transformers():
 
 
 def _test_msa_transformer(model, alphabet):
-    batch_converter = alphabet.get_batch_converter(truncate=True)
+    batch_converter = alphabet.get_batch_converter()
     # Make an "MSA" of size 3
     data = [
         ("protein1", "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"),
