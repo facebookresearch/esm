@@ -133,11 +133,11 @@ class Alphabet(object):
     def to_dict(self):
         return self.tok_to_idx.copy()
 
-    def get_batch_converter(self):
+    def get_batch_converter(self, truncation_seq_length: int = None):
         if self.use_msa:
-            return MSABatchConverter(self)
+            return MSABatchConverter(self, truncation_seq_length)
         else:
-            return BatchConverter(self)
+            return BatchConverter(self, truncation_seq_length)
 
     @classmethod
     def from_architecture(cls, name: str) -> "Alphabet":
@@ -255,14 +255,17 @@ class BatchConverter(object):
     processed (labels + tensor) batch.
     """
 
-    def __init__(self, alphabet):
+    def __init__(self, alphabet, truncation_seq_length: int = None):
         self.alphabet = alphabet
+        self.truncation_seq_length = truncation_seq_length
 
     def __call__(self, raw_batch: Sequence[Tuple[str, str]]):
         # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
         batch_labels, seq_str_list = zip(*raw_batch)
         seq_encoded_list = [self.alphabet.encode(seq_str) for seq_str in seq_str_list]
+        if self.truncation_seq_length:
+            seq_encoded_list = [seq_str[:self.truncation_seq_length] for seq_str in seq_encoded_list]
         max_len = max(len(seq_encoded) for seq_encoded in seq_encoded_list)
         tokens = torch.empty(
             (
