@@ -73,7 +73,7 @@ def main(args):
     dataset = FastaBatchedDataset.from_file(args.fasta_file)
     batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
     data_loader = torch.utils.data.DataLoader(
-        dataset, collate_fn=alphabet.get_batch_converter(args.truncate), batch_sampler=batches
+        dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches
     )
     print(f"Read {args.fasta_file} with {len(dataset)} sequences")
 
