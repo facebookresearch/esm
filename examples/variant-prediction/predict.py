@@ -156,7 +156,7 @@ def main(args):
             model = model.cuda()
             print("Transferred model to GPU")
 
-        batch_converter = alphabet.get_batch_converter(args.truncate)
+        batch_converter = alphabet.get_batch_converter()
 
         if isinstance(model, MSATransformer):
             data = [read_msa(args.msa_path, args.msa_samples)]
