@@ -25,7 +25,7 @@ def test_readme_2():
 
     # Load ESM-1b model
     model, alphabet = esm.pretrained.esm1b_t33_650M_UR50S()
-    batch_converter = alphabet.get_batch_converter(truncate=True)
+    batch_converter = alphabet.get_batch_converter()
     model.eval()  # disables dropout for deterministic results
 
     # Prepare data (first 2 sequences from ESMStructuralSplitDataset superfamily / 4)
@@ -111,7 +111,7 @@ def test_msa_transformers():
 
 
 def _test_msa_transformer(model, alphabet):
-    batch_converter = alphabet.get_batch_converter(truncate=True)
+    batch_converter = alphabet.get_batch_converter()
     # Make an "MSA" of size 3
     data = [
         ("protein1", "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"),
