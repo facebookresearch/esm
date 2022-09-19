@@ -97,7 +97,6 @@ class Alphabet(object):
         prepend_bos: bool = True,
         append_eos: bool = False,
         use_msa: bool = False,
-        truncate: bool = True,
     ):
         self.standard_toks = list(standard_toks)
         self.prepend_toks = list(prepend_toks)
@@ -105,7 +104,6 @@ class Alphabet(object):
         self.prepend_bos = prepend_bos
         self.append_eos = append_eos
         self.use_msa = use_msa
-        self.truncate = truncate
 
         self.all_toks = list(self.prepend_toks)
         self.all_toks.extend(self.standard_toks)
@@ -135,11 +133,11 @@ class Alphabet(object):
     def to_dict(self):
         return self.tok_to_idx.copy()
 
-    def get_batch_converter(self, truncate: bool):
+    def get_batch_converter(self, truncation_seq_length: int = None):
         if self.use_msa:
-            return MSABatchConverter(self, truncate)
+            return MSABatchConverter(self, truncation_seq_length)
         else:
-            return BatchConverter(self, truncate)
+            return BatchConverter(self, truncation_seq_length)
 
     @classmethod
     def from_architecture(cls, name: str) -> "Alphabet":
@@ -257,17 +255,17 @@ class BatchConverter(object):
     processed (labels + tensor) batch.
     """
 
-    def __init__(self, alphabet, truncate: bool):
+    def __init__(self, alphabet, truncation_seq_length: int = None):
         self.alphabet = alphabet
-        self.truncate = truncate
+        self.truncation_seq_length = truncation_seq_length
 
     def __call__(self, raw_batch: Sequence[Tuple[str, str]]):
         # RoBERTa uses an eos token, while ESM-1 does not.
         batch_size = len(raw_batch)
         batch_labels, seq_str_list = zip(*raw_batch)
         seq_encoded_list = [self.alphabet.encode(seq_str) for seq_str in seq_str_list]
-        if self.truncate:
-            seq_encoded_list = [seq_str[:1022] for seq_str in seq_encoded_list]
+        if self.truncation_seq_length:
+            seq_encoded_list = [seq_str[:self.truncation_seq_length] for seq_str in seq_encoded_list]
         max_len = max(len(seq_encoded) for seq_encoded in seq_encoded_list)
         tokens = torch.empty(
             (
