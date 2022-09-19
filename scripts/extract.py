@@ -50,9 +50,10 @@ def create_parser():
         required=True,
     )
     parser.add_argument(
-        "--truncate",
-        action="store_true",
-        help="Truncate sequences longer than 1024 to match the training setup",
+        "--truncation_seq_length",
+        type=int,
+        default=1022,
+        help="truncate sequences longer than the given value",
     )
 
     parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
@@ -73,7 +74,7 @@ def main(args):
     dataset = FastaBatchedDataset.from_file(args.fasta_file)
     batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
     data_loader = torch.utils.data.DataLoader(
-        dataset, collate_fn=alphabet.get_batch_converter(), batch_sampler=batches
+        dataset, collate_fn=alphabet.get_batch_converter(args.truncation_seq_length), batch_sampler=batches
     )
     print(f"Read {args.fasta_file} with {len(dataset)} sequences")
 
