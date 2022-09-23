@@ -48,5 +48,5 @@ data = [
 batch_labels, batch_strs, batch_tokens = batch_converter(data)
 batch_tokens = batch_tokens.cuda()
 with torch.no_grad():
-    results = model(batch_tokens, repr_layers=[33], return_contacts=True)
+    results = model(batch_tokens, repr_layers=[48], return_contacts=True)
 print(results)
