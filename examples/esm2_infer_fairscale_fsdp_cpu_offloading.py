@@ -9,11 +9,8 @@ url = "tcp://localhost:23456"
 torch.distributed.init_process_group(backend="nccl", init_method=url, world_size=1, rank=0)
 
 # download model data from the hub
-model_data, regression_data = esm.pretrained._download_model_and_regression_data(
-    "esm2_t48_15B_UR50D"
-)
-if regression_data is not None:
-    model_data["model"].update(regression_data["model"])
+model_name = "esm2_t48_15B_UR50D"
+model_data, regression_data = esm.pretrained._download_model_and_regression_data(model_name)
 
 # initialize the model with FSDP wrapper
 fsdp_params = dict(
@@ -23,7 +20,9 @@ fsdp_params = dict(
     cpu_offload=True,  # enable cpu offloading
 )
 with enable_wrap(wrapper_cls=FSDP, **fsdp_params):
-    model, vocab, _ = esm.pretrained._load_model_and_alphabet_core_v2(model_data)
+    model, vocab = esm.pretrained.load_model_and_alphabet_core(
+        model_name, model_data, regression_data
+    )
     batch_converter = vocab.get_batch_converter()
     model.eval()
 
