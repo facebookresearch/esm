@@ -105,16 +105,17 @@ def main(args):
                 args.output_file = args.output_dir / f"{label}.pt"
                 args.output_file.parent.mkdir(parents=True, exist_ok=True)
                 result = {"label": label}
+                truncate_len = min(args.truncation_seq_length, len(strs[i]))
                 # Call clone on tensors to ensure tensors are not views into a larger representation
                 # See https://github.com/pytorch/pytorch/issues/1995
                 if "per_tok" in args.include:
                     result["representations"] = {
-                        layer: t[i, 1 : len(strs[i]) + 1].clone()
+                        layer: t[i, 1 : truncate_len + 1].clone()
                         for layer, t in representations.items()
                     }
                 if "mean" in args.include:
                     result["mean_representations"] = {
-                        layer: t[i, 1 : len(strs[i]) + 1].mean(0).clone()
+                        layer: t[i, 1 : truncate_len + 1].mean(0).clone()
                         for layer, t in representations.items()
                     }
                 if "bos" in args.include:
@@ -122,7 +123,7 @@ def main(args):
                         layer: t[i, 0].clone() for layer, t in representations.items()
                     }
                 if return_contacts:
-                    result["contacts"] = contacts[i, : len(strs[i]), : len(strs[i])].clone()
+                    result["contacts"] = contacts[i, : truncate_len, : truncate_len].clone()
 
                 torch.save(
                     result,
