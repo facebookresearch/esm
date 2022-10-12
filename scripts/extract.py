@@ -105,9 +105,7 @@ def main(args):
                 args.output_file = args.output_dir / f"{label}.pt"
                 args.output_file.parent.mkdir(parents=True, exist_ok=True)
                 result = {"label": label}
-                truncate_len = args.truncation_seq_length
-                if len(strs[i]) < truncate_len:
-                    truncate_len = len(strs[i])
+                truncate_len = min(args.truncation_seq_length, len(strs[i]))
                 # Call clone on tensors to ensure tensors are not views into a larger representation
                 # See https://github.com/pytorch/pytorch/issues/1995
                 if "per_tok" in args.include:
