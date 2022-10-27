@@ -106,17 +106,19 @@ def get_atom_coords_residuewise(atoms: List[str], struct: biotite.structure.Atom
 
 
 def get_sequence_loss(model, alphabet, coords, seq):
+    device = next(model.parameters()).device
     batch_converter = CoordBatchConverter(alphabet)
     batch = [(coords, None, seq)]
-    coords, confidence, strs, tokens, padding_mask = batch_converter(batch)
-    
+    coords, confidence, strs, tokens, padding_mask = batch_converter(
+        batch, device=device)
+
     prev_output_tokens = tokens[:, :-1]
     target = tokens[:, 1:]
     target_padding_mask = (target == alphabet.padding_idx)
     logits, _ = model.forward(coords, padding_mask, confidence, prev_output_tokens)
     loss = F.cross_entropy(logits, target, reduction='none')
-    loss = loss[0].detach().numpy()
-    target_padding_mask = target_padding_mask[0].numpy()
+    loss = loss[0].cpu().detach().numpy()
+    target_padding_mask = target_padding_mask[0].cpu().numpy()
     return loss, target_padding_mask
 
 
