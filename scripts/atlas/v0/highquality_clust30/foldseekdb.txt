@@ -1,0 +1,14 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30.index
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30.lookup
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30.source
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_ca
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_ca.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_ca.index
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_h
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_h.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_h.index
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_ss
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_ss.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/highquality_clust30_ss.index

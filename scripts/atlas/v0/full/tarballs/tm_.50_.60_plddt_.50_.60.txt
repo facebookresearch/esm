@@ -1,0 +1,6 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_.50_.60_plddt_.50_.60_00.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_.50_.60_plddt_.50_.60_01.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_.50_.60_plddt_.50_.60_02.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_.50_.60_plddt_.50_.60_03.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_.50_.60_plddt_.50_.60_04.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_.50_.60_plddt_.50_.60_05.tar.gz
