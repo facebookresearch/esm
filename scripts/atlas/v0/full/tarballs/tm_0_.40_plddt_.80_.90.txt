@@ -1,0 +1,2 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_0_.40_plddt_.80_.90_00.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/tarballs/tm_0_.40_plddt_.80_.90_01.tar.gz
