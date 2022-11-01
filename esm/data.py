@@ -369,7 +369,7 @@ def read_alignment_lines(
         if len(line) > 0 and line[0] == ">":
             if seq is not None:
                 yield desc, parse(seq)
-            desc = line.strip()
+            desc = line.strip().lstrip(">")
             seq = ""
         else:
             assert isinstance(seq, str)

@@ -12,6 +12,20 @@ with open("esm/version.py") as infile:
 with open("README.md") as f:
     readme = f.read()
 
+extras = {
+    "esmfold": [ # OpenFold does not automatically pip install requirements, so we add them here.
+        "openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307",
+        "biopython",
+        "deepspeed==0.5.9",
+        "dm-tree",
+        "pytorch-lightning",
+        "omegaconf",
+        "dllogger @ git+https://github.com/NVIDIA/dllogger.git",
+        "ml-collections",
+        "einops",
+        "scipy",
+    ]
+}
 
 setup(
     name="fair-esm",
@@ -22,7 +36,8 @@ setup(
     author="Facebook AI Research",
     url="https://github.com/facebookresearch/esm",
     license="MIT",
-    packages=["esm", "esm/model", "esm/inverse_folding"],
+    packages=["esm", "esm/model", "esm/inverse_folding", "esm/esmfold/v1"],
+    extras_require=extras,
     data_files=[("source_docs/esm", ["LICENSE", "README.md", "CODE_OF_CONDUCT.rst"])],
     zip_safe=True,
 )
