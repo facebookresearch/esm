@@ -2,7 +2,7 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
-**NEW**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas)
+**NEW**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas).
 
 This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
 Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
@@ -10,7 +10,7 @@ Transformer protein language models were introduced in the preprint of the paper
 ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.
 ESMFold harnesses the ESM-2 language model to generate accurate structure predictions end to end directly from the sequence of a protein.
 
-<details><summary>Citation</summary>
+<details><summary><b>Citation</b></summary>
 
 ```bibtex
 @article{lin2022language,
@@ -33,7 +33,7 @@ ESMFold harnesses the ESM-2 language model to generate accurate structure predic
 ```
 </details>
 
-<details open><summary>Table of contents</summary>
+<details open><summary><b>Table of contents</b></summary>
 
 - [Main models you should use](#main-models)
 - [Usage](#usage)
@@ -55,7 +55,7 @@ ESMFold harnesses the ESM-2 language model to generate accurate structure predic
 - [License](#license)
 </details>
 
-<details><summary>What's New</summary>
+<details><summary><b>What's New</b></summary>
 
 - November 2022: ESM Metagenomic Atlas, a repository of 600M+ metagenomics structures released, see [website](https://esmatlas.com/) and [bulk download details](#atlas)
 - November 2022: ESMFold - new end-to-end structure prediction model released (see [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902))
