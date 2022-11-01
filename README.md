@@ -88,14 +88,16 @@ For a complete list of available models, with details and release notes, see [Pr
 
 ### Quick start <a name="quickstart"></a>
 
-To quickly get started with ESM and ESMFold, you may also load ESM and ESMFold through the [HuggingFace API](https://huggingface.co/docs/transformers/model_doc/esm).
+An easy way to get started is to load ESM or ESMFold through the [HuggingFace transformers library](https://huggingface.co/docs/transformers/model_doc/esm).
 
-Alternatively, ColabFold has integrated ESMFold [here](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ESMFold.ipynb).
+Alternatively, [ColabFold](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ESMFold.ipynb) has integrated ESMFold so that you can run it in a Google Colab instance.
 
-We provide a API which you can access through curl:
+We also provide a API which you can access through curl:
 ```
 curl -X POST --data "KVFGRCELAAAMKRHGLDNYRGYSLGNWVCAAKFESNFNTQATNRNTDGSTDYGILQINSRWWCNDGRTPGSRNLCNIPCSALLSSDITASVNCAKKIVSDGNGMNAWVAWRNRCKGTDVQAWIRGCRL" https://api.esmatlas.com/foldSequence/v1/pdb/
 ```
+
+For ESM-MSA-1b and ESM-IF1, you'll have to work with our repo directly via the instructions below.
 
 ### Getting started with this repo <a name="repostart"></a>
 
