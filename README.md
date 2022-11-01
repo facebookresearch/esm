@@ -88,16 +88,18 @@ For a complete list of available models, with details and release notes, see [Pr
 
 ### Quick start <a name="quickstart"></a>
 
-An easy way to get started is to load ESM or ESMFold through the [HuggingFace transformers library](https://huggingface.co/docs/transformers/model_doc/esm).
+An easy way to get started is to load ESM or ESMFold through the [HuggingFace transformers library](https://huggingface.co/docs/transformers/model_doc/esm),
+which has simplified the ESMFold dependencies and provides a standardized API and tools to work with state-of-the-art pretrained models.
 
-Alternatively, [ColabFold](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ESMFold.ipynb) has integrated ESMFold so that you can run it in a Google Colab instance.
+Alternatively, [ColabFold](https://colab.research.google.com/github/sokrypton/ColabFold/blob/main/ESMFold.ipynb) has integrated ESMFold so that you can 
+easily run it directly in the browser on a Google Colab instance.
 
-We also provide a API which you can access through curl:
+We also provide an API which you can access through curl or on [the ESM Metagenomic Atlas web page](https://esmatlas.com/resources?action=fold).
 ```
 curl -X POST --data "KVFGRCELAAAMKRHGLDNYRGYSLGNWVCAAKFESNFNTQATNRNTDGSTDYGILQINSRWWCNDGRTPGSRNLCNIPCSALLSSDITASVNCAKKIVSDGNGMNAWVAWRNRCKGTDVQAWIRGCRL" https://api.esmatlas.com/foldSequence/v1/pdb/
 ```
 
-For ESM-MSA-1b and ESM-IF1, you'll have to work with our repo directly via the instructions below.
+For ESM-MSA-1b, ESM-IF1, or any of the other models you can use the original implementation from our repo directly via the instructions below.
 
 ### Getting started with this repo <a name="repostart"></a>
 
