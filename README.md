@@ -1,18 +1,19 @@
 # Evolutionary Scale Modeling
 
 
-This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-2** and **MSA Transformer**, as well as **ESM-1v** for predicting variant effects and **ESM-IF1** for inverse folding.
-Transformer protein language models were introduced in our paper, ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
+This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art **ESM-2** and **ESMFold**, as well as **MSA Transformer**, **ESM-1v** for predicting variant effects and **ESM-IF1** for inverse folding.
+Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
 
-**ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.**
-The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leveraging MSA information.
+ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.
+
+ESMFold harnesses the ESM-2 language model to generate accurate structure predictions end to end directly from the sequence of a protein.
 
 <details><summary>Citation</summary>
 
 ```bibtex
 @article{lin2022language,
   title={Language models of protein sequences at the scale of evolution enable accurate structure prediction},
-  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Sal and others},
+  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and Smetanin, Nikita and Verkuil, Robert and Kabeli, Ori and Shmueli, Yaniv and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Sal and others},
   journal={bioRxiv},
   year={2022},
   publisher={Cold Spring Harbor Laboratory}
@@ -36,6 +37,7 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 - [Comparison to related works](#perf_related)
 - [Usage](#usage)
   - [Quick Start](#quickstart)
+  - [ESMFold Structure Prediction](#esmfold)
   - [Compute embeddings in bulk from FASTA](#bulk_fasta)
   - [CPU offloading for inference with large models](#fsdp)
   - [Zero-shot variant prediction](#zs_variant)
@@ -51,7 +53,8 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 
 <details><summary>What's New</summary>
 
-- August 2022: ESM-2 - new SOTA Language Models released (see [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1))
+- November 2022: ESMFold - new end-to-end structure prediction model released (see [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902))
+- August 2022: ESM-2 - new SOTA Language Models released (see [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902))
 - April 2022: New inverse folding model ESM-IF1 released, trained on CATH and UniRef50 predicted structures.
 - August 2021: Added flexibility to tokenizer to allow for spaces and special tokens (like `<mask>`) in sequence.
 - July 2021: New pre-trained model ESM-1v released, trained on UniRef90 (see [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648)).
@@ -67,8 +70,8 @@ The MSA Transformer (ESM-MSA-1) can improve performance on some proteins by leve
 
 | Shorthand | `esm.pretrained.`           | Dataset | Description  |
 |-----------|-----------------------------|---------|--------------|
-| ESM-2    | `esm2_t36_3B_UR50D()` `esm2_t48_15B_UR50D()`       | UR50 (sample UR90)  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1) (Aug 2022 update). |
-| ESM-1b    | `esm1b_t33_650M_UR50S()`       | UR50  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Rives et al. 2019](https://doi.org/10.1101/622803) (Dec 2020 update). |
+| ESM-2    | `esm2_t36_3B_UR50D()` `esm2_t48_15B_UR50D()`       | UR50 (sample UR90)  | SOTA general-purpose protein language model. Can be used to predict structure, function and other protein properties directly from individual sequences. Released with [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902) (Aug 2022 update). |
+| ESMFold   | `esmfold_v1()`         | PDB + UR50 | End-to-end single sequence 3D structure predictor (Nov 2022 update). |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S()` |  UR50 + MSA  | MSA Transformer language model. Can be used to extract embeddings from an MSA. Enables SOTA inference of structure. Released with [Rao et al. 2021](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v2) (ICML'21 version, June 2021).  |
 | ESM-1v    | `esm1v_t33_650M_UR90S_1()` ... `esm1v_t33_650M_UR90S_5()`| UR90  | Language model specialized for prediction of variant effects. Enables SOTA zero-shot prediction of the functional effects of sequence variations. Same architecture as ESM-1b, but trained on UniRef90. Released with [Meier et al. 2021](https://doi.org/10.1101/2021.07.09.450648). |
 | ESM-IF1  | `esm_if1_gvp4_t16_142M_UR50()` | CATH + UR50 | Inverse folding model. Can be used to design sequences for given structures, or to predict functional effects of sequence variation for given structures. Enables SOTA fixed backbone sequence design. Released with [Hsu et al. 2022](https://doi.org/10.1101/2022.04.10.487779). |
@@ -228,8 +231,8 @@ Comparison to related protein language models on structure prediction tasks.
 * For unsupervised contact prediction, a sparse linear combination of the attention heads is used to directly predict protein contacts,
 fitted with logistic regression on 20 structures.
 For more details on the method, see [Rao et al. 2020](https://doi.org/10.1101/2020.12.15.422761).
-* For structure prediction, a AlphaFold2 structure module is trained directly from the frozen language model embeddings.
-For more details on the method, see [Lin et al. 2022](https://www.biorxiv.org/content/10.1101/2022.07.20.500902v1).
+* For structure prediction, an AlphaFold2 structure module is trained directly from the frozen language model embeddings.
+For more details on the method, see [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902).
 * Direct coupling analysis methods (Gremlin, mfDCA, Psicov) and ESM-MSA-1 use the [trRosetta MSAs](https://yanglab.nankai.edu.cn/trRosetta/benchmark/), while other methods predict from single sequence.
 
 
@@ -246,6 +249,20 @@ pip install fair-esm  # latest release, OR:
 pip install git+https://github.com/facebookresearch/esm.git  # bleeding edge, current repo main branch
 ```
 
+To use the ESMFold model, make sure you start from an environment with python <= 3.9 and pytorch installed.
+Then add the `[esmfold]` option to your pip install, which will install the dependencies for OpenFold
+automatically. Openfold installation requires `nvcc`.
+
+```bash
+pip install fair-esm[esmfold]
+# OpenFold and its remaining dependency
+pip install 'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
+pip install 'openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307'
+```
+
+**NOTE**: If openfold installation fails, please double check that `nvcc` is available and that a cuda-compatable version of PyTorch has been installed.
+
+Alternatively, we provide the `esmfold` conda environment, which can be built via `conda env create -f environment.yml`.
 
 We also support PyTorch Hub, which removes the need to clone and/or install this repository yourself:
 
@@ -293,6 +310,58 @@ for (_, seq), attention_contacts in zip(data, results["contacts"]):
     plt.show()
 ```
 
+### ESMFold Structure Pediction <a name="esmfold"></a>
+
+After installing with the `[esmfold]` option, you can use the ESMFold structure prediction model as follows:
+
+```python
+import torch
+import esm
+
+model = esm.pretrained.esmfold_v1()
+model = model.eval().cuda()
+
+# Optionally, uncomment to set a chunk size for axial attention. This can help reduce memory.
+# Lower sizes will have lower memory requirements at the cost of increased speed.
+# model.set_chunk_size(128)
+
+sequence = "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"
+# Multimer prediction can be done with chains separated by ':'
+
+with torch.no_grad():
+    output = model.infer_pdb(sequence)
+
+with open("result.pdb", "w") as f:
+    f.write(output)
+
+import biotite.structure.io as bsio
+struct = bsio.load_structure("result.pdb", extra_fields=["b_factor"])
+print(struct.b_factor.mean())  # this will be the pLDDT
+# 88.3
+```
+
+Besides `esm.pretrained.esmfold_v1()` which is the best performing model we recommend using, we
+also provide `esm.pretrained.esmfold_v0()` which was used for the experiments in
+[Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902).
+
+We also provide a script (`scripts/esmfold_inference.py`) that efficiently predicts structures in bulk from a FASTA file using ESMFold. This can be run with
+
+```bash
+python scripts/esmfold_inference.py \
+    -i <input file with multiple sequences> \
+    -o <path to output directory> \
+    --max-tokens-per-batch <int, default: 1024> \
+    --num-recycles <int, default: 4> \
+    --cpu-only <boolean flag>
+    --cpu-offload <boolean flag>
+```
+
+The script will make one prediction for every sequence in the fasta file. Multimers can be predicted and should be entered in the fasta file as a single sequence, with chains seprated by a ":" character.
+
+By default, predictions will be batched together so that shorter sequences are predicted simultaneously. This can be disabled by setting `--max-tokens-per-batch=0`. Batching can significantly improve prediction speed on shorter sequences.
+
+The `--cpu-offload` flag can be useful for making predictions on longer sequences. It will attempt to offload some parameters to the CPU RAM, rather than storing on GPU.
+
 ### Compute embeddings in bulk from FASTA <a name="bulk_fasta"></a>
 
 We provide a script that efficiently extracts embeddings in bulk from a FASTA file.
@@ -312,6 +381,7 @@ Directory `some_proteins_emb_esm2/` now contains one `.pt` file per FASTA sequen
   * `mean` includes the embeddings averaged over the full sequence, per layer.
   * `bos` includes the embeddings from the beginning-of-sequence token.
   (NOTE: Don't use with the pre-trained models - we trained without bos-token supervision)
+
 
 ### CPU offloading for inference with large models <a name="fsdp"></a>
 If you want to load very large models like 15B and/or do inference on long sequences on your machine, regular GPU inference may lead to OOM errors.
@@ -376,7 +446,7 @@ For example, to score the sequences in `examples/inverse_folding/data/5YH2_mutat
 according to the structure in `examples/inverse_folding/data/5YH2.pdb`, we can run
 the following command from the esm root directory:
 ```
-python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \ 
+python examples/inverse_folding/score_log_likelihoods.py examples/inverse_folding/data/5YH2.pdb \
   examples/inverse_folding/data/5YH2_mutated_seqs.fasta --chain C \
   --outpath examples/inverse_folding/output/5YH2_mutated_seqs_scores.csv
 ```
@@ -572,7 +642,18 @@ For inverse folding using ESM-IF1:
 	url = {https://www.biorxiv.org/content/early/2022/04/10/2022.04.10.487779},
 	journal = {bioRxiv}
 }
+```
 
+For the ESM-2 language model and ESMFold:
+
+```bibtex
+@article{lin2022language,
+  title={Language models of protein sequences at the scale of evolution enable accurate structure prediction},
+  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and Smetanin, Nikita and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Sal and others},
+  journal={bioRxiv},
+  year={2022},
+  publisher={Cold Spring Harbor Laboratory}
+}
 ```
 
 Much of this code builds on the [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework. We use fairseq internally for our protein language modeling research. We highly recommend trying it out if you'd like to pre-train protein language models from scratch.

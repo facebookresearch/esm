@@ -395,3 +395,26 @@ def esm2_t48_15B_UR50D():
     Returns a tuple of (Model, Alphabet).
     """
     return load_model_and_alphabet_hub("esm2_t48_15B_UR50D")
+
+
+def esmfold_v0():
+    """
+    ESMFold v0 model with 3B ESM-2, 48 folding blocks.
+    This version was used for the paper (Lin et al, 2022). It was trained 
+    on all PDB chains until 2020-05, to ensure temporal holdout with CASP14
+    and the CAMEO validation and test set reported there.
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_v0()
+
+
+def esmfold_v1():
+    """
+    ESMFold v1 model using 3B ESM-2, 48 folding blocks.
+    ESMFold provides fast high accuracy atomic level structure prediction
+    directly from the individual sequence of a protein. ESMFold uses the ESM2
+    protein language model to extract meaningful representations from the
+    protein sequence.
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_v1()

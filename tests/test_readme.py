@@ -16,15 +16,15 @@ import esm
 def test_readme_1():
     import torch
 
-    model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm1b_t33_650M_UR50S")
+    model, alphabet = torch.hub.load("facebookresearch/esm:main", "esm2_t33_650M_UR50D")
 
 
 def test_readme_2():
     import torch
     import esm
 
-    # Load ESM-1b model
-    model, alphabet = esm.pretrained.esm1b_t33_650M_UR50S()
+    # Load ESM-2 model
+    model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
     batch_converter = alphabet.get_batch_converter()
     model.eval()  # disables dropout for deterministic results
 
@@ -32,14 +32,8 @@ def test_readme_2():
     data = [
         ("protein1", "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"),
         ("protein2", "KALTARQQEVFDLIRDHISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
-        (
-            "protein2 with mask",
-            "KALTARQQEVFDLIRD<mask>ISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"
-        ),
-        (
-            "protein3",
-            "K A <mask> I S Q"
-        ),
+        ("protein2 with mask","KALTARQQEVFDLIRD<mask>ISQTGMPPTRAEIAQRLGFRSPNAAEEHLKALARKGVIEIVSGASRGIRLLQEE"),
+        ("protein3",  "K A <mask> I S Q"),
     ]
     batch_labels, batch_strs, batch_tokens = batch_converter(data)
 
@@ -55,18 +49,45 @@ def test_readme_2():
         sequence_representations.append(token_representations[i, 1 : len(seq) + 1].mean(0))
 
     # Look at the unsupervised self-attention map contact predictions
-    import matplotlib.pyplot as plt
-
-    for (_, seq), attention_contacts in zip(data, results["contacts"]):
-        plt.matshow(attention_contacts[: len(seq), : len(seq)])
-        plt.title(seq)
-        plt.show()
+    try:
+        import matplotlib.pyplot as plt
+        for (_, seq), attention_contacts in zip(data, results["contacts"]):
+            plt.matshow(attention_contacts[: len(seq), : len(seq)])
+            plt.title(seq)
+            plt.show()
+    except ImportError:
+        pass # dont need mpl to run test
 
 
 def _run_py_cmd(cmd, **kwargs):
     this_python = sys.executable
     cmd.replace("python", this_python)
     subprocess.run(cmd, shell=True, check=True, **kwargs)
+
+
+def test_readme_esmfold():
+    import torch
+    import esm
+
+    model = esm.pretrained.esmfold_v1()
+    model = model.eval().cuda()
+
+    sequence = "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLAGG"
+    # Multimer prediction can be done with chains separated by ':'
+
+    with torch.no_grad():
+        output = model.infer_pdb(sequence)
+
+    with open("result.pdb", "w") as f:
+        f.write(output)
+
+    #import biotite.structure.io as bsio
+    #struct = bsio.load_structure("result.pdb", extra_fields=["b_factor"])
+    #print(struct.b_factor.mean())  # this will be the pLDDT
+    with open("result.pdb") as f:
+        lines = [line for line in f.readlines() if line.startswith('ATOM')]
+    bfactors = [float(line[60:66]) for line in lines]
+    assert torch.allclose(torch.Tensor(bfactors).mean(), torch.Tensor([88.3]), atol=1e-1)
 
 
 def test_readme_3():
