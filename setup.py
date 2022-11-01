@@ -14,13 +14,11 @@ with open("README.md") as f:
 
 extras = {
     "esmfold": [ # OpenFold does not automatically pip install requirements, so we add them here.
-        "openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307",
         "biopython",
         "deepspeed==0.5.9",
         "dm-tree",
         "pytorch-lightning",
         "omegaconf",
-        "dllogger @ git+https://github.com/NVIDIA/dllogger.git",
         "ml-collections",
         "einops",
         "scipy",

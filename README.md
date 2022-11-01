@@ -249,10 +249,15 @@ pip install fair-esm  # latest release, OR:
 pip install git+https://github.com/facebookresearch/esm.git  # bleeding edge, current repo main branch
 ```
 
-To use the ESMFold model, make sure you start from an environment with python <= 3.9 and pytorch installed. Then add the `[esmfold]` option to your pip install, which will install OpenFold and other dependencies automatically. Openfold installation requires `nvcc`.
+To use the ESMFold model, make sure you start from an environment with python <= 3.9 and pytorch installed.
+Then add the `[esmfold]` option to your pip install, which will install the dependencies for OpenFold
+automatically. Openfold installation requires `nvcc`.
 
 ```bash
 pip install fair-esm[esmfold]
+# OpenFold and its remaining dependency
+pip install 'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
+pip install 'openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307'
 ```
 
 **NOTE**: If openfold installation fails, please double check that `nvcc` is available and that a cuda-compatable version of PyTorch has been installed.
