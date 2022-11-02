@@ -1,3 +1,4 @@
+import os.path
 from pathlib import Path
 import sys
 import logging
@@ -84,6 +85,9 @@ if __name__ == "__main__":
         "-o", "--pdb", help="Path to output PDB directory", type=Path, required=True
     )
     parser.add_argument(
+        "-m", "--model_pth", help="Path to Pretrained ESM data directory", type=Path, default='/mnt/db/esm'
+    )
+    parser.add_argument(
         "--num-recycles",
         type=int,
         default=None,
@@ -125,7 +129,15 @@ if __name__ == "__main__":
     logger.info(f"Loaded {len(all_sequences)} sequences from {args.fasta}")
 
     logger.info("Loading model")
-    model = esm.pretrained.esmfold_v1()
+    if not os.path.exists(args.model_pth):
+        logger.warning('Path of pretrained data is not available, try to download it')
+        model = esm.pretrained.esmfold_v1()
+    else:
+        from esm.esmfold.v1.pretrained import _load_model as load_esmfold_pretrained
+        print(f'loading model via {args.model_pth}/esmfold_3B_v1.pt')
+        model = load_esmfold_pretrained(f'{args.model_pth}/esmfold_3B_v1.pt')
+
+
     model = model.eval()
     model.set_chunk_size(args.chunk_size)
 

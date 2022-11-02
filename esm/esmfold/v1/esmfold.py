@@ -2,6 +2,7 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+import os.path
 import typing as T
 from dataclasses import dataclass
 
@@ -32,7 +33,7 @@ class ESMFoldConfig:
 
 
 class ESMFold(nn.Module):
-    def __init__(self, esmfold_config=None, **kwargs):
+    def __init__(self, esmfold_config=None,local_pretrained=None, **kwargs):
         super().__init__()
 
         self.cfg = esmfold_config if esmfold_config else ESMFoldConfig(**kwargs)
@@ -40,7 +41,10 @@ class ESMFold(nn.Module):
 
         self.distogram_bins = 64
 
-        self.esm, self.esm_dict = esm.pretrained.esm2_t36_3B_UR50D()
+        if os.path.exists(f'{local_pretrained}/esm2_t36_3B_UR50D.pt'):
+            self.esm, self.esm_dict = esm.pretrained.load_model_and_alphabet_local(f'{local_pretrained}/esm2_t36_3B_UR50D.pt')
+        else:
+            self.esm, self.esm_dict = esm.pretrained.esm2_t36_3B_UR50D()
 
         self.esm.requires_grad_(False)
         self.esm.half()

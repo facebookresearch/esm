@@ -9,13 +9,16 @@ def _load_model(model_name):
     if model_name.endswith(".pt"):  # local, treat as filepath
         model_path = Path(model_name)
         model_data = torch.load(str(model_path), map_location="cpu")
+        cfg = model_data["cfg"]["model"]
+        model_state = model_data["model"]
+        model = ESMFold(esmfold_config=cfg, local_pretrained=model_path.parent)
     else:  # load from hub
         url = f"https://dl.fbaipublicfiles.com/fair-esm/models/{model_name}.pt"
         model_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location="cpu")
 
-    cfg = model_data["cfg"]["model"]
-    model_state = model_data["model"]
-    model = ESMFold(esmfold_config=cfg)
+        cfg = model_data["cfg"]["model"]
+        model_state = model_data["model"]
+        model = ESMFold(esmfold_config=cfg)
 
     expected_keys = set(model.state_dict().keys())
     found_keys = set(model_state.keys())
