@@ -25,6 +25,14 @@ extras = {
     ]
 }
 
+sources = {
+    "esm": "esm",
+    "esm.model": "esm/model",
+    "esm.inverse_folding": "esm/inverse_folding",
+    "esm.esmfold.v1": "esm/esmfold/v1",
+    "esm.scripts": "scripts"
+}
+
 setup(
     name="fair-esm",
     version=version,
@@ -34,8 +42,15 @@ setup(
     author="Facebook AI Research",
     url="https://github.com/facebookresearch/esm",
     license="MIT",
-    packages=["esm", "esm/model", "esm/inverse_folding", "esm/esmfold/v1"],
+    packages=["esm", "esm.model", "esm.inverse_folding", "esm.esmfold.v1"],
+    package_dir=sources,
     extras_require=extras,
     data_files=[("source_docs/esm", ["LICENSE", "README.md", "CODE_OF_CONDUCT.rst"])],
     zip_safe=True,
+    entry_points={
+        "console_scripts": [
+            "esmfold_extract=esm.scripts.esmfold_extract:main",
+            "esmfold_inference=esm.scripts.esmfold_inference:main",
+        ]
+    },
 )
