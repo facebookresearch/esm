@@ -38,4 +38,5 @@ setup(
     extras_require=extras,
     data_files=[("source_docs/esm", ["LICENSE", "README.md", "CODE_OF_CONDUCT.rst"])],
     zip_safe=True,
+    scripts=['scripts/esmfold_extract', 'scripts/esmfold_inference'],
 )
