@@ -168,8 +168,8 @@ for i, tokens_len in enumerate(batch_lens):
 
 # Look at the unsupervised self-attention map contact predictions
 import matplotlib.pyplot as plt
-for (_, seq), attention_contacts in zip(data, results["contacts"]):
-    plt.matshow(attention_contacts[: len(seq), : len(seq)])
+for (_, seq), tokens_len, attention_contacts in zip(data, batch_lens, results["contacts"]):
+    plt.matshow(attention_contacts[: tokens_len, : tokens_len])
     plt.title(seq)
     plt.show()
 ```
