@@ -174,7 +174,7 @@ for (_, seq), attention_contacts in zip(data, results["contacts"]):
 ```
 
 
-### ESMFold Structure Pediction <a name="esmfold"></a>
+### ESMFold Structure Prediction <a name="esmfold"></a>
 
 After installing with the `[esmfold]` option, you can use the ESMFold structure prediction model as follows:
 
