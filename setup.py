@@ -49,8 +49,8 @@ setup(
     zip_safe=True,
     entry_points={
         "console_scripts": [
-            "esmfold_extract=esm.scripts.esmfold_extract:main",
-            "esmfold_inference=esm.scripts.esmfold_inference:main",
+            "esm-extract=esm.scripts.extract:main",
+            "esm-fold=esm.scripts.fold:main",
         ]
     },
 )
