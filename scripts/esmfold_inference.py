@@ -1,3 +1,4 @@
+import os.path
 from pathlib import Path
 import sys
 import logging
@@ -84,6 +85,9 @@ if __name__ == "__main__":
         "-o", "--pdb", help="Path to output PDB directory", type=Path, required=True
     )
     parser.add_argument(
+        "-m", "--model_pth", help="Parent path to Pretrained ESM data directory. ", type=Path, default=None
+    )
+    parser.add_argument(
         "--num-recycles",
         type=int,
         default=None,
@@ -125,7 +129,15 @@ if __name__ == "__main__":
     logger.info(f"Loaded {len(all_sequences)} sequences from {args.fasta}")
 
     logger.info("Loading model")
+
+    # Use pre-downloaded ESM weights from model_pth.
+    if args.model_pth is not None and os.path.exists(args.model_pth) and 'checkpoints' in os.listdir(args.model_pth):
+        # if pretrained model path is available
+        torch.hub.set_dir(args.model_pth)
+
     model = esm.pretrained.esmfold_v1()
+
+
     model = model.eval()
     model.set_chunk_size(args.chunk_size)
 
