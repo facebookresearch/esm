@@ -1,6 +1,5 @@
-import os.path
 from pathlib import Path
-import sys
+import sys,os
 import logging
 import typing as T
 import argparse
