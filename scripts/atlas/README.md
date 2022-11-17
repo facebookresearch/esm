@@ -44,6 +44,7 @@ The high quality structures can be downloaded from the s3 paths below:
 ```
 s3://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/tarballs/
 s3://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/foldseekdb/
+s3://dl.fbaipublicfiles.com/esmatlas/v0/highquality_clust30/highquality_clust30.fasta
 ```
 
 We provide the urls to v0 in [v0/highquality_clust30/tarballs.txt](v0/highquality_clust30/tarballs.txt) and [v0/highquality_clust30/foldseekdb.txt](v0/highquality_clust30/foldseekdb.txt).
@@ -60,3 +61,6 @@ Structures are provided by the bins given in this repo under [v0/full/bins.txt](
 For example, the foldseek database containing ptm from 0.60 to 0.70 and plddt from 0.80 to 0.90 is named `tm_.60_.70_plddt_.80_.90.DB`.
 The PDBs are given as bundles of 1 million structures each.
 The URLs for that bundle will be in `v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt`
+
+We also provide the fasta file for the full dataset:
+`s3://dl.fbaipublicfiles.com/esmatlas/v0/full/mgnify90.fasta`

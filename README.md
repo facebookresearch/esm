@@ -117,7 +117,7 @@ Then add the `[esmfold]` option to your pip install, which will install the depe
 automatically. Openfold installation requires `nvcc`.
 
 ```bash
-pip install fair-esm[esmfold]
+pip install "fair-esm[esmfold]"
 # OpenFold and its remaining dependency
 pip install 'dllogger @ git+https://github.com/NVIDIA/dllogger.git'
 pip install 'openfold @ git+https://github.com/aqlaboratory/openfold.git@4b41059694619831a7db195b7e0988fc4ff3a307'
