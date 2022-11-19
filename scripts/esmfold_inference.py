@@ -1,14 +1,17 @@
+
 from pathlib import Path
 import sys,os
-import logging
-import typing as T
 import argparse
+import logging
+import sys
+import typing as T
+from pathlib import Path
+from timeit import default_timer as timer
 
 import torch
 
 import esm
 from esm.data import read_fasta
-from timeit import default_timer as timer
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -107,12 +110,10 @@ if __name__ == "__main__":
         help="Chunks axial attention computation to reduce memory usage from O(L^2) to O(L). "
         "Equivalent to running a for loop over chunks of of each dimension. Lower values will "
         "result in lower memory usage at the cost of speed. Recommended values: 128, 64, 32. "
-        "Default: None."
+        "Default: None.",
     )
     parser.add_argument("--cpu-only", help="CPU only", action="store_true")
-    parser.add_argument(
-        "--cpu-offload", help="Enable CPU offloading", action="store_true"
-    )
+    parser.add_argument("--cpu-offload", help="Enable CPU offloading", action="store_true")
     args = parser.parse_args()
 
     if not args.fasta.exists():
@@ -122,9 +123,7 @@ if __name__ == "__main__":
 
     # Read fasta and sort sequences by length
     logger.info(f"Reading sequences from {args.fasta}")
-    all_sequences = sorted(
-        read_fasta(args.fasta), key=lambda header_seq: len(header_seq[1])
-    )
+    all_sequences = sorted(read_fasta(args.fasta), key=lambda header_seq: len(header_seq[1]))
     logger.info(f"Loaded {len(all_sequences)} sequences from {args.fasta}")
 
     logger.info("Loading model")
@@ -141,15 +140,14 @@ if __name__ == "__main__":
     model.set_chunk_size(args.chunk_size)
 
     if args.cpu_only:
+        model.esm.float()  # convert to fp32 as ESM-2 in fp16 is not supported on CPU
         model.cpu()
     elif args.cpu_offload:
         model = init_model_on_gpu_with_cpu_offloading(model)
     else:
         model.cuda()
     logger.info("Starting Predictions")
-    batched_sequences = create_batched_sequence_datasest(
-        all_sequences, args.max_tokens_per_batch
-    )
+    batched_sequences = create_batched_sequence_datasest(all_sequences, args.max_tokens_per_batch)
 
     num_completed = 0
     num_sequences = len(all_sequences)
