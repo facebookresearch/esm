@@ -129,7 +129,7 @@ if __name__ == "__main__":
     logger.info("Loading model")
 
     # Use pre-downloaded ESM weights from model_pth.
-    if args.model_pth is not None and os.path.exists(args.model_pth) and 'checkpoints' in os.listdir(args.model_pth):
+    if args.model_dir is not None:
         # if pretrained model path is available
         torch.hub.set_dir(args.model_pth)
 
