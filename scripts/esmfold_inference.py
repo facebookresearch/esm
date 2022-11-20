@@ -87,7 +87,7 @@ if __name__ == "__main__":
         "-o", "--pdb", help="Path to output PDB directory", type=Path, required=True
     )
     parser.add_argument(
-        "-m", "--model_pth", help="Parent path to Pretrained ESM data directory. ", type=Path, default=None
+        "-m", "--model-dir", help="Parent path to Pretrained ESM data directory. ", type=Path, default=None
     )
     parser.add_argument(
         "--num-recycles",
