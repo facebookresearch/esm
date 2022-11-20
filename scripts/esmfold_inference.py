@@ -131,7 +131,7 @@ if __name__ == "__main__":
     # Use pre-downloaded ESM weights from model_pth.
     if args.model_dir is not None:
         # if pretrained model path is available
-        torch.hub.set_dir(args.model_pth)
+        torch.hub.set_dir(args.model_dir)
 
     model = esm.pretrained.esmfold_v1()
 
