@@ -13,7 +13,9 @@ The high quality structures are around 1TB in size.
 
 The full database is available as PDB structures and is 15TB in size.
 
-We also provide a [metadata dataframe](https://dl.fbaipublicfiles.com/esmatlas/v0/stats.parquet) as a .parquet file loadable via pandas.
+We also provide a metadata dataframe: <https://dl.fbaipublicfiles.com/esmatlas/v0/stats.parquet>.
+You can load the file with pandas: `df = pd.read_parquet('stats.parquet')`.
+The dataframe has length `617051007`, the file size is 6.0GB and has md5 hash `3948a44562b6bd4c184167465eec17de`.
 This dataframe has 4 columns:
 - `id` is the MGnify ID
 - `ptm` is the predicted TM score
@@ -21,8 +23,10 @@ This dataframe has 4 columns:
 - `num_conf` is the number of residues with plddt > 0.7
 - `len` is the total residues in the protein
 
+In parallel with `stats.parquet`, the sequences can be downloaded as fasta file from: <https://dl.fbaipublicfiles.com/esmatlas/v0/full/atlas.fasta>.
+The fasta file has `617051007` records matching the stats file, has file size 114GB, and has md5 hash `dc45f4383536c93f9d871facac7cca93`.
+
 We recommend using `s5cmd` or `aria2c` to download files (installable via anaconda).
-We will provide a list of paths to facilitate downloading.
 
 **To download any of the structures provided, please use this `aria2c` command**
 ```
