@@ -92,13 +92,14 @@ def sample_sequence_in_complex(model, coords, target_chain_id, temperature=1.,
     """
     target_chain_len = coords[target_chain_id].shape[0]
     all_coords = _concatenate_coords(coords, target_chain_id)
+    device = next(model.parameters()).device
 
     # Supply padding tokens for other chains to avoid unused sampling for speed
     padding_pattern = ['<pad>'] * all_coords.shape[0]
     for i in range(target_chain_len):
         padding_pattern[i] = '<mask>'
     sampled = model.sample(all_coords, partial_seq=padding_pattern,
-            temperature=temperature)
+            temperature=temperature, device=device)
     sampled = sampled[:target_chain_len]
     return sampled
 
