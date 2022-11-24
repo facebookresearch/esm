@@ -132,10 +132,11 @@ def score_sequence(model, alphabet, coords, seq):
 
 
 def get_encoder_output(model, alphabet, coords):
+    device = next(model.parameters()).device
     batch_converter = CoordBatchConverter(alphabet)
-    # the batch_converter is essential for forming the correct input format
-    batch = [(coords, None, None)]
-    coords, confidence, _, _, padding_mask = batch_converter(batch)
+    batch = [(coords, None, seq)]
+    coords, confidence, strs, tokens, padding_mask = batch_converter(
+        batch, device=device)
     encoder_out = model.encoder.forward(coords, padding_mask, confidence,
             return_all_hiddens=False)
     # remove beginning and end (bos and eos tokens)
