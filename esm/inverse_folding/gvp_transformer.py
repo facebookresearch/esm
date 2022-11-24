@@ -85,7 +85,7 @@ class GVPTransformerModel(nn.Module):
         )
         return logits, extra
     
-    def sample(self, coords, partial_seq=None, temperature=1.0, confidence=None):
+    def sample(self, coords, partial_seq=None, temperature=1.0, confidence=None, device=None):
         """
         Samples sequences based on multinomial sampling (no beam search).
 
@@ -101,7 +101,7 @@ class GVPTransformerModel(nn.Module):
         # Convert to batch format
         batch_converter = CoordBatchConverter(self.decoder.dictionary)
         batch_coords, confidence, _, _, padding_mask = (
-            batch_converter([(coords, confidence, None)])
+            batch_converter([(coords, confidence, None)], device=device)
         )
         
         # Start with prepend token
