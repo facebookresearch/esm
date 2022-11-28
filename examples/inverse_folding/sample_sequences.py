@@ -17,6 +17,9 @@ import esm.inverse_folding
 
 
 def sample_seq_singlechain(model, alphabet, args):
+    if torch.cuda.is_available() and not args.nogpu:
+        model = model.cuda()
+        print("Transferred model to GPU")
     coords, native_seq = esm.inverse_folding.util.load_coords(args.pdbfile, args.chain)
     print('Native sequence loaded from structure file:')
     print(native_seq)
@@ -38,6 +41,9 @@ def sample_seq_singlechain(model, alphabet, args):
 
 
 def sample_seq_multichain(model, alphabet, args):
+    if torch.cuda.is_available() and not args.nogpu:
+        model = model.cuda()
+        print("Transferred model to GPU")
     structure = esm.inverse_folding.util.load_structure(args.pdbfile)
     coords, native_seqs = esm.inverse_folding.multichain_util.extract_coords_from_complex(structure)
     target_chain_id = args.chain
@@ -100,6 +106,8 @@ def main():
             action='store_false',
             help='use the backbone of only target chain in the input for conditioning'
     )
+    parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
+  
     args = parser.parse_args()
 
     model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
