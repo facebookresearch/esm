@@ -11,6 +11,7 @@
 import argparse
 import numpy as np
 from pathlib import Path
+import torch
 
 import esm
 import esm.inverse_folding
@@ -30,7 +31,7 @@ def sample_seq_singlechain(model, alphabet, args):
     with open(args.outpath, 'w') as f:
         for i in range(args.num_samples):
             print(f'\nSampling.. ({i+1} of {args.num_samples})')
-            sampled_seq = model.sample(coords, temperature=args.temperature)
+            sampled_seq = model.sample(coords, temperature=args.temperature, device=torch.device('cuda'))
             print('Sampled sequence:')
             print(sampled_seq)
             f.write(f'>sampled_seq_{i+1}\n')
