@@ -4,6 +4,7 @@ The [ESM Metagenomic Atlas](https://esmatlas.com) is a repository of over databa
 
 Bulk download instructions are available here, as well as foldseek databases available for download.
 
+All structures in the ESM Metagenomic Atlas were predicted with the ESMFold model released as `esm.pretrained.esmfold_v0()`.
 We find that protein structures with predicted LDDT > 0.7 and predict TM > 0.7 to be both reasonably well structured and interesting.
 Therefore, we provide both the small set of "high quality" metagenomic structures, as well as the full set.
 The small set of structures is built from taking a 30% sequence identity clustering of MGnify90, and using the best structure from each cluster.
