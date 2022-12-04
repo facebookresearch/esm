@@ -327,7 +327,7 @@ For more information, see "[./examples/inverse_folding/](examples/inverse_foldin
 
 Please see the companion [website](https://esmatlas.com/).
 
-Bulk download instructions available at a seperate README [here](scripts/atlas/README.md)
+Bulk download instructions available at a separate README [here](scripts/atlas/README.md)
 
 Searching a high quality subset of the ESM Atlas available [here](https://esmatlas.com/resources?action=search_structure), and Foldseek provides an API with no length limitations [here](https://search.foldseek.com/search)
 
