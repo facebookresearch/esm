@@ -268,7 +268,7 @@ See "[examples/inverse_folding/](examples/inverse_folding/)" for detailed user g
 
 We also provide a colab notebook for the sequence design and sequence scoring functionalities.
 
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook_multichain.ipynb)
 
 The ESM-IF1 inverse folding model is built for predicting protein sequences
 from their backbone atom coordinates. We provide scripts here 1) to sample sequence
