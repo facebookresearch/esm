@@ -155,6 +155,13 @@ class Alphabet(object):
             prepend_bos = True
             append_eos = True
             use_msa = False
+        elif name in ("ESM-3", "roberta_large"):
+            standard_toks = proteinseq_toks["toks"]
+            prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
+            append_toks = ("<mask>",)
+            prepend_bos = False
+            append_eos = False
+            use_msa = False
         elif name in ("MSA Transformer", "msa_transformer"):
             standard_toks = proteinseq_toks["toks"]
             prepend_toks = ("<cls>", "<pad>", "<eos>", "<unk>")
