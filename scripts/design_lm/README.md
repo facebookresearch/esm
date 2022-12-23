@@ -5,6 +5,7 @@ Load with `pd.read_csv` or `pd.read_hdf`, to get
 ```
 # Design information
 Design ID - {F,G}{0-267} unique identifier for each (LM or AlphaFold) design evaluated. 8 Nan values correspond to 8 ground truth sequences tested.
+Experiment Name - Label for the testing pool to which the design / ground-truth sequence belongs. See Supplement; Section 1.6 for a full description of submitted sequences. These pools (minus ground-truth sequences) have experimental results shown in fig. S11.
 Design Model - 228x LM, 20x AlphaFold, 20x AF+ngram, 8x Ground Truth.
 Target ID - PDB ID of de novo target for all fixed backbone designs, 'Generation' for all free generations.
 Sequence - Designed sequence
