@@ -1,0 +1,45 @@
+# Data for "Language models generalize beyond natural proteins"
+
+## `data.{csv,hdf5}`
+Load with `pd.read_csv` or `pd.read_hdf`, to get 
+```
+# Design information
+Design ID - {F,G}{0-267} unique identifier for each (LM or AlphaFold) design evaluated. 8 Nan values correspond to 8 ground truth sequences tested.
+Design Model - 228x LM, 20x AlphaFold, 20x AF+ngram, 8x Ground Truth.
+Target ID - PDB ID of de novo target for all fixed backbone designs, 'Generation' for all free generations.
+Sequence - Designed sequence
+*AlphaFold predicted PDB file - Structure prediction from AlphaFold (5x pTM models, select best by pLDDT -> Amber Relax).
+
+# In Silico Evaluation
+AlphaFold RMSD - (AlphaFold-predicted) RMSD to target backbone for fixed backbone designs, Nan for free generations
+AlphaFold pLDDT - (AlphaFold-predicted) Avg pLDDT for the predicted structure
+
+# Experimental Evaluation
+# Results from xperimental testing.  Final classifications are in the booleans: {Soluble, Success, Succes+Monodisperse}.
+Total Yield - Actual total soluble yield (in mg) from the 4x1mL prep. (Actual yield is closer to ~2x, we can only inject 1/2 of the total product onto the column.)
+yield_per_Leq - Total Yield, adjusted to 1 L of culture equivalent
+*Elution Volume (mL) - Array of x-values for plotting of the SEC trace.
+*Chromatographic Absorbance at 280nm - Array of y-values for plotting of the SEC trace.
+*Elution Volume (mL) (raw) - Raw version, data is not truncated, lengths may differ between rows.
+*Chromatographic Absorbance at 280nm (raw) - Raw version, data is not truncated, lengths may differ between rows.
+Soluble - Total Yield > 0.05 mg.
+Success - Soluble and SEC peak at the expected elution volume.
+Success+Monodisperse - SEC peak *only* at the expected elution volume.
+
+# Jackhmmer results
+# See Supplement, Section 1.5 for verbose details.
+# In short: Summary statistics of Jackhmmer searches (-n 1 --seed 0) of the designed sequence against UniRef90.  Hits that were removed from ESM2's train set were removed from consideration here.  See `.txt` files for ID's of these omitted sequences.  Sequence identity was calculated via 
+min Jackhmmer E-value - Minimum (best-domain) E-value
+max Jackhmmer Seq-id (significant hits only) - Maximum Sequence identity over all significant (best domain E-value < 1) hits.
+max Jackhmmer TM-score (top-10 hits only) - Maximum TM-score of the ≈top-10 (by best-domain E-value) hits.  (Purging was applied after top-10, so the number considered may be slightly lower, counts were rarely reduced below 7).
+
+(* denotes long-form data only available in data.hdf5)
+```
+
+## `artificial_sequence_purge_ids.txt`
+ID's of sequences removed due to being annotateed "artificial sequence" by the UniProt website when `2021_04` was the latest release.
+
+## `uniref90_jackhmmer_purge_ids.txt`
+ID's of sequences removed by Jackhmmer search (`-n 1 --seed 0`) of UniRef90 when given the de novo target set as queries.
+
+
