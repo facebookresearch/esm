@@ -179,7 +179,13 @@ if __name__ == "__main__":
         for header, seq, pdb_string, mean_plddt, ptm in zip(
             headers, sequences, pdbs, output["mean_plddt"], output["ptm"]
         ):
-            output_file = args.pdb / f"{header}.pdb"
+            if len(header.split()) > 1:
+                first_elem = header.split()[0]
+                name = '.'.join(first_elem.split('.')[:2])
+            else:
+                name = header
+                        
+            output_file = args.pdb / f"{name}.pdb"
             output_file.write_text(pdb_string)
             num_completed += 1
             logger.info(
