@@ -48,14 +48,14 @@ ID's of sequences removed by Jackhmmer search (`-n 1 --seed 0`) of UniRef90 when
 
 ## Reference
 
-If using any of this work, please cite
+If using this work, please cite:
 ```bibtex
 @article{verkuil2022language,
   author={Robert Verkuil\*, Ori Kabeli\*, Yilun Du, Basile I. M. Wicky, Lukas F. Milles, Justas Dauparas, David Baker, Sergey Ovchinnikov, Tom Sercu, and Alexander Rives},
   title={Language models generalize beyond natural proteins},
   year={2022},
-  doi={https://doi.org/10.1101/2022.12.21.521521},
-  url={https://www.biorxiv.org/content/10.1101/2022.12.21.521521v1},
-  journal={bioRxiv}
+  journal={bioRxiv},
+  note={bioRxiv 2022.12.21.521521},
+  url={https://doi.org/10.1101/2022.12.21.521521},
 }
 ```
