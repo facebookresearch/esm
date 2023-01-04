@@ -1,4 +1,6 @@
-# Data for "Language models generalize beyond natural proteins"
+Here we provide the extra materials associated with the paper
+["Language models generalize beyond natural proteins" (2022)](https://doi.org/10.1101/2022.12.21.521521) by 
+Robert Verkuil\*, Ori Kabeli\*, Yilun Du, Basile I. M. Wicky, Lukas F. Milles, Justas Dauparas, David Baker, Sergey Ovchinnikov, Tom Sercu, and Alexander Rives.
 
 ## `data.{csv,hdf5}`
 Load with `pd.read_csv` or `pd.read_hdf`, to get 
@@ -16,7 +18,7 @@ AlphaFold RMSD - (AlphaFold-predicted) RMSD to target backbone for fixed backbon
 AlphaFold pLDDT - (AlphaFold-predicted) Avg pLDDT for the predicted structure
 
 # Experimental Evaluation
-# Results from xperimental testing.  Final classifications are in the booleans: {Soluble, Success, Succes+Monodisperse}.
+# Results from experimental testing.  Final classifications are in the booleans: {Soluble, Success, Succes+Monodisperse}.
 Total Yield - Actual total soluble yield (in mg) from the 4x1mL prep. (Actual yield is closer to ~2x, we can only inject 1/2 of the total product onto the column.)
 yield_per_Leq - Total Yield, adjusted to 1 L of culture equivalent
 *Elution Volume (mL) - Array of x-values for plotting of the SEC trace.
@@ -44,3 +46,16 @@ ID's of sequences removed due to being annotateed "artificial sequence" by the U
 ID's of sequences removed by Jackhmmer search (`-n 1 --seed 0`) of UniRef90 when given the de novo target set as queries.
 
 
+## Reference
+
+If using any of this work, please cite
+```bibtex
+@article{verkuil2022language,
+  author={Robert Verkuil\*, Ori Kabeli\*, Yilun Du, Basile I. M. Wicky, Lukas F. Milles, Justas Dauparas, David Baker, Sergey Ovchinnikov, Tom Sercu, and Alexander Rives},
+  title={Language models generalize beyond natural proteins},
+  year={2022},
+  doi={https://doi.org/10.1101/2022.12.21.521521},
+  url={https://www.biorxiv.org/content/10.1101/2022.12.21.521521v1},
+  journal={bioRxiv}
+}
+```

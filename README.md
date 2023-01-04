@@ -2,7 +2,12 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
-**NEW**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas).
+**NEW**: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design.
+The data associated with ["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521), which uses ESM2 to design de novo proteins, can be found in [scripts/design_lm/](scripts/design_lm/).
+The other preprint, using ESMFold to design proteins according to a high-level programming language, is [""A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521).
+
+
+**Nov 2022**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas).
 
 This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
 Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
@@ -625,7 +630,7 @@ If you find the models useful in your research, we ask that you cite the relevan
   year={2019},
   doi={10.1101/622803},
   url={https://www.biorxiv.org/content/10.1101/622803v4},
-  journal={bioRxiv}
+  journal={PNAS}
 }
 ```
 
@@ -677,7 +682,7 @@ For inverse folding using ESM-IF1:
 	year = {2022},
 	doi = {10.1101/2022.04.10.487779},
 	url = {https://www.biorxiv.org/content/early/2022/04/10/2022.04.10.487779},
-	journal = {bioRxiv}
+	journal = {ICML}
 }
 ```
 
