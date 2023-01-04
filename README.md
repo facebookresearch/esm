@@ -2,9 +2,9 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
-**NEW**: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design:
-* ["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521)uses ESM2 to design de novo proteins. The data associated with the preprint can be found in [scripts/design_lm/](scripts/design_lm/).
-* ["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESMFold to design proteins according to a high-level programming language.
+**NEW**: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design.
+["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESM2 to design de novo proteins. The data associated with the preprint can be found in [scripts/design_lm/](scripts/design_lm/).
+["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESMFold to design proteins according to a high-level programming language.
 
 
 **Nov 2022**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas).
