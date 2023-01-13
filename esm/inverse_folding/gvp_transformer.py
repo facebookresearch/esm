@@ -114,16 +114,12 @@ class GVPTransformerModel(nn.Module):
         if partial_seq is not None:
             for i, c in enumerate(partial_seq):
                 sampled_tokens[0, i+1] = self.decoder.dictionary.get_idx(c)
-            # incremental state results in sampling error on partial_seq
-            incremental_state = None
         
         # Run encoder only once
         encoder_out = self.encoder(batch_coords, padding_mask, confidence)
         
         # Decode one token at a time
         for i in range(1, L+1):
-            if sampled_tokens[0, i] != mask_idx:
-                continue
             logits, _ = self.decoder(
                 sampled_tokens[:, :i], 
                 encoder_out,
@@ -132,9 +128,8 @@ class GVPTransformerModel(nn.Module):
             logits = logits[0].transpose(0, 1)
             logits /= temperature
             probs = F.softmax(logits, dim=-1)
-            if incremental_state is None:
-                probs = probs[-1]
-            sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
+            if sampled_tokens[0, i] == mask_idx:
+                sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
         sampled_seq = sampled_tokens[0, 1:]
         
         # Convert back to string via lookup
