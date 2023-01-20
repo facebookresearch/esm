@@ -237,7 +237,7 @@ class Alphabet(object):
                         self._tokenize(token)
                         if token not in self.unique_no_split_tokens
                         else [token]
-                        for token in tokenized_text
+                        for token in text_list
                     )
                 )
             )
