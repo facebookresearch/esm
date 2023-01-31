@@ -112,12 +112,13 @@ def main():
             action='store_false',
             help='use the backbone of only target chain in the input for conditioning'
     )
+    
+    parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
+    
     args = parser.parse_args()
 
     model, alphabet = esm.pretrained.esm_if1_gvp4_t16_142M_UR50()
     model = model.eval()
-    
-    parser.add_argument("--nogpu", action="store_true", help="Do not use GPU even if available")
 
     if args.multichain_backbone:
         score_multichain_backbone(model, alphabet, args)
