@@ -229,7 +229,7 @@ class ESMFold(nn.Module):
         structure.update(
             compute_predicted_aligned_error(ptm_logits, max_bin=31, no_bins=self.distogram_bins)
         )
-
+        structure["s_s_0"] = s_s_0
         return structure
 
     @torch.no_grad()
