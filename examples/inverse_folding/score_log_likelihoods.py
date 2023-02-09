@@ -16,8 +16,8 @@ import torch
 import torch.nn.functional as F
 from tqdm import tqdm
 
-import esm
-import esm.inverse_folding
+from esm_custom import esm
+import esm_custom.esm.inverse_folding
 
 
 def score_singlechain_backbone(model, alphabet, args):

@@ -159,16 +159,20 @@ class ESMFold(nn.Module):
         # the structure module. These tensors may be a lower precision if, for example,
         # we're running the language model in fp16 precision.
         esm_s = esm_s.to(self.esm_s_combine.dtype)
-
+        print("esm_s A shape", esm_s.size())
         esm_s = esm_s.detach()
 
         # === preprocessing ===
         esm_s = (self.esm_s_combine.softmax(0).unsqueeze(0) @ esm_s).squeeze(2)
-
+        print("esm_s B shape", esm_s.size())
         s_s_0 = self.esm_s_mlp(esm_s)
+
+        print("s_s_0 A shape", s_s_0.size())
         s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
 
         s_s_0 += self.embedding(aa)
+
+        print("s_s_0 B shape", s_s_0.size())
 
         structure: dict = self.trunk(s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles)
         # Documenting what we expect:
@@ -229,6 +233,7 @@ class ESMFold(nn.Module):
         structure.update(
             compute_predicted_aligned_error(ptm_logits, max_bin=31, no_bins=self.distogram_bins)
         )
+        structure["esm_s"] = esm_s
         structure["s_s_0"] = s_s_0
         return structure
 

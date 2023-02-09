@@ -2,7 +2,7 @@ from pathlib import Path
 
 import torch
 
-from esm.esmfold.v1.esmfold import ESMFold
+from esm_custom.esm.esmfold.v1.esmfold import ESMFold
 
 
 def _load_model(model_name):

@@ -10,7 +10,7 @@ import requests
 import shutil
 from pathlib import Path
 import torch
-import esm
+from esm_custom import esm
 
 
 def test_readme_1():
@@ -21,7 +21,7 @@ def test_readme_1():
 
 def test_readme_2():
     import torch
-    import esm
+    from esm_custom import esm
 
     # Load ESM-2 model
     model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
@@ -68,7 +68,7 @@ def _run_py_cmd(cmd, **kwargs):
 
 def test_readme_esmfold():
     import torch
-    import esm
+    from esm_custom import esm
 
     model = esm.pretrained.esmfold_v1()
     model = model.eval().cuda()

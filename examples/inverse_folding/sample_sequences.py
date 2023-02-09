@@ -12,8 +12,8 @@ import argparse
 import numpy as np
 from pathlib import Path
 
-import esm
-import esm.inverse_folding
+from esm_custom import esm
+import esm_custom.esm.inverse_folding
 
 
 def sample_seq_singlechain(model, alphabet, args):

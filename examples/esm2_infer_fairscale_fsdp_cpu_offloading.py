@@ -2,7 +2,7 @@ import torch
 from fairscale.nn.data_parallel import FullyShardedDataParallel as FSDP
 from fairscale.nn.wrap import enable_wrap, wrap
 
-import esm
+from esm_custom import esm
 
 # init the distributed world with world_size 1
 url = "tcp://localhost:23456"

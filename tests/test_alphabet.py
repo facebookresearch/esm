@@ -46,7 +46,7 @@ def _test_esm1b_truncation(alphabet):
 
 
 def test_esm1b_alphabet():
-    import esm
+    from esm_custom import esm
 
     _, alphabet = esm.pretrained.esm1b_t33_650M_UR50S()
     _test_esm1b(alphabet)
@@ -54,7 +54,7 @@ def test_esm1b_alphabet():
 
 
 def test_esm1v_alphabet():
-    import esm
+    from esm_custom import esm
 
     _, alphabet = esm.pretrained.esm1v_t33_650M_UR90S_1()
     _test_esm1b(alphabet)
@@ -63,7 +63,7 @@ def test_esm1v_alphabet():
 
 def test_esm1_msa1b_alphabet():
     import torch
-    import esm
+    from esm_custom import esm
 
     # Load ESM-1b model
     _, alphabet = esm.pretrained.esm_msa1b_t12_100M_UR50S()

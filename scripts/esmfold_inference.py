@@ -10,8 +10,8 @@ from timeit import default_timer as timer
 
 import torch
 
-import esm
-from esm.data import read_fasta
+from esm_custom import esm
+from esm_custom.esm.data import read_fasta
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

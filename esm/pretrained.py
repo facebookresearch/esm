@@ -11,8 +11,8 @@ from pathlib import Path
 
 import torch
 
-import esm
-from esm.model.esm2 import ESM2
+from esm_custom import esm
+from esm_custom.esm.model.esm2 import ESM2
 
 
 def _has_regression_weights(model_name):
@@ -83,7 +83,7 @@ def has_emb_layer_norm_before(model_state):
 
 
 def _load_model_and_alphabet_core_v1(model_data):
-    import esm  # since esm.inverse_folding is imported below, you actually have to re-import esm here
+    from esm_custom import esm  # since esm.inverse_folding is imported below, you actually have to re-import esm here
 
     alphabet = esm.Alphabet.from_architecture(model_data["args"].arch)
 
@@ -126,9 +126,9 @@ def _load_model_and_alphabet_core_v1(model_data):
         model_type = esm.MSATransformer
 
     elif "invariant_gvp" in model_data["args"].arch:
-        import esm.inverse_folding
+        import esm_custom.esm.inverse_folding
 
-        model_type = esm.inverse_folding.gvp_transformer.GVPTransformerModel
+        model_type = esm_custom.esm.inverse_folding.gvp_transformer.GVPTransformerModel
         model_args = vars(model_data["args"])  # convert Namespace -> dict
 
         def update_name(s):
@@ -404,8 +404,8 @@ def esmfold_v0():
     on all PDB chains until 2020-05, to ensure temporal holdout with CASP14
     and the CAMEO validation and test set reported there.
     """
-    import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_v0()
+    import esm_custom.esm.esmfold.v1.pretrained
+    return esm_custom.esm.esmfold.v1.pretrained.esmfold_v0()
 
 
 def esmfold_v1():
@@ -416,5 +416,5 @@ def esmfold_v1():
     protein language model to extract meaningful representations from the
     protein sequence.
     """
-    import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_v1()
+    import esm_custom.esm.esmfold.v1.pretrained
+    return esm_custom.esm.esmfold.v1.pretrained.esmfold_v1()
