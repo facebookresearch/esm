@@ -4,7 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 import typing as T
 from dataclasses import dataclass
-
+from typing_extensions import Literal
 import torch
 import torch.nn as nn
 from openfold.data.data_transforms import make_atom14_masks
@@ -23,6 +23,7 @@ from esm.esmfold.v1.misc import (
     output_to_pdb,
 )
 
+RepresentationKey = Literal["esm_s_A", "esm_s_B","s_s_0_A","s_s_0_B", "esm_s_B_avg"]
 
 @dataclass
 class ESMFoldConfig:
@@ -121,6 +122,7 @@ class ESMFold(nn.Module):
         residx: T.Optional[torch.Tensor] = None,
         masking_pattern: T.Optional[torch.Tensor] = None,
         num_recycles: T.Optional[int] = None,
+        representation_key: RepresentationKey = None
     ):
         """Runs a forward pass given input tokens. Use `model.infer` to
         run inference from a sequence.
@@ -159,21 +161,29 @@ class ESMFold(nn.Module):
         # the structure module. These tensors may be a lower precision if, for example,
         # we're running the language model in fp16 precision.
         esm_s = esm_s.to(self.esm_s_combine.dtype)
-        print("esm_s A shape", esm_s.size())
+        if representation_key == "esm_s_A":
+            return {"esm_s_A": esm_s}
+        
         esm_s = esm_s.detach()
 
         # === preprocessing ===
         esm_s = (self.esm_s_combine.softmax(0).unsqueeze(0) @ esm_s).squeeze(2)
-        print("esm_s B shape", esm_s.size())
-        s_s_0 = self.esm_s_mlp(esm_s)
+        if representation_key == "esm_s_B":
+            return {"esm_s_B": esm_s}
+        if representation_key == "esm_s_B_avg":
+            return {"esm_s_B_avg": esm_s.mean(1)}
 
-        print("s_s_0 A shape", s_s_0.size())
+        s_s_0 = self.esm_s_mlp(esm_s)
+        
+        if representation_key == "s_s_0_A":
+            return {"s_s_0_A": s_s_0}
+        
         s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
 
         s_s_0 += self.embedding(aa)
-
-        print("s_s_0 B shape", s_s_0.size())
-
+        
+        if representation_key == "s_s_0_B":
+            return {"s_s_0_B": s_s_0}
         structure: dict = self.trunk(s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles)
         # Documenting what we expect:
         structure = {
@@ -233,8 +243,6 @@ class ESMFold(nn.Module):
         structure.update(
             compute_predicted_aligned_error(ptm_logits, max_bin=31, no_bins=self.distogram_bins)
         )
-        structure["esm_s"] = esm_s
-        structure["s_s_0"] = s_s_0
         return structure
 
     @torch.no_grad()
@@ -246,6 +254,7 @@ class ESMFold(nn.Module):
         num_recycles: T.Optional[int] = None,
         residue_index_offset: T.Optional[int] = 512,
         chain_linker: T.Optional[str] = "G" * 25,
+        representation_key: RepresentationKey = None
     ):
         """Runs a forward pass given input sequences.
 
@@ -285,14 +294,15 @@ class ESMFold(nn.Module):
             residx=residx,
             masking_pattern=masking_pattern,
             num_recycles=num_recycles,
+            representation_key = representation_key
         )
 
-        output["atom37_atom_exists"] = output["atom37_atom_exists"] * linker_mask.unsqueeze(2)
-
-        output["mean_plddt"] = (output["plddt"] * output["atom37_atom_exists"]).sum(
-            dim=(1, 2)
-        ) / output["atom37_atom_exists"].sum(dim=(1, 2))
-        output["chain_index"] = chain_index
+        # output["atom37_atom_exists"] = output["atom37_atom_exists"] * linker_mask.unsqueeze(2)
+ 
+        # output["mean_plddt"] = (output["plddt"] * output["atom37_atom_exists"]).sum(
+            # dim=(1, 2)
+        # ) / output["atom37_atom_exists"].sum(dim=(1, 2))
+        # output["chain_index"] = chain_index
 
         return output
 
