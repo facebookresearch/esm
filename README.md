@@ -7,7 +7,8 @@
 ["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESMFold to design proteins according to a high-level programming language.
 
 
-**Nov 2022**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas).
+**Nov 2022**: Check out the [ESM Metagenomic Atlas](https://esmatlas.com), an open atlas of 617 million predicted metagenomic protein structures.
+Bulk download, blog post and the resources provided on the Atlas website are documented [on this README](#atlas).
 
 This repository contains code and pre-trained weights for **Transformer protein language models** from the Meta Fundamental AI Research Protein Team (FAIR), including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
 Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
@@ -338,13 +339,19 @@ The output values are the average log-likelihoods averaged over all amino acids 
 
 For more information, see "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide.
 
-## ESMFold Metagenomic Atlas <a name="atlas"></a>
+## ESM Metagenomic Atlas <a name="atlas"></a>
 
-Please see the companion [website](https://esmatlas.com/).
+Please visit the [ESM Metagenomic Atlas](https://esmatlas.com/) website, and
+see our [blog post](https://ai.facebook.com/blog/protein-folding-esmfold-metagenomics/) to learn more.
 
-Bulk download instructions available at a seperate README [here](scripts/atlas/README.md)
+Bulk download instructions available at a seperate README [here](scripts/atlas/README.md).
 
-Searching a high quality subset of the ESM Atlas available [here](https://esmatlas.com/resources?action=search_structure), and Foldseek provides an API with no length limitations [here](https://search.foldseek.com/search)
+The Atlas resources include a page to [fold a sequence using ESMFold](https://esmatlas.com/resources?action=fold),
+searching a subset of the ESM Atlas by [structure](https://esmatlas.com/resources?action=search_structure) or 
+[sequence](https://esmatlas.com/resources?action=search_sequence),
+as well as an [API](https://esmatlas.com/about#api) to access those resources programmatically.
+
+Foldseek provides search against the Atlas without the length limitation [here](https://search.foldseek.com/search).
 
 
 ## Notebooks <a name="notebooks"></a>
