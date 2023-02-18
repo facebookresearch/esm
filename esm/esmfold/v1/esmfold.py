@@ -23,7 +23,7 @@ from esm.esmfold.v1.misc import (
     output_to_pdb,
 )
 
-RepresentationKey = Literal["esm_s_A", "esm_s_B","s_s_0_A","s_s_0_B", "esm_s_B_avg"]
+RepresentationKey = Literal["esm_s_A", "esm_s_B","s_s_0_A","s_s_0_B", "esm_s_B_avg", "s_s_avg"]
 
 @dataclass
 class ESMFoldConfig:
