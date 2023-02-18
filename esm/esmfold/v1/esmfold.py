@@ -185,6 +185,9 @@ class ESMFold(nn.Module):
         if representation_key == "s_s_0_B":
             return {"s_s_0_B": s_s_0}
         structure: dict = self.trunk(s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles)
+
+        if representation_key == "s_s_avg":
+            return {"s_s_avg": torch.mean(structure["s_s"], 1)}
         # Documenting what we expect:
         structure = {
             k: v
