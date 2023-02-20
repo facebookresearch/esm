@@ -2,24 +2,35 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
-**NEW**: Check out [ESM Metagenomic Atlas](https://esmatlas.com) of 600M metagenomic structures, with bulk download available [here](#atlas).
+**NEW**: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design.
+["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESM2 to design de novo proteins. The data associated with the preprint can be found in [scripts/design_lm/](scripts/design_lm/).
+["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESMFold to design proteins according to a high-level programming language.
 
-This repository contains code and pre-trained weights for **Transformer protein language models** from Facebook AI Research, including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
+
+**Nov 2022**: Check out the [ESM Metagenomic Atlas](https://esmatlas.com), an open atlas of 617 million predicted metagenomic protein structures.
+Bulk download, blog post and the resources provided on the Atlas website are documented [on this README](#atlas).
+
+This repository contains code and pre-trained weights for **Transformer protein language models** from the Meta Fundamental AI Research Protein Team (FAIR), including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
 Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
 
 ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.
 ESMFold harnesses the ESM-2 language model to generate accurate structure predictions end to end directly from the sequence of a protein.
 
 <details><summary><b>Citation</b></summary>
-
+For ESM2, ESMFold and ESM Atlas:
 ```bibtex
-@article{lin2022language,
-  title={Language models of protein sequences at the scale of evolution enable accurate structure prediction},
-  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and Smetanin, Nikita and Verkuil, Robert and Kabeli, Ori and Shmueli, Yaniv and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Sal and others},
-  journal={bioRxiv},
+@article{lin2022evolutionary,
+  title={Evolutionary-scale prediction of atomic level protein structure with a language model},
+  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and Smetanin, Nikita and Verkuil, Robert and Kabeli, Ori and Shmueli, Yaniv and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Salvatore and Rives, Alexander},
   year={2022},
-  publisher={Cold Spring Harbor Laboratory}
+  journal={bioRxiv},
+  note={bioRxiv 2022.07.20.500902},
+  url={https://doi.org/10.1101/2022.07.20.500902},
 }
+```
+
+For transformer protein language models:
+```bibtex
 @article{rives2021biological,
   title={Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences},
   author={Rives, Alexander and Meier, Joshua and Sercu, Tom and Goyal, Siddharth and Lin, Zeming and Liu, Jason and Guo, Demi and Ott, Myle and Zitnick, C Lawrence and Ma, Jerry and others},
@@ -28,7 +39,10 @@ ESMFold harnesses the ESM-2 language model to generate accurate structure predic
   number={15},
   pages={e2016239118},
   year={2021},
-  publisher={National Acad Sciences}
+  publisher={National Acad Sciences},
+  note={bioRxiv 10.1101/622803},
+  doi={10.1073/pnas.2016239118},
+  url={https://www.pnas.org/doi/full/10.1073/pnas.2016239118},
 }
 ```
 </details>
@@ -57,6 +71,8 @@ ESMFold harnesses the ESM-2 language model to generate accurate structure predic
 
 <details><summary><b>What's New</b></summary>
 
+- December 2022: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design:
+["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521), and ["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521).
 - November 2022: ESM Metagenomic Atlas, a repository of 600M+ metagenomics structures released, see [website](https://esmatlas.com/) and [bulk download details](#atlas)
 - November 2022: ESMFold - new end-to-end structure prediction model released (see [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902))
 - August 2022: ESM-2 - new SOTA Language Models released (see [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902))
@@ -268,7 +284,7 @@ See "[examples/inverse_folding/](examples/inverse_folding/)" for detailed user g
 
 We also provide a colab notebook for the sequence design and sequence scoring functionalities.
 
-[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook.ipynb)
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/inverse_folding/notebook_multichain.ipynb)
 
 The ESM-IF1 inverse folding model is built for predicting protein sequences
 from their backbone atom coordinates. We provide scripts here 1) to sample sequence
@@ -323,13 +339,19 @@ The output values are the average log-likelihoods averaged over all amino acids 
 
 For more information, see "[./examples/inverse_folding/](examples/inverse_folding/)" for detailed user guide.
 
-## ESMFold Metagenomic Atlas <a name="atlas"></a>
+## ESM Metagenomic Atlas <a name="atlas"></a>
 
-Please see the companion [website](https://esmatlas.com/).
+Please visit the [ESM Metagenomic Atlas](https://esmatlas.com/) website, and
+see our [blog post](https://ai.facebook.com/blog/protein-folding-esmfold-metagenomics/) to learn more.
 
-Bulk download instructions available at a seperate README [here](scripts/atlas/README.md)
+Bulk download instructions available at a seperate README [here](scripts/atlas/README.md).
 
-Searching a high quality subset of the ESM Atlas available [here](https://esmatlas.com/resources?action=search_structure), and Foldseek provides an API with no length limitations [here](https://search.foldseek.com/search)
+The Atlas resources include a page to [fold a sequence using ESMFold](https://esmatlas.com/resources?action=fold),
+searching a subset of the ESM Atlas by [structure](https://esmatlas.com/resources?action=search_structure) or 
+[sequence](https://esmatlas.com/resources?action=search_sequence),
+as well as an [API](https://esmatlas.com/about#api) to access those resources programmatically.
+
+Foldseek provides search against the Atlas without the length limitation [here](https://search.foldseek.com/search).
 
 
 ## Notebooks <a name="notebooks"></a>
@@ -625,7 +647,7 @@ If you find the models useful in your research, we ask that you cite the relevan
   year={2019},
   doi={10.1101/622803},
   url={https://www.biorxiv.org/content/10.1101/622803v4},
-  journal={bioRxiv}
+  journal={PNAS}
 }
 ```
 
@@ -677,7 +699,7 @@ For inverse folding using ESM-IF1:
 	year = {2022},
 	doi = {10.1101/2022.04.10.487779},
 	url = {https://www.biorxiv.org/content/early/2022/04/10/2022.04.10.487779},
-	journal = {bioRxiv}
+	journal = {ICML}
 }
 ```
 

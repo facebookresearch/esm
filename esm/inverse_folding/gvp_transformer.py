@@ -120,8 +120,6 @@ class GVPTransformerModel(nn.Module):
         
         # Decode one token at a time
         for i in range(1, L+1):
-            if sampled_tokens[0, i] != mask_idx:
-                continue
             logits, _ = self.decoder(
                 sampled_tokens[:, :i], 
                 encoder_out,
@@ -130,7 +128,8 @@ class GVPTransformerModel(nn.Module):
             logits = logits[0].transpose(0, 1)
             logits /= temperature
             probs = F.softmax(logits, dim=-1)
-            sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
+            if sampled_tokens[0, i] == mask_idx:
+                sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
         sampled_seq = sampled_tokens[0, 1:]
         
         # Convert back to string via lookup

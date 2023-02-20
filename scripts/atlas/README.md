@@ -1,9 +1,12 @@
 # ESM Metagenomic Atlas
 
 The [ESM Metagenomic Atlas](https://esmatlas.com) is a repository of over database of more than 600 million metagenomic protein structures predicted by ESMFold.
+See our [blog post](https://ai.facebook.com/blog/protein-folding-esmfold-metagenomics/) to learn more.
+
 
 Bulk download instructions are available here, as well as foldseek databases available for download.
 
+All structures in the ESM Metagenomic Atlas were predicted with the ESMFold model released as `esm.pretrained.esmfold_v0()`.
 We find that protein structures with predicted LDDT > 0.7 and predict TM > 0.7 to be both reasonably well structured and interesting.
 Therefore, we provide both the small set of "high quality" metagenomic structures, as well as the full set.
 The small set of structures is built from taking a 30% sequence identity clustering of MGnify90, and using the best structure from each cluster.
@@ -68,3 +71,18 @@ The URLs for that bundle will be in `v0/full/tarballs/tm_.60_.70_plddt_.80_.90.t
 
 We also provide the fasta file for the full dataset:
 `s3://dl.fbaipublicfiles.com/esmatlas/v0/full/mgnify90.fasta`
+
+
+# Citation
+If you use any of the ESM Metagenomic Atlas data in your work, please cite
+
+```bibtex
+@article{lin2022evolutionary,
+  title={Evolutionary-scale prediction of atomic level protein structure with a language model},
+  author={Lin, Zeming and Akin, Halil and Rao, Roshan and Hie, Brian and Zhu, Zhongkai and Lu, Wenting and Smetanin, Nikita and Verkuil, Robert and Kabeli, Ori and Shmueli, Yaniv and dos Santos Costa, Allan and Fazel-Zarandi, Maryam and Sercu, Tom and Candido, Salvatore and Rives, Alexander},
+  year={2022},
+  journal={bioRxiv},
+  note={bioRxiv 2022.07.20.500902},
+  url={https://doi.org/10.1101/2022.07.20.500902},
+}
+```
