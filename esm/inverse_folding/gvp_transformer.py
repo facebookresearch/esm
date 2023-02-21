@@ -118,7 +118,7 @@ class GVPTransformerModel(nn.Module):
         # Run encoder only once
         encoder_out = self.encoder(batch_coords, padding_mask, confidence)
         
-        #Make sure all tensors are on the same device if a GPU is present
+        # Make sure all tensors are on the same device if a GPU is present
         if device:
             sampled_tokens = sampled_tokens.to(device)
         
