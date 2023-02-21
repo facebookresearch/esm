@@ -118,6 +118,10 @@ class GVPTransformerModel(nn.Module):
         # Run encoder only once
         encoder_out = self.encoder(batch_coords, padding_mask, confidence)
         
+        # Make sure all tensors are on the same device if a GPU is present
+        if device:
+            sampled_tokens = sampled_tokens.to(device)
+        
         # Decode one token at a time
         for i in range(1, L+1):
             logits, _ = self.decoder(
