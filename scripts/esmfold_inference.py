@@ -114,6 +114,14 @@ if __name__ == "__main__":
     )
     parser.add_argument("--cpu-only", help="CPU only", action="store_true")
     parser.add_argument("--cpu-offload", help="Enable CPU offloading", action="store_true")
+    parser.add_argument(
+        "--cuda-device",
+        type=str,
+        default=None,
+        help="Run the model on the specified cuda device (like 'cuda:0' or 'cuda:1'). "
+             "if not specified, the model will run on the default device.  This is useful "
+             "for running esmfold on machines with multiple GPUs."
+    )
     args = parser.parse_args()
 
     if not args.fasta.exists():
@@ -146,6 +154,9 @@ if __name__ == "__main__":
         model = init_model_on_gpu_with_cpu_offloading(model)
     else:
         model.cuda()
+
+    if args.cuda_device is not None:
+        model.to(args.cuda_device)
     logger.info("Starting Predictions")
     batched_sequences = create_batched_sequence_datasest(all_sequences, args.max_tokens_per_batch)
 
