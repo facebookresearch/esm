@@ -153,10 +153,8 @@ if __name__ == "__main__":
     elif args.cpu_offload:
         model = init_model_on_gpu_with_cpu_offloading(model)
     else:
-        model.cuda()
+        model.cuda(args.cuda_device)
 
-    if args.cuda_device is not None:
-        model.to(args.cuda_device)
     logger.info("Starting Predictions")
     batched_sequences = create_batched_sequence_datasest(all_sequences, args.max_tokens_per_batch)
 
