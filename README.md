@@ -2,19 +2,20 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
-**NEW**: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design.
+This repository contains code and pre-trained weights for **Transformer protein language models** from the Meta Fundamental AI Research Protein Team (FAIR), including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
+Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
+ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.
+ESMFold harnesses the ESM-2 language model to generate accurate structure predictions end to end directly from the sequence of a protein.
+
+In November 2022, we released `v0` of the [ESM Metagenomic Atlas](https://esmatlas.com), an open atlas of 617 million predicted metagenomic protein structures.
+The Atlas was updated in March 2023 in collaboration with EBI. The new `v2023_02` adds another 150 million predicted structures to the Atlas.
+Bulk download, blog post and the resources provided on the Atlas website are documented [on this README](#atlas).
+
+In December 2022, we released two simultaneous preprints on protein design.
 ["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESM2 to design de novo proteins. The data associated with the preprint can be found in [scripts/design_lm/](scripts/design_lm/).
 ["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521) uses ESMFold to design proteins according to a high-level programming language.
 
 
-**Nov 2022**: Check out the [ESM Metagenomic Atlas](https://esmatlas.com), an open atlas of 617 million predicted metagenomic protein structures.
-Bulk download, blog post and the resources provided on the Atlas website are documented [on this README](#atlas).
-
-This repository contains code and pre-trained weights for **Transformer protein language models** from the Meta Fundamental AI Research Protein Team (FAIR), including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
-Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
-
-ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.
-ESMFold harnesses the ESM-2 language model to generate accurate structure predictions end to end directly from the sequence of a protein.
 
 <details><summary><b>Citation</b></summary>
 For ESM2, ESMFold and ESM Atlas:
@@ -71,6 +72,7 @@ For transformer protein language models:
 
 <details><summary><b>What's New</b></summary>
 
+- March 2023: We release an update to the ESM Metagenomic Atlas, `v2023_02`. See [website](https://esmatlas.com/) and [bulk download details](#atlas).
 - December 2022: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design:
 ["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521), and ["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521).
 - November 2022: ESM Metagenomic Atlas, a repository of 600M+ metagenomics structures released, see [website](https://esmatlas.com/) and [bulk download details](#atlas)
