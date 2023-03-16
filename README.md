@@ -265,7 +265,7 @@ By default, predictions will be batched together so that shorter sequences are p
 
 The `--cpu-offload` flag can be useful for making predictions on longer sequences. It will attempt to offload some parameters to the CPU RAM, rather than storing on GPU.
 
-Finally, the ablation experiments for LMs of varying sizes [Lin et al. 2022 table S1](https://doi.org/10.1101/2022.07.20.500902) are released as `esm.pretrained.esmfold_ipa_*()`. We don't recommend using these models for structure prediction.
+Finally, the ablation experiments for LMs of varying sizes [Lin et al. 2022 table S1](https://doi.org/10.1101/2022.07.20.500902) are released as `esm.pretrained.esmfold_structure_module_only_*()`. We don't recommend using these models for structure prediction.
 
 
 ### Compute embeddings in bulk from FASTA <a name="bulk_fasta"></a>
@@ -477,7 +477,7 @@ and computes the self-attention map unsupervised contact predictions using ESM-2
 |           | `esm2_t6_8M_UR50D`           | 6            | 8M          | UR50/D 2021_04                           | 320  |  https://dl.fbaipublicfiles.com/fair-esm/models/esm2_t6_8M_UR50D.pt            |
 | ESMFold   | `esmfold_v1`                 | 48 (+36)     | 690M (+3B)  | UR50/D 2021_04                           | -    |  https://dl.fbaipublicfiles.com/fair-esm/models/esmfold_3B_v1.pt               |
 |           | `esmfold_v0`                 | 48 (+36)     | 690M (+3B)  | UR50/D 2021_04                           | -    |  https://dl.fbaipublicfiles.com/fair-esm/models/esmfold_3B_v0.pt               |
-|           | `esmfold_ipa_*`              | 0 (+various) | various     | UR50/D 2021_04                           | -    |  https://dl.fbaipublicfiles.com/fair-esm/models/esmfold_ipa_*                  |
+|           | `esmfold_structure_module_only_*`              | 0 (+various) | various     | UR50/D 2021_04                           | -    |  https://dl.fbaipublicfiles.com/fair-esm/models/esmfold_structure_module_only_*                  |
 | ESM-IF1   | `esm_if1_gvp4_t16_142M_UR50` | 20           | 124M        | CATH 4.3 + predicted structures for UR50 | 512  | https://dl.fbaipublicfiles.com/fair-esm/models/esm_if1_gvp4_t16_142M_UR50.pt   |
 | ESM-1v    | `esm1v_t33_650M_UR90S_[1-5]` | 33           | 650M        | UR90/S 2020_03                           | 1280 | https://dl.fbaipublicfiles.com/fair-esm/models/esm1v_t33_650M_UR90S_1.pt       |
 | ESM-MSA-1b| `esm_msa1b_t12_100M_UR50S`   | 12           | 100M        | UR50/S + MSA 2018_03                     | 768  | https://dl.fbaipublicfiles.com/fair-esm/models/esm_msa1b_t12_100M_UR50S.pt     |

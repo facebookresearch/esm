@@ -419,7 +419,7 @@ def esmfold_v1():
     import esm.esmfold.v1.pretrained
     return esm.esmfold.v1.pretrained.esmfold_v1()
 
-def esmfold_ipa_8M():
+def esmfold_structure_module_only_8M():
     """
     ESMFold baseline model using 8M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -428,10 +428,10 @@ def esmfold_ipa_8M():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_8M()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_8M()
 
 
-def esmfold_ipa_8M_270K():
+def esmfold_structure_module_only_8M_270K():
     """
     ESMFold baseline model using 8M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -440,10 +440,10 @@ def esmfold_ipa_8M_270K():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_8M_270K()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_8M_270K()
 
 
-def esmfold_ipa_35M():
+def esmfold_structure_module_only_35M():
     """
     ESMFold baseline model using 35M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -452,10 +452,10 @@ def esmfold_ipa_35M():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_35M()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_35M()
 
 
-def esmfold_ipa_35M_270K():
+def esmfold_structure_module_only_35M_270K():
     """
     ESMFold baseline model using 35M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -464,10 +464,10 @@ def esmfold_ipa_35M_270K():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_35M_270K()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_35M_270K()
 
 
-def esmfold_ipa_150M():
+def esmfold_structure_module_only_150M():
     """
     ESMFold baseline model using 150M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -476,10 +476,10 @@ def esmfold_ipa_150M():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_150M()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_150M()
 
 
-def esmfold_ipa_150M_270K():
+def esmfold_structure_module_only_150M_270K():
     """
     ESMFold baseline model using 150M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -488,10 +488,10 @@ def esmfold_ipa_150M_270K():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_150M_270K()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_150M_270K()
 
 
-def esmfold_ipa_650M():
+def esmfold_structure_module_only_650M():
     """
     ESMFold baseline model using 650M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -500,10 +500,10 @@ def esmfold_ipa_650M():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_650M()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_650M()
 
 
-def esmfold_ipa_650M_270K():
+def esmfold_structure_module_only_650M_270K():
     """
     ESMFold baseline model using 650M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -512,10 +512,10 @@ def esmfold_ipa_650M_270K():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_650M_270K()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_650M_270K()
 
 
-def esmfold_ipa_3B():
+def esmfold_structure_module_only_3B():
     """
     ESMFold baseline model using 3B ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -524,10 +524,10 @@ def esmfold_ipa_3B():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_3B()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_3B()
 
 
-def esmfold_ipa_3B_270K():
+def esmfold_structure_module_only_3B_270K():
     """
     ESMFold baseline model using 3B ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -536,10 +536,10 @@ def esmfold_ipa_3B_270K():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_3B_270K()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_3B_270K()
 
 
-def esmfold_ipa_15B():
+def esmfold_structure_module_only_15B():
     """
     ESMFold baseline model using 15B ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -549,4 +549,4 @@ def esmfold_ipa_15B():
     See table S1 in (Lin et al, 2022).
     """
     import esm.esmfold.v1.pretrained
-    return esm.esmfold.v1.pretrained.esmfold_ipa_15B()
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_15B()

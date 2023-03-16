@@ -11,9 +11,7 @@ def _load_model(model_name):
         model_data = torch.load(str(model_path), map_location="cpu")
     else:  # load from hub
         url = f"https://dl.fbaipublicfiles.com/fair-esm/models/{model_name}.pt"
-        model_data = torch.hub.load_state_dict_from_url(
-            url, progress=False, map_location="cpu"
-        )
+        model_data = torch.hub.load_state_dict_from_url(url, progress=False, map_location="cpu")
 
     cfg = model_data["cfg"]["model"]
     model_state = model_data["model"]
@@ -56,7 +54,7 @@ def esmfold_v1():
     return _load_model("esmfold_3B_v1")
 
 
-def esmfold_ipa_8M():
+def esmfold_structure_module_only_8M():
     """
     ESMFold baseline model using 8M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -64,10 +62,10 @@ def esmfold_ipa_8M():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_8M")
+    return _load_model("esmfold_structure_module_only_8M")
 
 
-def esmfold_ipa_8M_270K():
+def esmfold_structure_module_only_8M_270K():
     """
     ESMFold baseline model using 8M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -75,10 +73,10 @@ def esmfold_ipa_8M_270K():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_8M_270K")
+    return _load_model("esmfold_structure_module_only_8M_270K")
 
 
-def esmfold_ipa_35M():
+def esmfold_structure_module_only_35M():
     """
     ESMFold baseline model using 35M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -86,10 +84,10 @@ def esmfold_ipa_35M():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_35M")
+    return _load_model("esmfold_structure_module_only_35M")
 
 
-def esmfold_ipa_35M_270K():
+def esmfold_structure_module_only_35M_270K():
     """
     ESMFold baseline model using 35M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -97,10 +95,10 @@ def esmfold_ipa_35M_270K():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_35M_270K")
+    return _load_model("esmfold_structure_module_only_35M_270K")
 
 
-def esmfold_ipa_150M():
+def esmfold_structure_module_only_150M():
     """
     ESMFold baseline model using 150M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -108,10 +106,10 @@ def esmfold_ipa_150M():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_150M")
+    return _load_model("esmfold_structure_module_only_150M")
 
 
-def esmfold_ipa_150M_270K():
+def esmfold_structure_module_only_150M_270K():
     """
     ESMFold baseline model using 150M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -119,10 +117,10 @@ def esmfold_ipa_150M_270K():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_150M_270K")
+    return _load_model("esmfold_structure_module_only_150M_270K")
 
 
-def esmfold_ipa_650M():
+def esmfold_structure_module_only_650M():
     """
     ESMFold baseline model using 650M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -130,10 +128,10 @@ def esmfold_ipa_650M():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_650M")
+    return _load_model("esmfold_structure_module_only_650M")
 
 
-def esmfold_ipa_650M_270K():
+def esmfold_structure_module_only_650M_270K():
     """
     ESMFold baseline model using 650M ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -141,10 +139,10 @@ def esmfold_ipa_650M_270K():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_650M_270K")
+    return _load_model("esmfold_structure_module_only_650M_270K")
 
 
-def esmfold_ipa_3B():
+def esmfold_structure_module_only_3B():
     """
     ESMFold baseline model using 3B ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 500K updates.
@@ -152,10 +150,10 @@ def esmfold_ipa_3B():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_3B")
+    return _load_model("esmfold_structure_module_only_3B")
 
 
-def esmfold_ipa_3B_270K():
+def esmfold_structure_module_only_3B_270K():
     """
     ESMFold baseline model using 3B ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -163,10 +161,10 @@ def esmfold_ipa_3B_270K():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_3B_270K")
+    return _load_model("esmfold_structure_module_only_3B_270K")
 
 
-def esmfold_ipa_15B():
+def esmfold_structure_module_only_15B():
     """
     ESMFold baseline model using 15B ESM-2, 0 folding blocks.
     ESM-2 here is trained out to 270K updates.
@@ -175,4 +173,4 @@ def esmfold_ipa_15B():
     when ablated for number of parameters in the language model.
     See table S1 in (Lin et al, 2022).
     """
-    return _load_model("esmfold_ipa_15B")
+    return _load_model("esmfold_structure_module_only_15B")

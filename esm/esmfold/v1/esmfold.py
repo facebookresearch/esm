@@ -212,11 +212,6 @@ class ESMFold(nn.Module):
         structure: dict = self.trunk(
             s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles
         )
-        print("esmfold esm_s", esm_s)
-        print("esmfold esm_z", esm_z)
-        print("esmfold s_s_0", s_s_0)
-        print("esmfold s_z_0", s_z_0)
-        print("esmfold structure", structure)
         # Documenting what we expect:
         structure = {
             k: v
