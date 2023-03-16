@@ -72,6 +72,11 @@ For example, the foldseek database containing ptm from 0.60 to 0.70 and plddt fr
 The PDBs are given as bundles of 500k or 1M structures each.
 The URLs for that bundle will be in `v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt`
 
+# LM embeddings (NEW)
+Bulk download of the LM embeddings coming soon.
+
+Individual LM embeddings can be fetched via the API endpoint `/fetchEmbedding/ESM2/:id` as described on <https://esmatlas.com/about#api>
+
 
 # Citation
 If you use any of the ESM Metagenomic Atlas data in your work, please cite
