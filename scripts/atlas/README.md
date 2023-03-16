@@ -69,10 +69,13 @@ Structures are provided by the bins given in this repo under [v0/full/bins.txt](
 For example, the foldseek database containing ptm from 0.60 to 0.70 and plddt from 0.80 to 0.90 is named `tm_.60_.70_plddt_.80_.90.DB`.
 The data are given as bundles of 500k or 1M structures each.
 
-* **Bulk Predicted structures**: see `{v0,v2023_02}/full/tarballs/`. The URLs for that bundle will be in e.g. <v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt>.
-* **Foldseek DBs** `{v0,v2023_02}/full/foldseekdb/`
-* **Embeddings (NEW - coming soon)** under `{v0,v2023_02}/full/lm_reps/`.
-Note: Individual LM embeddings can be fetched via the API endpoint `/fetchEmbedding/ESM2/:id` as described on <https://esmatlas.com/about#api>
+* **Bulk Predicted structures**: see `{v0,v2023_02}/full/tarballs/`. The URLs for all shards of a single bundle will be in e.g. [v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt](v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt). The URLs for all tarballs across bins and their shards is available under `{v0,v2023_02}/full/tarballs.txt`.
+* **Foldseek DBs** `{v0,v2023_02}/full/foldseekdb/` and `{v0,v2023_02}/full/foldseekdb.txt`
+* **Bulk Embeddings (NEW - coming soon)** under `{v0,v2023_02}/full/esm2_embeddings/` and `{v0,v2023_02}/full/esm2_embeddings.txt`.
+  * Note: Individual LM embeddings can be fetched via the API endpoint `/fetchEmbedding/ESM2/:id` as described on <https://esmatlas.com/about#api>
+
+Note as of March 16, 2022: We expect to release bulk ebeddings, and limited backfill of v2023_02 structures and foldseekdb, by adding URLs to the respective files.
+At that time we will update the metadata.sqlite file as well.
 
 
 # Citation
