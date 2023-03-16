@@ -2,6 +2,8 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
+***Update March 2023:*** ESM Atlas was updated to `v2023_02`, simultaneous with the MGnify 2023_02 release in collaboration with EBI. We also release pre-computed ESM2 embeddings for the whole Atlas.
+
 This repository contains code and pre-trained weights for **Transformer protein language models** from the Meta Fundamental AI Research Protein Team (FAIR), including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
 Transformer protein language models were introduced in the preprint of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences" (Rives et al., 2019)](https://doi.org/10.1101/622803).
 ESM-2 outperforms all tested single-sequence protein language models across a range of structure prediction tasks.

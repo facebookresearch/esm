@@ -7,7 +7,7 @@ The first `v0` version of the Atlas was released on November 1st 2022,
 corresponding to the sequences in the `2022_05` release of the MGnify protein database described [here](https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2022_05/README.txt).
 An update `v2023_02` was released on March 17th 2023, corresponding to the sequences in the `2023_02` release of the MGnify protein database described [here](https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2022_11/).
 
-Bulk download instructions are available here, as well as foldseek databases available for download.
+Here we provide bulk download instructions for the tarballs of predicted structures, as well as foldseek databases, and LM embeddings for every sequence in the Atlas.
 
 The structures in the ESM Metagenomic Atlas were predicted with `esm.pretrained.esmfold_v0()` for Atlas `v0`, while Atlas `v2023_02` used `esm.pretrained.esmfold_v1()`.
 We find that protein structures with predicted LDDT > 0.7 and predict TM > 0.7 to be both reasonably well structured and interesting.
@@ -19,7 +19,7 @@ The high confidence structures are around 1TB in size.
 
 The full database is available as PDB structures and is 15TB in size for `v0`.
 
-We also provide a metadata dataframe: <https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata.parquet>.
+We also provide a metadata dataframe: <https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc1.parquet>.
 You can load the file with pandas: `df = pd.read_parquet('metadata.parquet')`.
 The dataframe has length `TODO`, the file size is around 25GB and has md5 hash `TODO`.
 This dataframe has TODO columns:
@@ -64,18 +64,15 @@ As a reminder, please use `aria2c --dir=/path/to/download/to --input-file=v0/hig
 # Full database
 
 We separate the database by pTM and pLDDT.
-This will allow you to download structures based on your needs - for example you can choose to download only the most high quality structures.
-We provide each stratification in `v0/full/tarballs/`,  `v0/full/foldseekdb/`, and `v2023_02/full/tarballs/`.
-Structures are provided by the bins given in this repo under [v0/full/bins.txt](v0/full/bins.txt) and TODO [v2023_02/full/bins.txt](v2023_02/full/bins.txt).
-
+This will allow you to download structures based on your needs - for example you can choose to download only the most high confidence structures.
+Structures are provided by the bins given in this repo under [v0/full/bins.txt](v0/full/bins.txt) and [v2023_02/full/bins.txt](v2023_02/full/bins.txt).
 For example, the foldseek database containing ptm from 0.60 to 0.70 and plddt from 0.80 to 0.90 is named `tm_.60_.70_plddt_.80_.90.DB`.
-The PDBs are given as bundles of 500k or 1M structures each.
-The URLs for that bundle will be in `v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt`
+The data are given as bundles of 500k or 1M structures each.
 
-# LM embeddings (NEW)
-Bulk download of the LM embeddings coming soon.
-
-Individual LM embeddings can be fetched via the API endpoint `/fetchEmbedding/ESM2/:id` as described on <https://esmatlas.com/about#api>
+* **Bulk Predicted structures**: see `{v0,v2023_02}/full/tarballs/`. The URLs for that bundle will be in e.g. <v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt>.
+* **Foldseek DBs** `{v0,v2023_02}/full/foldseekdb/`
+* **Embeddings (NEW - coming soon)** under `{v0,v2023_02}/full/lm_reps/`.
+Note: Individual LM embeddings can be fetched via the API endpoint `/fetchEmbedding/ESM2/:id` as described on <https://esmatlas.com/about#api>
 
 
 # Citation
