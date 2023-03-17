@@ -33,11 +33,10 @@ This dataframe has 9 columns:
 - `esmfold_version` is the version of ESMFold, matching the model accessible as `esm.pretrained.esmfold_v{0,1}`
 - `atlas_version` is the Atlas version where this structure first appeared. Note: some of the predictions appearing for the first time in `v0` are also part of Atlas `v2023_02`.
 
-Note you can remove records with missing structures with `df[~df.plddt.isna()]`.
+Proteins longer than 1280 residues were not folded. To select only the records without missing structures use  `df[~df.plddt.isna()]`.
 
-We recommend using `s5cmd` or `aria2c` to download files (installable via anaconda).
-
-**To download any of the structures provided, please use this `aria2c` command**
+We recommend using `s5cmd` or `aria2c` to download files (can be installed via conda package manager).
+To download any of the structures provided, you can use this `aria2c` command:
 ```
 aria2c --dir=/path/to/download/to --input-file=url-file-provided.txt
 ```
