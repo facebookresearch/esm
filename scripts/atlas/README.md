@@ -1,6 +1,6 @@
 # ESM Metagenomic Atlas
 
-The [ESM Metagenomic Atlas](https://esmatlas.com) is a repository of over database of more than 600 million metagenomic protein structures predicted by ESMFold.
+The [ESM Metagenomic Atlas](https://esmatlas.com) is a resource of more than 700 million metagenomic protein structures predicted by ESMFold.
 See our [blog post](https://ai.facebook.com/blog/protein-folding-esmfold-metagenomics/) to learn more.
 
 The first `v0` version of the Atlas was released on November 1st 2022,
@@ -19,9 +19,9 @@ The high confidence structures are around 1TB in size.
 
 The full database is available as PDB structures and is 15TB in size for `v0`.
 
-We also provide a metadata dataframe: <https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc1.parquet>.
+As an entrypoint into the database, the metadata is available as a small (~25 GB) file [metadata.sqlite](https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc1.sqlite.gz) / [metadata.parquet](https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc1.parquet).
 You can load the file with pandas: `df = pd.read_parquet('metadata.parquet')`.
-The dataframe has length 773,846,840 records, and the file size is around 25GB.
+The dataframe has 773,846,840 records, and the file size is around 25GB.
 This dataframe has 9 columns:
 - `id` is the MGnify ID
 - `ptm` is the predicted TM score
