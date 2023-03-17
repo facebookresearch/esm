@@ -17,6 +17,7 @@ local/
 tmp/
 __pycache__/
 *.egg-info/
+.idea/
 .ipynb_checkpoints/
 .vscode/
 esm/dev
