@@ -1,0 +1,14 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB.index
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB.lookup
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB.source
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_ca
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_ca.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_ca.index
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_h
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_h.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_h.index
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_ss
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_ss.dbtype
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/foldseekdb/backfill_v0_tm_.70_.80_plddt_.60_.70.DB_ss.index
