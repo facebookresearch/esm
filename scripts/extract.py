@@ -60,7 +60,7 @@ def create_parser():
     return parser
 
 
-def run(args):
+def main(args):
     model, alphabet = pretrained.load_model_and_alphabet(args.model_location)
     model.eval()
     if isinstance(model, MSATransformer):
@@ -131,11 +131,7 @@ def run(args):
                 )
 
 
-def main():
+if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
-    run(args)
-
-
-if __name__ == "__main__":
-    main()
+    main(args)

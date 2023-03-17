@@ -74,7 +74,7 @@ def create_batched_sequence_datasest(
     yield batch_headers, batch_sequences
 
 
-def main():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-i",
@@ -187,7 +187,3 @@ def main():
                 f"pTM {ptm:0.3f} in {time_string}. "
                 f"{num_completed} / {num_sequences} completed."
             )
-
-
-if __name__ == "__main__":
-    main()
