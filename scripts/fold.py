@@ -117,7 +117,7 @@ def create_parser():
     return parser
 
 
-def main(args):
+def run(args):
     if not args.fasta.exists():
         raise FileNotFoundError(args.fasta)
 
@@ -191,7 +191,10 @@ def main(args):
             )
 
 
-if __name__ == "__main__":
+def main():
     parser = create_parser()
     args = parser.parse_args()
-    main(args)
+    run(args)
+
+if __name__ == "__main__":
+    main()

@@ -42,7 +42,7 @@ setup(
     author="Facebook AI Research",
     url="https://github.com/facebookresearch/esm",
     license="MIT",
-    packages=["esm", "esm.model", "esm.inverse_folding", "esm.esmfold.v1"],
+    packages=sources.keys(),
     package_dir=sources,
     extras_require=extras,
     data_files=[("source_docs/esm", ["LICENSE", "README.md", "CODE_OF_CONDUCT.rst"])],
