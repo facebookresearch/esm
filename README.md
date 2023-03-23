@@ -58,7 +58,6 @@ For transformer protein language models:
   - [CPU offloading for inference with large models](#fsdp)
   - [Zero-shot variant prediction](#zs_variant)
   - [Inverse folding](#invf)
-  - [Command-line interface](#cli)
 - [ESM Metagenomic Atlas](#atlas)
 - [Notebooks](#notebooks)
 - [Available Models and Datasets](#available)
@@ -227,37 +226,74 @@ Besides `esm.pretrained.esmfold_v1()` which is the best performing model we reco
 also provide `esm.pretrained.esmfold_v0()` which was used for the experiments in
 [Lin et al. 2022](https://doi.org/10.1101/2022.07.20.500902).
 
-We also provide a script (`esm-fold` or `scripts/esmfold_inference.py`) that efficiently predicts structures in bulk from a FASTA file using ESMFold. This can be run with one of the following commands:
-```bash
- esm-fold \
-    -i <input file with multiple sequences> \
-    -o <path to output directory> \
-    --max-tokens-per-batch <int, default: 1024> \
-    --num-recycles <int, default: 4> \
-    --cpu-only <boolean flag>
-    --cpu-offload <boolean flag>
+We also provide a command line interface (`esm-fold`) that efficiently predicts structures in bulk from a FASTA file using ESMFold:
 ```
-```bash
-python scripts/esmfold_inference.py \
-    -i <input file with multiple sequences> \
-    -o <path to output directory> \
-    --max-tokens-per-batch <int, default: 1024> \
-    --num-recycles <int, default: 4> \
-    --cpu-only <boolean flag>
-    --cpu-offload <boolean flag>
+usage: esm-fold [-h] -i FASTA -o PDB [--num-recycles NUM_RECYCLES]
+                [--max-tokens-per-batch MAX_TOKENS_PER_BATCH]
+                [--chunk-size CHUNK_SIZE] [--cpu-only] [--cpu-offload]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i FASTA, --fasta FASTA
+                        Path to input FASTA file
+  -o PDB, --pdb PDB     Path to output PDB directory
+  --num-recycles NUM_RECYCLES
+                        Number of recycles to run. Defaults to number used in
+                        training (4).
+  --max-tokens-per-batch MAX_TOKENS_PER_BATCH
+                        Maximum number of tokens per gpu forward-pass. This
+                        will group shorter sequences together for batched
+                        prediction. Lowering this can help with out of memory
+                        issues, if these occur on short sequences.
+  --chunk-size CHUNK_SIZE
+                        Chunks axial attention computation to reduce memory
+                        usage from O(L^2) to O(L). Equivalent to running a for
+                        loop over chunks of of each dimension. Lower values
+                        will result in lower memory usage at the cost of
+                        speed. Recommended values: 128, 64, 32. Default: None.
+  --cpu-only            CPU only
+  --cpu-offload         Enable CPU offloading
 ```
 
-The script will make one prediction for every sequence in the fasta file. Multimers can be predicted and should be entered in the fasta file as a single sequence, with chains seprated by a ":" character.
+The command will make one prediction for every sequence in the fasta file. Multimers can be predicted and should be entered in the fasta file as a single sequence, with chains seprated by a ":" character.
 
 By default, predictions will be batched together so that shorter sequences are predicted simultaneously. This can be disabled by setting `--max-tokens-per-batch=0`. Batching can significantly improve prediction speed on shorter sequences.
 
 The `--cpu-offload` flag can be useful for making predictions on longer sequences. It will attempt to offload some parameters to the CPU RAM, rather than storing on GPU.
 
-
 ### Compute embeddings in bulk from FASTA <a name="bulk_fasta"></a>
 
-We provide a script that efficiently extracts embeddings in bulk from a FASTA file.
-A cuda device is optional and will be auto-detected.
+We provide a command line interface (`esm-extract`) that efficiently extracts embeddings in bulk for a FASTA file from the ESM:
+```
+usage: esm-extract [-h] [--toks_per_batch TOKS_PER_BATCH]
+                   [--repr_layers REPR_LAYERS [REPR_LAYERS ...]] --include
+                   {mean,per_tok,bos,contacts}
+                   [{mean,per_tok,bos,contacts} ...]
+                   [--truncation_seq_length TRUNCATION_SEQ_LENGTH]
+                   model_location fasta_file output_dir
+
+Extract per-token representations and model outputs for sequences in a FASTA
+file
+
+positional arguments:
+  model_location        PyTorch model file OR name of pretrained model to
+                        download (see README for models)
+  fasta_file            FASTA file on which to extract representations
+  output_dir            output directory for extracted representations
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --toks_per_batch TOKS_PER_BATCH
+                        maximum batch size
+  --repr_layers REPR_LAYERS [REPR_LAYERS ...]
+                        layers indices from which to extract representations
+                        (0 to num_layers, inclusive)
+  --include {mean,per_tok,bos,contacts} [{mean,per_tok,bos,contacts} ...]
+                        specify which representations to return
+  --truncation_seq_length TRUNCATION_SEQ_LENGTH
+                        truncate sequences longer than the given value
+```
+
 The following commands allow the extraction of the final-layer embedding for a FASTA file from the ESM-2 model:
 
 ```bash
@@ -268,6 +304,8 @@ esm-extract esm2_t33_650M_UR50D examples/data/some_proteins.fasta \
 python scripts/extract.py esm2_t33_650M_UR50D examples/data/some_proteins.fasta \
   examples/data/some_proteins_emb_esm2 --repr_layers 0 32 33 --include mean per_tok
 ```
+
+A cuda device is optional and will be auto-detected.
 
 Directory `some_proteins_emb_esm2/` now contains one `.pt` file per FASTA sequence; use `torch.load()` to load them.
 `scripts/extract.py` has flags that determine what's included in the `.pt` file:
@@ -333,65 +371,6 @@ distribution for sequence sampling. Higher sampling temperatures yield more
 diverse sequences but likely with lower native sequence recovery.
 The default sampling temperature is 1. To optimize for native sequence
 recovery, we recommend sampling with low temperature such as 1e-6.
-
-### Command-line interface <a name="cli"></a>
-We provide a command line interface for extraction of embeddings from ESM or prediction of structures in bulk from a FASTA file using ESMFold.
-```
-usage: esm-extract [-h] [--toks_per_batch TOKS_PER_BATCH]
-                   [--repr_layers REPR_LAYERS [REPR_LAYERS ...]] --include
-                   {mean,per_tok,bos,contacts}
-                   [{mean,per_tok,bos,contacts} ...]
-                   [--truncation_seq_length TRUNCATION_SEQ_LENGTH]
-                   model_location fasta_file output_dir
-
-Extract per-token representations and model outputs for sequences in a FASTA
-file
-
-positional arguments:
-  model_location        PyTorch model file OR name of pretrained model to
-                        download (see README for models)
-  fasta_file            FASTA file on which to extract representations
-  output_dir            output directory for extracted representations
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --toks_per_batch TOKS_PER_BATCH
-                        maximum batch size
-  --repr_layers REPR_LAYERS [REPR_LAYERS ...]
-                        layers indices from which to extract representations
-                        (0 to num_layers, inclusive)
-  --include {mean,per_tok,bos,contacts} [{mean,per_tok,bos,contacts} ...]
-                        specify which representations to return
-  --truncation_seq_length TRUNCATION_SEQ_LENGTH
-                        truncate sequences longer than the given value
-```
-```
-usage: esm-fold [-h] -i FASTA -o PDB [--num-recycles NUM_RECYCLES]
-                [--max-tokens-per-batch MAX_TOKENS_PER_BATCH]
-                [--chunk-size CHUNK_SIZE] [--cpu-only] [--cpu-offload]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -i FASTA, --fasta FASTA
-                        Path to input FASTA file
-  -o PDB, --pdb PDB     Path to output PDB directory
-  --num-recycles NUM_RECYCLES
-                        Number of recycles to run. Defaults to number used in
-                        training (4).
-  --max-tokens-per-batch MAX_TOKENS_PER_BATCH
-                        Maximum number of tokens per gpu forward-pass. This
-                        will group shorter sequences together for batched
-                        prediction. Lowering this can help with out of memory
-                        issues, if these occur on short sequences.
-  --chunk-size CHUNK_SIZE
-                        Chunks axial attention computation to reduce memory
-                        usage from O(L^2) to O(L). Equivalent to running a for
-                        loop over chunks of of each dimension. Lower values
-                        will result in lower memory usage at the cost of
-                        speed. Recommended values: 128, 64, 32. Default: None.
-  --cpu-only            CPU only
-  --cpu-offload         Enable CPU offloading
-```
 
 #### Scoring sequences
 To score the conditional log-likelihoods for sequences conditioned on a given
