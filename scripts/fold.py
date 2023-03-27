@@ -74,7 +74,7 @@ def create_batched_sequence_datasest(
     yield batch_headers, batch_sequences
 
 
-if __name__ == "__main__":
+def create_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-i",
@@ -114,8 +114,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--cpu-only", help="CPU only", action="store_true")
     parser.add_argument("--cpu-offload", help="Enable CPU offloading", action="store_true")
-    args = parser.parse_args()
+    return parser
 
+
+def run(args):
     if not args.fasta.exists():
         raise FileNotFoundError(args.fasta)
 
@@ -187,3 +189,12 @@ if __name__ == "__main__":
                 f"pTM {ptm:0.3f} in {time_string}. "
                 f"{num_completed} / {num_sequences} completed."
             )
+
+
+def main():
+    parser = create_parser()
+    args = parser.parse_args()
+    run(args)
+
+if __name__ == "__main__":
+    main()
