@@ -4,30 +4,47 @@
 # LICENSE file in the root directory of this source tree.
 import typing as T
 from dataclasses import dataclass
+from functools import partial
 
 import torch
 import torch.nn as nn
-from openfold.data.data_transforms import make_atom14_masks
-from openfold.np import residue_constants
-from openfold.utils.loss import compute_predicted_aligned_error, compute_tm
 from torch import nn
 from torch.nn import LayerNorm
 
 import esm
 from esm import Alphabet
 from esm.esmfold.v1.categorical_mixture import categorical_lddt
-from esm.esmfold.v1.trunk import FoldingTrunk, FoldingTrunkConfig
 from esm.esmfold.v1.misc import (
     batch_encode_sequences,
     collate_dense_tensors,
     output_to_pdb,
 )
+from esm.esmfold.v1.trunk import FoldingTrunk, FoldingTrunkConfig
+from openfold.data.data_transforms import make_atom14_masks
+from openfold.np import residue_constants
+from openfold.utils.loss import compute_predicted_aligned_error, compute_tm
 
 
 @dataclass
 class ESMFoldConfig:
     trunk: T.Any = FoldingTrunkConfig()
     lddt_head_hid_dim: int = 128
+
+
+load_fn = esm.pretrained.load_model_and_alphabet
+esm_registry = {
+    "esm2_8M": partial(load_fn, "esm2_t6_8M_UR50D_500K"),
+    "esm2_8M_270K": esm.pretrained.esm2_t6_8M_UR50D,
+    "esm2_35M": partial(load_fn, "esm2_t12_35M_UR50D_500K"),
+    "esm2_35M_270K": esm.pretrained.esm2_t12_35M_UR50D,
+    "esm2_150M": partial(load_fn, "esm2_t30_150M_UR50D_500K"),
+    "esm2_150M_270K": partial(load_fn, "esm2_t30_150M_UR50D_270K"),
+    "esm2_650M": esm.pretrained.esm2_t33_650M_UR50D,
+    "esm2_650M_270K": partial(load_fn, "esm2_t33_650M_270K_UR50D"),
+    "esm2_3B": esm.pretrained.esm2_t36_3B_UR50D,
+    "esm2_3B_270K": partial(load_fn, "esm2_t36_3B_UR50D_500K"),
+    "esm2_15B": esm.pretrained.esm2_t48_15B_UR50D,
+}
 
 
 class ESMFold(nn.Module):
@@ -39,7 +56,7 @@ class ESMFold(nn.Module):
 
         self.distogram_bins = 64
 
-        self.esm, self.esm_dict = esm.pretrained.esm2_t36_3B_UR50D()
+        self.esm, self.esm_dict = esm_registry.get(cfg.esm_type)()
 
         self.esm.requires_grad_(False)
         self.esm.half()
@@ -58,6 +75,13 @@ class ESMFold(nn.Module):
             nn.ReLU(),
             nn.Linear(c_s, c_s),
         )
+        if cfg.use_esm_attn_map:
+            self.esm_z_mlp = nn.Sequential(
+                LayerNorm(self.esm_attns),
+                nn.Linear(self.esm_attns, c_z),
+                nn.ReLU(),
+                nn.Linear(c_z, c_z),
+            )
 
         # 0 is padding, N is unknown residues, N + 1 is mask.
         self.n_tokens_embed = residue_constants.restype_num + 3
@@ -82,14 +106,18 @@ class ESMFold(nn.Module):
     @staticmethod
     def _af2_to_esm(d: Alphabet):
         # Remember that t is shifted from residue_constants by 1 (0 is padding).
-        esm_reorder = [d.padding_idx] + [d.get_idx(v) for v in residue_constants.restypes_with_x]
+        esm_reorder = [d.padding_idx] + [
+            d.get_idx(v) for v in residue_constants.restypes_with_x
+        ]
         return torch.tensor(esm_reorder)
 
     def _af2_idx_to_esm_idx(self, aa, mask):
         aa = (aa + 1).masked_fill(mask != 1, 0)
         return self.af2_to_esm[aa]
 
-    def _compute_language_model_representations(self, esmaa: torch.Tensor) -> torch.Tensor:
+    def _compute_language_model_representations(
+        self, esmaa: torch.Tensor
+    ) -> torch.Tensor:
         """Adds bos/eos tokens for the language model, since the structure module doesn't use these."""
         batch_size = esmaa.size(0)
 
@@ -103,11 +131,18 @@ class ESMFold(nn.Module):
         res = self.esm(
             esmaa,
             repr_layers=range(self.esm.num_layers + 1),
-            need_head_weights=False,
+            need_head_weights=self.cfg.use_esm_attn_map,
         )
-        esm_s = torch.stack([v for _, v in sorted(res["representations"].items())], dim=2)
+        esm_s = torch.stack(
+            [v for _, v in sorted(res["representations"].items())], dim=2
+        )
         esm_s = esm_s[:, 1:-1]  # B, L, nLayers, C
-        return esm_s
+        esm_z = (
+            res["attentions"].permute(0, 4, 3, 1, 2).flatten(3, 4)[:, 1:-1, 1:-1, :]
+            if self.cfg.use_esm_attn_map
+            else None
+        )
+        return esm_s, esm_z
 
     def _mask_inputs_to_esm(self, esmaa, pattern):
         new_esmaa = esmaa.clone()
@@ -153,24 +188,30 @@ class ESMFold(nn.Module):
         if masking_pattern is not None:
             esmaa = self._mask_inputs_to_esm(esmaa, masking_pattern)
 
-        esm_s = self._compute_language_model_representations(esmaa)
+        esm_s, esm_z = self._compute_language_model_representations(esmaa)
 
         # Convert esm_s to the precision used by the trunk and
         # the structure module. These tensors may be a lower precision if, for example,
         # we're running the language model in fp16 precision.
         esm_s = esm_s.to(self.esm_s_combine.dtype)
-
         esm_s = esm_s.detach()
 
         # === preprocessing ===
         esm_s = (self.esm_s_combine.softmax(0).unsqueeze(0) @ esm_s).squeeze(2)
 
         s_s_0 = self.esm_s_mlp(esm_s)
-        s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
+        if self.cfg.use_esm_attn_map:
+            esm_z = esm_z.to(self.esm_s_combine.dtype)
+            esm_z = esm_z.detach()
+            s_z_0 = self.esm_z_mlp(esm_z)
+        else:
+            s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
 
         s_s_0 += self.embedding(aa)
 
-        structure: dict = self.trunk(s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles)
+        structure: dict = self.trunk(
+            s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles
+        )
         # Documenting what we expect:
         structure = {
             k: v
@@ -221,13 +262,17 @@ class ESMFold(nn.Module):
         structure["ptm"] = torch.stack(
             [
                 compute_tm(
-                    batch_ptm_logits[None, :sl, :sl], max_bins=31, no_bins=self.distogram_bins
+                    batch_ptm_logits[None, :sl, :sl],
+                    max_bins=31,
+                    no_bins=self.distogram_bins,
                 )
                 for batch_ptm_logits, sl in zip(ptm_logits, seqlen)
             ]
         )
         structure.update(
-            compute_predicted_aligned_error(ptm_logits, max_bin=31, no_bins=self.distogram_bins)
+            compute_predicted_aligned_error(
+                ptm_logits, max_bin=31, no_bins=self.distogram_bins
+            )
         )
 
         return structure
@@ -282,7 +327,9 @@ class ESMFold(nn.Module):
             num_recycles=num_recycles,
         )
 
-        output["atom37_atom_exists"] = output["atom37_atom_exists"] * linker_mask.unsqueeze(2)
+        output["atom37_atom_exists"] = output[
+            "atom37_atom_exists"
+        ] * linker_mask.unsqueeze(2)
 
         output["mean_plddt"] = (output["plddt"] * output["atom37_atom_exists"]).sum(
             dim=(1, 2)

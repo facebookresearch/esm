@@ -17,8 +17,8 @@ from esm.model.esm2 import ESM2
 
 def _has_regression_weights(model_name):
     """Return whether we expect / require regression weights;
-    Right now that is all models except ESM-1v and ESM-IF"""
-    return not ("esm1v" in model_name or "esm_if" in model_name)
+    Right now that is all models except ESM-1v, ESM-IF, and partially trained ESM2 models"""
+    return not ("esm1v" in model_name or "esm_if" in model_name or "270K" in model_name or "500K" in model_name)
 
 
 def load_model_and_alphabet(model_name):
@@ -418,3 +418,135 @@ def esmfold_v1():
     """
     import esm.esmfold.v1.pretrained
     return esm.esmfold.v1.pretrained.esmfold_v1()
+
+def esmfold_structure_module_only_8M():
+    """
+    ESMFold baseline model using 8M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 500K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_8M()
+
+
+def esmfold_structure_module_only_8M_270K():
+    """
+    ESMFold baseline model using 8M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 270K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_8M_270K()
+
+
+def esmfold_structure_module_only_35M():
+    """
+    ESMFold baseline model using 35M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 500K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_35M()
+
+
+def esmfold_structure_module_only_35M_270K():
+    """
+    ESMFold baseline model using 35M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 270K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_35M_270K()
+
+
+def esmfold_structure_module_only_150M():
+    """
+    ESMFold baseline model using 150M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 500K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_150M()
+
+
+def esmfold_structure_module_only_150M_270K():
+    """
+    ESMFold baseline model using 150M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 270K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_150M_270K()
+
+
+def esmfold_structure_module_only_650M():
+    """
+    ESMFold baseline model using 650M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 500K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_650M()
+
+
+def esmfold_structure_module_only_650M_270K():
+    """
+    ESMFold baseline model using 650M ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 270K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_650M_270K()
+
+
+def esmfold_structure_module_only_3B():
+    """
+    ESMFold baseline model using 3B ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 500K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_3B()
+
+
+def esmfold_structure_module_only_3B_270K():
+    """
+    ESMFold baseline model using 3B ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 270K updates.
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_3B_270K()
+
+
+def esmfold_structure_module_only_15B():
+    """
+    ESMFold baseline model using 15B ESM-2, 0 folding blocks.
+    ESM-2 here is trained out to 270K updates.
+    The 15B parameter ESM-2 was not trained out to 500K updates
+    This is a model designed to test the capabilities of the language model
+    when ablated for number of parameters in the language model.
+    See table S1 in (Lin et al, 2022).
+    """
+    import esm.esmfold.v1.pretrained
+    return esm.esmfold.v1.pretrained.esmfold_structure_module_only_15B()
