@@ -31,8 +31,8 @@ This dataframe has 10 columns:
 - `is_fragment` indicates whether the protein sequence is identified as a fragment in the MGnify90 sequence database.
 - `sequenceChecksum` is the CRC64 hash of the sequence. Can be used for cheaper lookups.
 - `esmfold_version` is the version of ESMFold, matching the model accessible as `esm.pretrained.esmfold_v{0,1}`
-- `atlas_version` is the Atlas version where this structure first appeared. Note: some of the predictions appearing for the first time in `v0` are also part of Atlas.
-- `sequence_dbs` is the metagenomic source dbs which this structure is part of, as `MGnify90_2022_05`, comma-separated if exists in more than 1 release, as `MGnify90_2022_05,MGnify90_2023_02`.
+- `atlas_version` is the Atlas version where this structure first appeared. Note: some of the predictions appearing for the first time in `v0` are also part of Atlas `v2023_02`.
+- `sequence_dbs` is the metagenomic source databases where this structure is part of, as `MGnify90_2022_05`, comma-separated if it exists in more than one release, as `MGnify90_2022_05,MGnify90_2023_02`.
 
 Proteins longer than 1280 residues were not folded. To select only the records without missing structures use  `df[~df.plddt.isna()]`.
 
