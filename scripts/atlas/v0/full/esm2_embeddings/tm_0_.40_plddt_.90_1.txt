@@ -1,0 +1,1 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_0_.40_plddt_.90_1_00.npz

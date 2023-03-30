@@ -1,0 +1,16 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_00.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_01.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_02.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_03.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_04.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_05.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_06.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_07.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_08.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_09.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_10.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_11.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_12.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_13.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_14.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.50_.60_plddt_.80_.90_15.npz

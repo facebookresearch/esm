@@ -3,3 +3,4 @@ https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.60_.70_plddt_
 https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.60_.70_plddt_.60_.70_02.tar.gz
 https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.60_.70_plddt_.60_.70_03.tar.gz
 https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.60_.70_plddt_.60_.70_04.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.60_.70_plddt_.60_.70_05.tar.gz
