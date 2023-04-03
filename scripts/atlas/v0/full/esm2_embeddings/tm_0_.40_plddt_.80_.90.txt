@@ -1,0 +1,2 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_0_.40_plddt_.80_.90_00.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_0_.40_plddt_.80_.90_01.npz

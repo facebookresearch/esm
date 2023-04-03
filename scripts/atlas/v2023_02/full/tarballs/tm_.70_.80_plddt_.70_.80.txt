@@ -8,3 +8,6 @@ https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_
 https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_.70_.80_07.tar.gz
 https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_.70_.80_08.tar.gz
 https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_.70_.80_09.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_.70_.80_10.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_.70_.80_11.tar.gz
+https://dl.fbaipublicfiles.com/esmatlas/v2023_02/full/tarballs/tm_.70_.80_plddt_.70_.80_12.tar.gz

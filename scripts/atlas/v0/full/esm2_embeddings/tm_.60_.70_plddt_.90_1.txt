@@ -1,0 +1,6 @@
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.60_.70_plddt_.90_1_00.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.60_.70_plddt_.90_1_01.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.60_.70_plddt_.90_1_02.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.60_.70_plddt_.90_1_03.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.60_.70_plddt_.90_1_04.npz
+https://dl.fbaipublicfiles.com/esmatlas/v0/full/lm_reps/tm_.60_.70_plddt_.90_1_05.npz

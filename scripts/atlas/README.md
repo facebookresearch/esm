@@ -19,10 +19,10 @@ The high confidence structures are around 1TB in size.
 
 The full database is available as PDB structures and is 15TB in size for `v0`.
 
-As an entrypoint into the database, the metadata is available as a small (~25 GB) file [metadata.sqlite](https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc1.sqlite.gz) / [metadata.parquet](https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc1.parquet).
+As an entrypoint into the database, the metadata is available as a small (~25 GB) file [metadata.sqlite](https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc2.sqlite.gz) / [metadata.parquet](https://dl.fbaipublicfiles.com/esmatlas/v2023_02/metadata-rc2.parquet).
 You can load the file with pandas: `df = pd.read_parquet('metadata.parquet')`.
-The dataframe has 773,846,840 records, and the file size is around 25GB.
-This dataframe has 9 columns:
+The dataframe has 773,846,840 records, and the file size is around 16GB.
+This dataframe has 10 columns:
 - `id` is the MGnify ID
 - `ptm` is the predicted TM score
 - `plddt` is the predicted average lddt
@@ -32,6 +32,7 @@ This dataframe has 9 columns:
 - `sequenceChecksum` is the CRC64 hash of the sequence. Can be used for cheaper lookups.
 - `esmfold_version` is the version of ESMFold, matching the model accessible as `esm.pretrained.esmfold_v{0,1}`
 - `atlas_version` is the Atlas version where this structure first appeared. Note: some of the predictions appearing for the first time in `v0` are also part of Atlas `v2023_02`.
+- `sequence_dbs` is the metagenomic source databases where this structure is part of, as `MGnify90_2022_05`, comma-separated if it exists in more than one release, as `MGnify90_2022_05,MGnify90_2023_02`.
 
 Proteins longer than 1280 residues were not folded. To select only the records without missing structures use  `df[~df.plddt.isna()]`.
 
@@ -52,11 +53,9 @@ The data are given as bundles of 500k or 1M structures each.
 
 * **Bulk Predicted structures**: see `{v0,v2023_02}/full/tarballs/`. The URLs for all shards of a single bundle will be in e.g. [v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt](v0/full/tarballs/tm_.60_.70_plddt_.80_.90.txt). The URLs for all tarballs across bins and their shards is available under `{v0,v2023_02}/full/tarballs.txt`.
 * **Foldseek DBs** `{v0,v2023_02}/full/foldseekdb/` and `{v0,v2023_02}/full/foldseekdb.txt`
-* **Bulk Embeddings (NEW - coming soon)** under `{v0,v2023_02}/full/esm2_embeddings/` and `{v0,v2023_02}/full/esm2_embeddings.txt`.
+* **Bulk Embeddings (NEW)** under `{v0,v2023_02}/full/esm2_embeddings/` and `{v0,v2023_02}/full/esm2_embeddings.txt`.
   * Note: Individual LM embeddings can be fetched via the API endpoint `/fetchEmbedding/ESM2/:id` as described on <https://esmatlas.com/about#api>
 
-Note as of March 16, 2022: We expect to release bulk embeddings, and limited backfill of v2023_02 structures and foldseekdb, by adding URLs to the respective files.
-At that time we will update the metadata.sqlite file as well.
 
 # High confidence MGnify30 structures
 
