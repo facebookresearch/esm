@@ -85,3 +85,16 @@ If you use any of the ESM Metagenomic Atlas data in your work, please cite
   url={https://doi.org/10.1101/2022.07.20.500902},
 }
 ```
+
+## License <a name="license"></a>
+
+ESM Metagenomic Atlas (also referred to as “ESM Metagenomic Structure Atlas” or “ESM Atlas”) data is available under a CC BY 4.0 license for academic and commercial use. Copyright (c) Meta Platforms, Inc. All Rights Reserved. Use of the ESM Metagenomic Atlas data is subject to the Meta Open Source [Terms of Use](https://opensource.fb.com/legal/terms/) and [Privacy Policy](https://opensource.fb.com/legal/privacy/).
+
+If you make use of a structure predicted by ESMFold, please cite the following paper:
+
+```
+Zeming Lin, Halil Akin, Roshan Rao, Brian Hie, Zhongkai Zhu, Wenting Lu, Nikita Smetanin, Robert Verkuil, Ori Kabeli, Yaniv Shmueli, Allan dos Santos Costa, Maryam Fazel-Zarandi, Tom Sercu, Sal Candido, Alexander Rives.
+Evolutionary-scale prediction of atomic level protein structure with a language model.
+Science 379, 6637 (2023).
+https://www.science.org/doi/abs/10.1126/science.ade2574
+```
