@@ -1,10 +1,18 @@
-Here we provide the extra materials associated with the paper
+Here we provide the data associated with the paper
 ["Language models generalize beyond natural proteins" (2022)](https://doi.org/10.1101/2022.12.21.521521) by 
 Robert Verkuil\*, Ori Kabeli\*, Yilun Du, Basile I. M. Wicky, Lukas F. Milles, Justas Dauparas, David Baker, Sergey Ovchinnikov, Tom Sercu, and Alexander Rives.
 
-## `data.csv`, [data.hdf5](https://dl.fbaipublicfiles.com/fair-esm/design_lm_data_2022_v1.hdf5)
-Load scalar data in `data.csv` with `pd.read_csv`.
-For long-form data, download `data.hdf5` from [this link](https://dl.fbaipublicfiles.com/fair-esm/design_lm_data_2022_v1.hdf5) and load with `pd.read_hdf`.
+## Free Generations (Section 3)
+Designs from the Free Generations section of the paper (Section 3) along with their statistics and pdb files can be found at [free_generations_full.db](https://dl.fbaipublicfiles.com/fair-esm/examples/lm_design/free_generations_full.db) and can be loaded using:
+```
+import pandas as pd; pd.read_sql('free_generations_full', 'sqlite:///free_generations_full.db')
+```
+
+
+## Designs with wetlab validation (Section 2 and 3)
+* [data.csv](./data.csv) - Load scalar data in `data.csv` with `pd.read_csv`.
+* [data.hdf5](https://dl.fbaipublicfiles.com/fair-esm/examples/lm_design/design_lm_data_2022_v1.hdf5)
+For long-form data, download `data.hdf5` from [this link](https://dl.fbaipublicfiles.com/fair-esm/examples/lm_design/design_lm_data_2022_v1.hdf5) and load with `pd.read_hdf`.
 ```
 # Design information
 Design ID - {F,G}{0-267} unique identifier for each (LM or AlphaFold) design evaluated. 8 Nan values correspond to 8 ground truth sequences tested.
@@ -46,6 +54,10 @@ ID's of sequences removed due to being annotateed "artificial sequence" by the U
 ## `uniref90_jackhmmer_purge_ids.txt`
 ID's of sequences removed by Jackhmmer search (`-n 1 --seed 0`) of UniRef90 when given the de novo target set as queries.
 
+## Minimal structure projection
+A small new model head was constructed on top of ESM2, which is [this linear projection layer](https://dl.fbaipublicfiles.com/fair-esm/examples/lm_design/linear_projection_model.pt).
+For a given sequence the projection measures the compatibility of the internal representations of the language model with a structure.
+The linear projection layer is automatically downloaded when running the `lm_design` code.
 
 ## Reference
 
