@@ -15,7 +15,7 @@ Bulk download, blog post and the resources provided on the Atlas website are doc
 
 In December 2022, we released two simultaneous preprints on protein design.
 ["Language models generalize beyond natural proteins"](https://doi.org/10.1101/2022.12.21.521521) uses ESM2 to design de novo proteins. The data associated with the preprint can be found in [scripts/design_lm/](scripts/design_lm/).
-["A high-level programming language for generative protein design"](https://doi.org/10.1101/2022.12.21.521521) uses ESMFold to design proteins according to a high-level programming language.
+["A high-level programming language for generative protein design"](https://doi.org/10.1101/2022.12.21.521526) uses ESMFold to design proteins according to a high-level programming language.
 
 
 
@@ -790,3 +790,5 @@ Additionally, if you would like to use the variant prediction benchmark from Mei
 
 This source code is licensed under the MIT license found in the `LICENSE` file
 in the root directory of this source tree.
+
+ESM Metagenomic Atlas (also referred to as “ESM Metagenomic Structure Atlas” or “ESM Atlas”) data is available under a CC BY 4.0 license for academic and commercial use. Copyright (c) Meta Platforms, Inc. All Rights Reserved. Use of the ESM Metagenomic Atlas data is subject to the Meta Open Source [Terms of Use](https://opensource.fb.com/legal/terms/) and [Privacy Policy](https://opensource.fb.com/legal/privacy/).
