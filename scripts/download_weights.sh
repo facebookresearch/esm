@@ -1,3 +1,8 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 #! /bin/sh
 # Usage: bash <repo>/esm/scripts/download_weights.sh /path/to/weights/
 # re run the command to continue downloading incomplete files.
