@@ -1,0 +1,62 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+#
+seed: 0
+num_seqs: 1
+test_mode: False
+allow_missing_residue_coords: True
+suppress_AA: 'C'
+disable_cuda: False
+cuda_device_idx:  # Set to numberic value to override default GPU device used.
+task: free_generation  # fixedbb or free_generation
+pdb_fn:  # set as empty string when using free_generation
+free_generation_length: 100
+
+tasks:
+  free_generation:
+      num_iter: 170000
+      resample_y_every: 3
+      resample_y_temp: 1
+      stage_fixedbb_args: ${tasks.fixedbb}
+
+
+  fixedbb:
+      num_iter: 170000
+
+      # Accept/Reject
+      accept_reject:
+          energy_cfg:
+              struct_w: 3
+              LM_w: 2
+              ngram_w: 1
+              ngram_orders: [1,2,3]
+          temperature:
+              scheduler: StepLR
+              step_size: 10000
+              gamma: 0.5
+              initial: 8
+
+
+
+# Hydra config
+hydra:
+  job_logging:
+    formatters:
+      colorlog:
+        datefmt: "%m-%d %H:%M:%S"
+    handlers:
+      file:
+        class: logging.FileHandler
+        mode: w
+        filename: logging.l
+      console:
+        class: logging.StreamHandler
+        stream: ext://sys.stdout
+
+  hydra_logging:
+    handlers:
+      console:
+        class: logging.StreamHandler
+        stream: ext://sys.stdout  

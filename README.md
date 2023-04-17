@@ -2,7 +2,7 @@
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
 
-***Update March 2023:*** ESM Atlas was updated to `v2023_02` bringing the number of predicted protein structures from 617 million to a total of 772 million. This update was simultaneous with the MGnify 2023_02 release in collaboration with EBI. We also release pre-computed ESM2 embeddings for the whole Atlas.
+***Update April 2023:*** Code for the two simultaneous preprints on protein design is now released! Code for "Language models generalize beyond natural proteins" is under [examples/lm-design/](examples/lm-design/). Code for "A high-level programming language for generative protein design" is under [examples/protein-programming-language/](examples/protein-programming-language/).
 
 This repository contains code and pre-trained weights for **Transformer protein language models** from the Meta Fundamental AI Research Protein Team (FAIR), including our state-of-the-art [**ESM-2** and **ESMFold**](#esmfold), as well as [**MSA Transformer**](https://www.biorxiv.org/content/10.1101/2021.02.12.430858v1), [**ESM-1v**](#zs_variant) for predicting variant effects and [**ESM-IF1**](#invf) for inverse folding.
 Transformer protein language models were introduced in the [2019 preprint](https://doi.org/10.1101/622803) of the paper ["Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences"](https://doi.org/10.1073/pnas.2016239118).
@@ -10,12 +10,12 @@ ESM-2 outperforms all tested single-sequence protein language models across a ra
 ESMFold harnesses the ESM-2 language model to generate accurate structure predictions end to end directly from the sequence of a protein.
 
 In November 2022, we released `v0` of the [ESM Metagenomic Atlas](https://esmatlas.com), an open atlas of 617 million predicted metagenomic protein structures.
-The Atlas was updated in March 2023 in collaboration with EBI. The new `v2023_02` adds another 150 million predicted structures to the Atlas.
+The Atlas was updated in March 2023 in collaboration with EBI. The new `v2023_02` adds another 150 million predicted structures to the Atlas, as well as pre-computed ESM2 embeddings.
 Bulk download, blog post and the resources provided on the Atlas website are documented [on this README](#atlas).
 
 In December 2022, we released two simultaneous preprints on protein design.
-["Language models generalize beyond natural proteins"](https://doi.org/10.1101/2022.12.21.521521) uses ESM2 to design de novo proteins. The data associated with the preprint can be found in [scripts/design_lm/](scripts/design_lm/).
-["A high-level programming language for generative protein design"](https://doi.org/10.1101/2022.12.21.521526) uses ESMFold to design proteins according to a high-level programming language.
+* "Language models generalize beyond natural proteins" ([PAPER](https://doi.org/10.1101/2022.12.21.521521), [CODE](examples/lm-design/)) uses ESM2 to design de novo proteins. The code and data associated with the preprint can be found [here](examples/lm-design/).
+* "A high-level programming language for generative protein design" ([PAPER](https://doi.org/10.1101/2022.12.21.521526), [CODE](examples/protein-programming-language/)) uses ESMFold to design proteins according to a high-level programming language.
 
 
 
@@ -78,6 +78,7 @@ For transformer protein language models:
 
 <details><summary><b>What's New</b></summary>
 
+- April 2023: Code for the protein design preprints released under [examples/lm-design/](examples/lm-design/).
 - March 2023: We release an update to the ESM Metagenomic Atlas, `v2023_02`. See [website](https://esmatlas.com/) and [bulk download details](#atlas).
 - December 2022: The Meta Fundamental AI Research Protein Team (FAIR) released two simultaneous preprints on protein design:
 ["Language models generalize beyond natural proteins" (Verkuil, Kabeli, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521), and ["A high-level programming language for generative protein design" (Hie, Candido, et al., 2022)](https://doi.org/10.1101/2022.12.21.521521).
