@@ -4,7 +4,10 @@ This repository contains an implementation of the programming language described
 
 ## Tutorial
 
-We have provided a [tutorial notebook][tutorial.ipynb] describing the basics of writing programs and running optimization loops.
+We have provided a [tutorial notebook](tutorial.ipynb) describing the basics of writing programs and running optimization loops.
+The notebook can be run in Colab:
+
+[<img src="https://colab.research.google.com/assets/colab-badge.svg">](https://colab.research.google.com/github/facebookresearch/esm/blob/main/examples/protein-programming-language/tutorial.ipynb)
 
 ## Design programs
 
