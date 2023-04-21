@@ -91,7 +91,7 @@ def batch_encode_sequences(
 
 
 def output_to_pdb(output: T.Dict) -> T.List[str]:
-    """Returns the pbd (file) string from the model given the model output."""
+    """Returns the pdb (file) string from the model given the model output."""
     # atom14_to_atom37 must be called first, as it fails on latest numpy if the
     # input is a numpy array. It will work if the input is a torch tensor.
     final_atom_positions = atom14_to_atom37(output["positions"][-1], output)
