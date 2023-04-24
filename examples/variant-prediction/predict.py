@@ -32,10 +32,10 @@ def remove_insertions(sequence: str) -> str:
 def process_sequence(sequence: str, lowercase_type="nonfocus") -> str:
     if lowercase_type == "nonfocus":
         return sequence.upper()
-    elif lowercase_type == "insertions":
+    elif lowercase_type == "insertion":
         return remove_insertions(sequence)
     else:
-        raise ValueError()
+        raise ValueError(f"lowercase_type should be nonfocus or insert but got {lowercase_type}")
 
 
 def read_msa(filename: str, nseq: int, lowercase_type="nonfocus") -> List[Tuple[str, str]]:
