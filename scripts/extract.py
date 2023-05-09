@@ -6,6 +6,7 @@
 
 import argparse
 import pathlib
+import os
 
 import torch
 
@@ -74,7 +75,8 @@ def run(args):
     dataset = FastaBatchedDataset.from_file(args.fasta_file)
     batches = dataset.get_batch_indices(args.toks_per_batch, extra_toks_per_seq=1)
     data_loader = torch.utils.data.DataLoader(
-        dataset, collate_fn=alphabet.get_batch_converter(args.truncation_seq_length), batch_sampler=batches
+        dataset, collate_fn=alphabet.get_batch_converter(args.truncation_seq_length), batch_sampler=batches,
+        num_workers=2
     )
     print(f"Read {args.fasta_file} with {len(dataset)} sequences")
 
@@ -85,10 +87,24 @@ def run(args):
     repr_layers = [(i + model.num_layers + 1) % (model.num_layers + 1) for i in args.repr_layers]
 
     with torch.no_grad():
-        for batch_idx, (labels, strs, toks) in enumerate(data_loader):
+        for batch_idx, (labels, strs, toks) in list(enumerate(data_loader)):
             print(
                 f"Processing {batch_idx + 1} of {len(batches)} batches ({toks.size(0)} sequences)"
             )
+
+            # If every data point in the batch already exists on file, skip this batch.
+            all_done = True
+            for label in labels:
+              if not os.path.exists(args.output_dir / f"{label}.pt"):
+                all_done = False
+                break
+
+            # If we have completed all of the files in this batch already, skip
+            # computing this batch of data.
+            if all_done:
+              print(f"Skipping batch {batch_idx}")
+              continue
+
             if torch.cuda.is_available() and not args.nogpu:
                 toks = toks.to(device="cuda", non_blocking=True)
 
@@ -103,9 +119,17 @@ def run(args):
 
             for i, label in enumerate(labels):
                 args.output_file = args.output_dir / f"{label}.pt"
+
+                # Added logic for skipping already computed embeddings within a
+                # given batch.
+                if os.path.exists(args.output_file):
+                  print(f"Skipping embedding file {args.output_file}")
+                  continue
+
                 args.output_file.parent.mkdir(parents=True, exist_ok=True)
                 result = {"label": label}
                 truncate_len = min(args.truncation_seq_length, len(strs[i]))
+
                 # Call clone on tensors to ensure tensors are not views into a larger representation
                 # See https://github.com/pytorch/pytorch/issues/1995
                 if "per_tok" in args.include:
