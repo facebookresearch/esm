@@ -31,7 +31,6 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing
-from torch_scatter import scatter_add, scatter
 
 def tuple_size(tp):
     return tuple([0 if a is None else a.size() for a in tp])
@@ -437,6 +436,9 @@ class GVPConvLayer(nn.Module):
                 self.edge_dropout(edge_attr_dh)))
         
         if autoregressive_x is not None:
+            # Guarding this import here to remove the dependency on torch_scatter, since this isn't used
+            # in ESM-IF1
+            from torch_scatter import scatter_add
             src, dst = edge_index
             mask = src < dst
             edge_index_forward = edge_index[:, mask]
@@ -448,7 +450,7 @@ class GVPConvLayer(nn.Module):
                 self.conv(x, edge_index_forward, edge_attr_forward),
                 self.conv(autoregressive_x, edge_index_backward, edge_attr_backward)
             )
-            
+                        
             count = scatter_add(torch.ones_like(dst), dst,
                         dim_size=dh[0].size(0)).clamp(min=1).unsqueeze(-1)
             
