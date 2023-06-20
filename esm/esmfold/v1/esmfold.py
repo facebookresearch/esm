@@ -13,6 +13,7 @@ from openfold.utils.loss import compute_predicted_aligned_error, compute_tm
 from torch import nn
 from torch.nn import LayerNorm
 
+from esm_custom.esm.pretrained import load_model_and_alphabet_hub
 import esm
 from esm import Alphabet
 from esm.esmfold.v1.categorical_mixture import categorical_lddt
@@ -23,7 +24,8 @@ from esm.esmfold.v1.misc import (
     output_to_pdb,
 )
 
-RepresentationKey = Literal["esm_s_A", "esm_s_B","s_s_0_A","s_s_0_B", "esm_s_B_avg", "s_s_avg"]
+RepresentationKey = Literal["esm_s_A", "esm_s_B", "s_s_0_A", "s_s_0_B", "esm_s_B_avg", "s_s_avg"]
+
 
 @dataclass
 class ESMFoldConfig:
@@ -32,7 +34,7 @@ class ESMFoldConfig:
 
 
 class ESMFold(nn.Module):
-    def __init__(self, esmfold_config=None, **kwargs):
+    def __init__(self, esmfold_config=None, use_sparse=False, rank=None, **kwargs):
         super().__init__()
 
         self.cfg = esmfold_config if esmfold_config else ESMFoldConfig(**kwargs)
@@ -40,7 +42,9 @@ class ESMFold(nn.Module):
 
         self.distogram_bins = 64
 
-        self.esm, self.esm_dict = esm.pretrained.esm2_t36_3B_UR50D()
+        self.esm, self.esm_dict = load_model_and_alphabet_hub(
+            "esm2_t36_3B_UR50D", use_sparse=use_sparse, rank=rank
+        )
 
         self.esm.requires_grad_(False)
         self.esm.half()
@@ -67,7 +71,10 @@ class ESMFold(nn.Module):
         self.mask_idx = self.n_tokens_embed - 1
         self.embedding = nn.Embedding(self.n_tokens_embed, c_s, padding_idx=0)
 
-        self.trunk = FoldingTrunk(**cfg.trunk)
+        if isinstance(cfg.trunk, FoldingTrunkConfig):
+            self.trunk = FoldingTrunk(**cfg.trunk.__dict__)
+        else:
+            self.trunk = FoldingTrunk(**cfg.trunk)
 
         self.distogram_head = nn.Linear(c_z, self.distogram_bins)
         self.ptm_head = nn.Linear(c_z, self.distogram_bins)
@@ -122,7 +129,7 @@ class ESMFold(nn.Module):
         residx: T.Optional[torch.Tensor] = None,
         masking_pattern: T.Optional[torch.Tensor] = None,
         num_recycles: T.Optional[int] = None,
-        representation_key: RepresentationKey = None
+        representation_key: RepresentationKey = None,
     ):
         """Runs a forward pass given input tokens. Use `model.infer` to
         run inference from a sequence.
@@ -163,7 +170,7 @@ class ESMFold(nn.Module):
         esm_s = esm_s.to(self.esm_s_combine.dtype)
         if representation_key == "esm_s_A":
             return {"esm_s_A": esm_s}
-        
+
         esm_s = esm_s.detach()
 
         # === preprocessing ===
@@ -174,14 +181,14 @@ class ESMFold(nn.Module):
             return {"esm_s_B_avg": esm_s.mean(1)}
 
         s_s_0 = self.esm_s_mlp(esm_s)
-        
+
         if representation_key == "s_s_0_A":
             return {"s_s_0_A": s_s_0}
-        
+
         s_z_0 = s_s_0.new_zeros(B, L, L, self.cfg.trunk.pairwise_state_dim)
 
         s_s_0 += self.embedding(aa)
-        
+
         if representation_key == "s_s_0_B":
             return {"s_s_0_B": s_s_0}
         structure: dict = self.trunk(s_s_0, s_z_0, aa, residx, mask, no_recycles=num_recycles)
@@ -257,7 +264,7 @@ class ESMFold(nn.Module):
         num_recycles: T.Optional[int] = None,
         residue_index_offset: T.Optional[int] = 512,
         chain_linker: T.Optional[str] = "G" * 25,
-        representation_key: RepresentationKey = None
+        representation_key: RepresentationKey = None,
     ):
         """Runs a forward pass given input sequences.
 
@@ -297,13 +304,13 @@ class ESMFold(nn.Module):
             residx=residx,
             masking_pattern=masking_pattern,
             num_recycles=num_recycles,
-            representation_key = representation_key
+            representation_key=representation_key,
         )
 
         # output["atom37_atom_exists"] = output["atom37_atom_exists"] * linker_mask.unsqueeze(2)
- 
+
         # output["mean_plddt"] = (output["plddt"] * output["atom37_atom_exists"]).sum(
-            # dim=(1, 2)
+        # dim=(1, 2)
         # ) / output["atom37_atom_exists"].sum(dim=(1, 2))
         # output["chain_index"] = chain_index
 
