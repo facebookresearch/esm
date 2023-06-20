@@ -59,7 +59,7 @@ def _download_model_and_regression_data(model_name):
     return model_data, regression_data
 
 
-def load_model_and_alphabet_hub(model_name, use_sparse, rank):
+def load_model_and_alphabet_hub(model_name, use_sparse: bool = False, rank: int = 4):
     model_data, regression_data = _download_model_and_regression_data(model_name)
     return load_model_and_alphabet_core(model_name, model_data, regression_data, use_sparse, rank)
 
