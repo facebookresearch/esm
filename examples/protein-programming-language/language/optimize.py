@@ -20,9 +20,12 @@ class MetropolisHastingsState:
     temperature: float
     annealing_rate: float
     num_steps: int
-    energy: float
+    candidate_energy: float
+    candidate_energy_term_fn_values: list
+    current_energy: float
+    current_energy_term_fn_values: list
     best_energy: float
-    energy_term_fn_values: list
+    best_energy_term_fn_values: list
 
 
 def metropolis_hastings_step(
@@ -39,21 +42,21 @@ def metropolis_hastings_step(
     folding_output = folding_callback.fold(sequence, residue_indices)
 
     energy_term_fns = candidate.get_energy_term_functions()
-    energy_term_fn_values = [
+    candidate_energy_term_fn_values = [
         (name, weight, energy_fn(folding_output)) for name, weight, energy_fn in energy_term_fns
     ]
     # TODO(scandido): Log these.
-    energy: float = sum([
-        weight * value for _, weight, value in energy_term_fn_values
-    ])
+    candidate_energy: float = sum(
+        [weight * value for _, weight, value in candidate_energy_term_fn_values]
+    )
 
     accept_candidate = False
-    if state.energy is None:
+    if state.current_energy is None:
         accept_candidate = True
     else:
         # NOTE(scandido): We are minimizing the function here so instead of
         # candidate - current we do -1 * (candidate - current) = -candidate + current.
-        energy_differential: float = -energy + state.energy
+        energy_differential: float = -candidate_energy + state.current_energy
         accept_probability: float = np.clip(
             # NOTE(scandido): We approximate the ratio of transition probabilities from
             # current to candidate vs. candidate to current to be equal, which is
@@ -64,19 +67,26 @@ def metropolis_hastings_step(
         )
         accept_candidate: bool = np.random.uniform() < accept_probability
 
-    if accept_candidate:
-        sequence, _ = candidate.get_sequence_and_set_residue_index_ranges()
-        if verbose:
-            print(f"Accepted {sequence} with energy {energy:.2f}.")
+    if accept_candidate and verbose:
+        print(f"Accepted {sequence} with energy {candidate_energy:.2f}.")
+
+    best = (state.best_energy is None) or candidate_energy < state.best_energy
 
     return MetropolisHastingsState(
         program=candidate if accept_candidate else state.program,
         temperature=temperature,
         annealing_rate=state.annealing_rate,
         num_steps=state.num_steps + 1,
-        energy=energy if accept_candidate else state.energy,
-        best_energy=min(energy, state.energy) if state.energy else energy,
-        energy_term_fn_values=energy_term_fn_values,
+        candidate_energy=candidate_energy,
+        candidate_energy_term_fn_values=candidate_energy_term_fn_values,
+        current_energy=candidate_energy if accept_candidate else state.current_energy,
+        current_energy_term_fn_values=candidate_energy_term_fn_values
+        if accept_candidate
+        else state.current_energy_term_fn_values,
+        best_energy=candidate_energy if best else state.best_energy,
+        best_energy_term_fn_values=candidate_energy_term_fn_values
+        if best
+        else state.best_energy_term_fn_values,
     )
 
 
@@ -96,25 +106,43 @@ def run_simulated_annealing(
         temperature=initial_temperature,
         annealing_rate=annealing_rate,
         num_steps=0,
-        energy=None,
+        candidate_energy=None,
+        candidate_energy_term_fn_values=None,
+        current_energy=None,
+        current_energy_term_fn_values=None,
         best_energy=None,
-        energy_term_fn_values=None,
+        best_energy_term_fn_values=None,
     )
 
     def _generate_table(state):
         table = Table()
         table.add_column("Energy name")
         table.add_column("Weight")
-        table.add_column("Value")
-        if state.energy_term_fn_values is None:
+        table.add_column("Candidate Value")
+        table.add_column("Current Value")
+        table.add_column("Best Value")
+        if state.current_energy_term_fn_values is None:
             return table
-        for name, weight, value in state.energy_term_fn_values:
-            table.add_row(name, f"{weight:.2f}", f"{value:.2f}")
-        table.add_row("Energy", "", f"{state.energy:.2f}")
+        for (name, weight, candidate_value), (_, _, current_value), (_, _, best_value) in zip(
+            state.candidate_energy_term_fn_values,
+            state.current_energy_term_fn_values,
+            state.best_energy_term_fn_values,
+        ):
+            table.add_row(
+                name,
+                f"{weight:.2f}",
+                f"{candidate_value:.2f}",
+                f"{current_value:.2f}",
+                f"{best_value:.2f}",
+            )
         table.add_row(
-            "Iterations", "",
-            f"{state.num_steps} / {total_num_steps}"
+            "Energy",
+            "",
+            f"{state.candidate_energy:.2f}",
+            f"{state.current_energy:.2f}",
+            f"{state.best_energy:.2f}",
         )
+        table.add_row("Iterations", "", f"{state.num_steps} / {total_num_steps}")
         return table
 
     with Live() as live:
