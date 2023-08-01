@@ -31,7 +31,7 @@ def sample_seq_singlechain(model, alphabet, args):
     with open(args.outpath, 'w') as f:
         for i in range(args.num_samples):
             print(f'\nSampling.. ({i+1} of {args.num_samples})')
-            sampled_seq = model.sample(coords, temperature=args.temperature, device=torch.device('cuda'))
+            sampled_seq = model.sample(coords, temperature=args.temperature, device=torch.device(args.device))
             print('Sampled sequence:')
             print(sampled_seq)
             f.write(f'>sampled_seq_{i+1}\n')
@@ -96,6 +96,11 @@ def main():
             '--num-samples', type=int,
             help='number of sequences to sample',
             default=1,
+    )
+    parser.add_argument(
+            '--device', type=str,
+            help='torch device to use',
+            default='cuda',
     )
     parser.set_defaults(multichain_backbone=False)
     parser.add_argument(
