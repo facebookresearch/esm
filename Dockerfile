@@ -1,4 +1,3 @@
-# 11.3.1-base-ubuntu20.04
 FROM nvidia/cuda:11.8.0-base-ubuntu22.04 as base 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LANG C.UTF-8
