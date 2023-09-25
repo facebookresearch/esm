@@ -108,6 +108,8 @@ class TransformerLayer(nn.Module):
     def _init_submodules(self, add_bias_kv, use_esm1b_layer_norm):
         BertLayerNorm = ESM1bLayerNorm if use_esm1b_layer_norm else ESM1LayerNorm
 
+        # This code is taken from https://github.com/VITA-Group/HotProtein under the MIT license
+        
         if not self.use_sparse:
             self.self_attn = MultiheadAttention(
                 self.embed_dim,
