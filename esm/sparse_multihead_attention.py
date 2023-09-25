@@ -68,6 +68,8 @@ def with_incremental_state(cls):
 class SparseMultiheadAttention(nn.Module):
     """Multi-headed attention.
 
+    This class is taken from https://github.com/VITA-Group/HotProtein under the MIT license, which we also linked in our README.md
+
     See "Attention Is All You Need" for more details.
     """
 
