@@ -1,3 +1,8 @@
+# HotProt ESM Forked Repository
+
+This is a customized version of ESM from Meta. We are reusing the open-source code under the [MIT License](LICENSE). We also integrated code for a factorized sparse tuning implementation from the [HotProtein Repository](https://github.com/VITA-Group/HotProtein), also under the MIT License, which you can find [here](HotProteinLICENSE).
+
+
 # Evolutionary Scale Modeling
 
 [![atlas](https://user-images.githubusercontent.com/3605224/199301187-a9e38b3f-71a7-44be-94f4-db0d66143c53.png)](https://esmatlas.com)
