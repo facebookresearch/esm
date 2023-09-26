@@ -20,6 +20,7 @@ In December 2022, we released two simultaneous preprints on protein design.
 
 
 <details><summary><b>Citation</b></summary>
+
 For ESM2, ESMFold and ESM Atlas:
 ```bibtex
 @article{lin2023evolutionary,
