@@ -10,7 +10,7 @@ dependencies:
   - conda-forge::openmm=7.5.1
   - conda-forge::pdbfixer
   - conda-forge::cudatoolkit==11.3.*
-  - conda-forge::einops
+  - conda-forge::einops=0.6.1
   - conda-forge::fairscale
   - conda-forge::omegaconf
   - conda-forge::hydra-core
